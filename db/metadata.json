@@ -1,0 +1,16 @@
+[
+  {
+    "id": 0,
+    "name": "laptop",
+    "embedding": "db/embeddings/laptop.npy",
+    "ad_image": "db/ads/laptop_ad.png",
+    "ad_label": "Samsung Galaxy Book6 Pro"
+  },
+  {
+    "id": 1,
+    "name": "cell phone",
+    "embedding": "db/embeddings/cell_phone.npy",
+    "ad_image": "db/ads/iphone_ad.jpg",
+    "ad_label": "iPhone 17 Pro"
+  }
+]

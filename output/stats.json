@@ -1,0 +1,5672 @@
+{
+  "meta": {
+    "input": "input/IMG_6915.MOV",
+    "model": "yolo11n.pt",
+    "infer_size": 320,
+    "conf_threshold": 0.7,
+    "center_zone_ratio": 0.4,
+    "fps": 29.995427526291724
+  },
+  "summary": {
+    "frames_total": 328,
+    "frames_with_detection": 270,
+    "detection_rate": 0.8232,
+    "detections_total": 280,
+    "conf_min": 0.7075,
+    "conf_max": 0.9773,
+    "conf_mean": 0.926,
+    "latency_mean_ms": 24.97,
+    "latency_max_ms": 1048.11,
+    "per_class_count": {
+      "laptop": 280
+    }
+  },
+  "frames": [
+    {
+      "frame": 1,
+      "inference_ms": 1048.11,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8363,
+          "bbox": [
+            1293,
+            337,
+            1913,
+            789
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 2,
+      "inference_ms": 15.38,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 3,
+      "inference_ms": 14.16,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 4,
+      "inference_ms": 14.5,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 5,
+      "inference_ms": 13.93,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 6,
+      "inference_ms": 56.85,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8394,
+          "bbox": [
+            1236,
+            347,
+            1873,
+            805
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 7,
+      "inference_ms": 16.56,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8341,
+          "bbox": [
+            1226,
+            341,
+            1868,
+            813
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 8,
+      "inference_ms": 54.66,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.7155,
+          "bbox": [
+            1223,
+            349,
+            1858,
+            819
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 9,
+      "inference_ms": 37.86,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8907,
+          "bbox": [
+            1208,
+            347,
+            1844,
+            822
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 10,
+      "inference_ms": 45.64,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9013,
+          "bbox": [
+            1197,
+            345,
+            1822,
+            824
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 11,
+      "inference_ms": 42.98,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8957,
+          "bbox": [
+            1181,
+            349,
+            1815,
+            829
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 12,
+      "inference_ms": 35.15,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9033,
+          "bbox": [
+            1161,
+            344,
+            1800,
+            830
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 13,
+      "inference_ms": 20.5,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9121,
+          "bbox": [
+            1151,
+            350,
+            1782,
+            837
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 14,
+      "inference_ms": 37.23,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9308,
+          "bbox": [
+            1134,
+            358,
+            1773,
+            838
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 15,
+      "inference_ms": 36.82,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9147,
+          "bbox": [
+            1123,
+            353,
+            1752,
+            837
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 16,
+      "inference_ms": 42.1,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8659,
+          "bbox": [
+            1107,
+            344,
+            1734,
+            846
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 17,
+      "inference_ms": 18.18,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8413,
+          "bbox": [
+            1096,
+            341,
+            1722,
+            853
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 18,
+      "inference_ms": 27.92,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9299,
+          "bbox": [
+            1070,
+            346,
+            1704,
+            856
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 19,
+      "inference_ms": 16.73,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9322,
+          "bbox": [
+            1053,
+            352,
+            1688,
+            855
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 20,
+      "inference_ms": 17.69,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8677,
+          "bbox": [
+            1039,
+            342,
+            1678,
+            856
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 21,
+      "inference_ms": 18.89,
+      "stable_frames": 1,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.909,
+          "bbox": [
+            1026,
+            343,
+            1659,
+            858
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 22,
+      "inference_ms": 17.48,
+      "stable_frames": 2,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8772,
+          "bbox": [
+            1007,
+            349,
+            1641,
+            860
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 23,
+      "inference_ms": 19.63,
+      "stable_frames": 3,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9379,
+          "bbox": [
+            993,
+            336,
+            1623,
+            866
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 24,
+      "inference_ms": 19.74,
+      "stable_frames": 4,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9077,
+          "bbox": [
+            969,
+            337,
+            1606,
+            863
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 25,
+      "inference_ms": 40.65,
+      "stable_frames": 5,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9411,
+          "bbox": [
+            953,
+            336,
+            1589,
+            860
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 26,
+      "inference_ms": 37.94,
+      "stable_frames": 6,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9469,
+          "bbox": [
+            945,
+            336,
+            1573,
+            864
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 27,
+      "inference_ms": 17.24,
+      "stable_frames": 7,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9179,
+          "bbox": [
+            934,
+            335,
+            1557,
+            864
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 28,
+      "inference_ms": 19.09,
+      "stable_frames": 8,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9351,
+          "bbox": [
+            913,
+            326,
+            1543,
+            868
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 29,
+      "inference_ms": 42.84,
+      "stable_frames": 9,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9229,
+          "bbox": [
+            903,
+            325,
+            1524,
+            871
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 30,
+      "inference_ms": 27.44,
+      "stable_frames": 10,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9418,
+          "bbox": [
+            878,
+            308,
+            1517,
+            873
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 31,
+      "inference_ms": 43.3,
+      "stable_frames": 11,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9502,
+          "bbox": [
+            861,
+            314,
+            1495,
+            875
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 32,
+      "inference_ms": 17.94,
+      "stable_frames": 12,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9667,
+          "bbox": [
+            851,
+            317,
+            1486,
+            873
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 33,
+      "inference_ms": 18.54,
+      "stable_frames": 13,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9352,
+          "bbox": [
+            838,
+            328,
+            1469,
+            878
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 34,
+      "inference_ms": 36.58,
+      "stable_frames": 14,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9046,
+          "bbox": [
+            823,
+            324,
+            1457,
+            884
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 35,
+      "inference_ms": 16.1,
+      "stable_frames": 15,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9416,
+          "bbox": [
+            811,
+            322,
+            1446,
+            887
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 36,
+      "inference_ms": 25.68,
+      "stable_frames": 16,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9357,
+          "bbox": [
+            799,
+            323,
+            1439,
+            891
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 37,
+      "inference_ms": 17.7,
+      "stable_frames": 17,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9539,
+          "bbox": [
+            780,
+            329,
+            1424,
+            894
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 38,
+      "inference_ms": 17.53,
+      "stable_frames": 18,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9246,
+          "bbox": [
+            767,
+            310,
+            1415,
+            902
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 39,
+      "inference_ms": 18.99,
+      "stable_frames": 19,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.926,
+          "bbox": [
+            752,
+            322,
+            1400,
+            911
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 40,
+      "inference_ms": 41.2,
+      "stable_frames": 20,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8906,
+          "bbox": [
+            738,
+            314,
+            1394,
+            914
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 41,
+      "inference_ms": 17.72,
+      "stable_frames": 21,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9023,
+          "bbox": [
+            733,
+            316,
+            1390,
+            916
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 42,
+      "inference_ms": 17.7,
+      "stable_frames": 22,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.7534,
+          "bbox": [
+            726,
+            311,
+            1386,
+            919
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 43,
+      "inference_ms": 16.91,
+      "stable_frames": 23,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8437,
+          "bbox": [
+            717,
+            312,
+            1377,
+            927
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 44,
+      "inference_ms": 18.8,
+      "stable_frames": 24,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8821,
+          "bbox": [
+            707,
+            321,
+            1376,
+            939
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 45,
+      "inference_ms": 17.37,
+      "stable_frames": 25,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9185,
+          "bbox": [
+            696,
+            327,
+            1369,
+            950
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 46,
+      "inference_ms": 17.51,
+      "stable_frames": 26,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9327,
+          "bbox": [
+            681,
+            328,
+            1361,
+            958
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 47,
+      "inference_ms": 16.42,
+      "stable_frames": 27,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9189,
+          "bbox": [
+            666,
+            332,
+            1356,
+            963
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 48,
+      "inference_ms": 40.46,
+      "stable_frames": 28,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9137,
+          "bbox": [
+            649,
+            322,
+            1352,
+            968
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 49,
+      "inference_ms": 19.37,
+      "stable_frames": 29,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9099,
+          "bbox": [
+            638,
+            334,
+            1347,
+            978
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 50,
+      "inference_ms": 18.66,
+      "stable_frames": 30,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9077,
+          "bbox": [
+            644,
+            329,
+            1338,
+            985
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 51,
+      "inference_ms": 21.67,
+      "stable_frames": 31,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8745,
+          "bbox": [
+            637,
+            324,
+            1329,
+            989
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 52,
+      "inference_ms": 20.37,
+      "stable_frames": 32,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8984,
+          "bbox": [
+            624,
+            326,
+            1333,
+            996
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 53,
+      "inference_ms": 26.68,
+      "stable_frames": 33,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9038,
+          "bbox": [
+            618,
+            307,
+            1307,
+            1001
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 54,
+      "inference_ms": 22.29,
+      "stable_frames": 34,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9097,
+          "bbox": [
+            604,
+            325,
+            1317,
+            1007
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 55,
+      "inference_ms": 19.03,
+      "stable_frames": 35,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9003,
+          "bbox": [
+            595,
+            323,
+            1308,
+            1011
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 56,
+      "inference_ms": 29.25,
+      "stable_frames": 36,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9196,
+          "bbox": [
+            588,
+            326,
+            1302,
+            1014
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 57,
+      "inference_ms": 42.31,
+      "stable_frames": 37,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9057,
+          "bbox": [
+            579,
+            327,
+            1296,
+            1018
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7466,
+          "bbox": [
+            276,
+            117,
+            665,
+            505
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 58,
+      "inference_ms": 28.08,
+      "stable_frames": 38,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9064,
+          "bbox": [
+            568,
+            330,
+            1291,
+            1021
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7502,
+          "bbox": [
+            265,
+            115,
+            652,
+            507
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 59,
+      "inference_ms": 50.68,
+      "stable_frames": 39,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9049,
+          "bbox": [
+            559,
+            324,
+            1285,
+            1022
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7555,
+          "bbox": [
+            247,
+            112,
+            642,
+            514
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 60,
+      "inference_ms": 22.44,
+      "stable_frames": 40,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9053,
+          "bbox": [
+            554,
+            322,
+            1277,
+            1026
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7452,
+          "bbox": [
+            237,
+            111,
+            633,
+            515
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 61,
+      "inference_ms": 39.22,
+      "stable_frames": 41,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9139,
+          "bbox": [
+            541,
+            335,
+            1273,
+            1029
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 62,
+      "inference_ms": 19.58,
+      "stable_frames": 42,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9008,
+          "bbox": [
+            537,
+            330,
+            1262,
+            1029
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 63,
+      "inference_ms": 27.38,
+      "stable_frames": 43,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9184,
+          "bbox": [
+            531,
+            331,
+            1256,
+            1028
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 64,
+      "inference_ms": 19.77,
+      "stable_frames": 44,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.915,
+          "bbox": [
+            518,
+            327,
+            1251,
+            1031
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 65,
+      "inference_ms": 22.72,
+      "stable_frames": 45,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.918,
+          "bbox": [
+            510,
+            319,
+            1244,
+            1031
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 66,
+      "inference_ms": 29.75,
+      "stable_frames": 46,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9303,
+          "bbox": [
+            496,
+            307,
+            1241,
+            1031
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 67,
+      "inference_ms": 15.86,
+      "stable_frames": 47,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9291,
+          "bbox": [
+            490,
+            322,
+            1235,
+            1032
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7075,
+          "bbox": [
+            150,
+            105,
+            572,
+            516
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 68,
+      "inference_ms": 17.45,
+      "stable_frames": 48,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9336,
+          "bbox": [
+            483,
+            315,
+            1227,
+            1035
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7411,
+          "bbox": [
+            142,
+            104,
+            563,
+            518
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 69,
+      "inference_ms": 17.13,
+      "stable_frames": 49,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9108,
+          "bbox": [
+            475,
+            314,
+            1219,
+            1032
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 70,
+      "inference_ms": 25.78,
+      "stable_frames": 50,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9067,
+          "bbox": [
+            463,
+            305,
+            1203,
+            1033
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 71,
+      "inference_ms": 17.91,
+      "stable_frames": 51,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9126,
+          "bbox": [
+            459,
+            315,
+            1202,
+            1035
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.708,
+          "bbox": [
+            109,
+            101,
+            535,
+            514
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 72,
+      "inference_ms": 19.11,
+      "stable_frames": 52,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9155,
+          "bbox": [
+            451,
+            300,
+            1198,
+            1032
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7322,
+          "bbox": [
+            104,
+            101,
+            530,
+            513
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 73,
+      "inference_ms": 23.89,
+      "stable_frames": 53,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9179,
+          "bbox": [
+            444,
+            289,
+            1189,
+            1034
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7122,
+          "bbox": [
+            91,
+            103,
+            527,
+            512
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 74,
+      "inference_ms": 21.92,
+      "stable_frames": 54,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9161,
+          "bbox": [
+            443,
+            292,
+            1185,
+            1035
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 75,
+      "inference_ms": 18.28,
+      "stable_frames": 55,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9167,
+          "bbox": [
+            439,
+            296,
+            1194,
+            1027
+          ],
+          "in_center_zone": true
+        },
+        {
+          "class": "laptop",
+          "conf": 0.7194,
+          "bbox": [
+            83,
+            91,
+            519,
+            512
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 76,
+      "inference_ms": 18.31,
+      "stable_frames": 56,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9126,
+          "bbox": [
+            430,
+            294,
+            1192,
+            1027
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 77,
+      "inference_ms": 23.48,
+      "stable_frames": 57,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9128,
+          "bbox": [
+            426,
+            283,
+            1179,
+            1029
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 78,
+      "inference_ms": 21.94,
+      "stable_frames": 58,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9146,
+          "bbox": [
+            424,
+            282,
+            1176,
+            1029
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 79,
+      "inference_ms": 18.29,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9201,
+          "bbox": [
+            417,
+            285,
+            1171,
+            1026
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 80,
+      "inference_ms": 17.28,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9283,
+          "bbox": [
+            418,
+            277,
+            1168,
+            1023
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 81,
+      "inference_ms": 20.4,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9235,
+          "bbox": [
+            415,
+            273,
+            1171,
+            1018
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 82,
+      "inference_ms": 19.45,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9137,
+          "bbox": [
+            414,
+            268,
+            1168,
+            1022
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 83,
+      "inference_ms": 16.37,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9272,
+          "bbox": [
+            414,
+            267,
+            1171,
+            1018
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 84,
+      "inference_ms": 24.29,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9202,
+          "bbox": [
+            418,
+            264,
+            1174,
+            1012
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 85,
+      "inference_ms": 19.78,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9169,
+          "bbox": [
+            420,
+            266,
+            1171,
+            1004
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 86,
+      "inference_ms": 17.11,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9121,
+          "bbox": [
+            419,
+            261,
+            1166,
+            1002
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 87,
+      "inference_ms": 20.73,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9163,
+          "bbox": [
+            420,
+            263,
+            1173,
+            998
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 88,
+      "inference_ms": 20.69,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9248,
+          "bbox": [
+            419,
+            256,
+            1175,
+            996
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 89,
+      "inference_ms": 16.74,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9333,
+          "bbox": [
+            425,
+            254,
+            1168,
+            990
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 90,
+      "inference_ms": 17.68,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9401,
+          "bbox": [
+            423,
+            252,
+            1174,
+            986
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 91,
+      "inference_ms": 23.13,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9324,
+          "bbox": [
+            422,
+            247,
+            1171,
+            981
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 92,
+      "inference_ms": 23.06,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9287,
+          "bbox": [
+            425,
+            249,
+            1175,
+            977
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 93,
+      "inference_ms": 19.6,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9156,
+          "bbox": [
+            419,
+            242,
+            1178,
+            974
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 94,
+      "inference_ms": 17.8,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9362,
+          "bbox": [
+            423,
+            240,
+            1174,
+            968
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 95,
+      "inference_ms": 22.76,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9233,
+          "bbox": [
+            419,
+            239,
+            1171,
+            967
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 96,
+      "inference_ms": 22.26,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9179,
+          "bbox": [
+            425,
+            243,
+            1167,
+            958
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 97,
+      "inference_ms": 20.77,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9217,
+          "bbox": [
+            419,
+            240,
+            1169,
+            961
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 98,
+      "inference_ms": 21.28,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9163,
+          "bbox": [
+            420,
+            242,
+            1166,
+            956
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 99,
+      "inference_ms": 29.33,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9193,
+          "bbox": [
+            425,
+            239,
+            1170,
+            950
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 100,
+      "inference_ms": 15.56,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9171,
+          "bbox": [
+            424,
+            242,
+            1167,
+            947
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 101,
+      "inference_ms": 19.51,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9225,
+          "bbox": [
+            427,
+            232,
+            1173,
+            942
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 102,
+      "inference_ms": 20.3,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9088,
+          "bbox": [
+            426,
+            239,
+            1172,
+            939
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 103,
+      "inference_ms": 28.5,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9064,
+          "bbox": [
+            429,
+            235,
+            1173,
+            932
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 104,
+      "inference_ms": 18.85,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9146,
+          "bbox": [
+            434,
+            237,
+            1174,
+            926
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 105,
+      "inference_ms": 18.03,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9132,
+          "bbox": [
+            438,
+            221,
+            1183,
+            917
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 106,
+      "inference_ms": 21.53,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.907,
+          "bbox": [
+            444,
+            222,
+            1188,
+            910
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 107,
+      "inference_ms": 22.93,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9043,
+          "bbox": [
+            446,
+            226,
+            1186,
+            895
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 108,
+      "inference_ms": 18.73,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8862,
+          "bbox": [
+            452,
+            219,
+            1196,
+            894
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 109,
+      "inference_ms": 21.12,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8873,
+          "bbox": [
+            454,
+            212,
+            1191,
+            880
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 110,
+      "inference_ms": 21.59,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8978,
+          "bbox": [
+            458,
+            219,
+            1197,
+            879
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 111,
+      "inference_ms": 22.23,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.877,
+          "bbox": [
+            470,
+            217,
+            1197,
+            873
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 112,
+      "inference_ms": 21.88,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.945,
+          "bbox": [
+            463,
+            210,
+            1200,
+            867
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 113,
+      "inference_ms": 19.34,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8937,
+          "bbox": [
+            483,
+            210,
+            1204,
+            860
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 114,
+      "inference_ms": 20.91,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8898,
+          "bbox": [
+            490,
+            212,
+            1203,
+            856
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 115,
+      "inference_ms": 23.3,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8313,
+          "bbox": [
+            499,
+            206,
+            1206,
+            840
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 116,
+      "inference_ms": 19.26,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.7767,
+          "bbox": [
+            502,
+            205,
+            1207,
+            836
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 117,
+      "inference_ms": 25.1,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8175,
+          "bbox": [
+            510,
+            205,
+            1206,
+            836
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 118,
+      "inference_ms": 23.31,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8965,
+          "bbox": [
+            518,
+            206,
+            1215,
+            823
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 119,
+      "inference_ms": 22.05,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9522,
+          "bbox": [
+            526,
+            209,
+            1220,
+            821
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 120,
+      "inference_ms": 21.83,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9608,
+          "bbox": [
+            528,
+            214,
+            1219,
+            814
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 121,
+      "inference_ms": 21.67,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9613,
+          "bbox": [
+            536,
+            209,
+            1217,
+            806
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 122,
+      "inference_ms": 21.15,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9571,
+          "bbox": [
+            541,
+            207,
+            1213,
+            803
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 123,
+      "inference_ms": 21.0,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9682,
+          "bbox": [
+            543,
+            211,
+            1221,
+            795
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 124,
+      "inference_ms": 18.76,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.974,
+          "bbox": [
+            548,
+            206,
+            1219,
+            792
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 125,
+      "inference_ms": 21.82,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9736,
+          "bbox": [
+            551,
+            208,
+            1218,
+            788
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 126,
+      "inference_ms": 21.9,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9773,
+          "bbox": [
+            556,
+            210,
+            1218,
+            788
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 127,
+      "inference_ms": 25.54,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9743,
+          "bbox": [
+            562,
+            211,
+            1219,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 128,
+      "inference_ms": 17.59,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9705,
+          "bbox": [
+            567,
+            213,
+            1223,
+            780
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 129,
+      "inference_ms": 21.98,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.975,
+          "bbox": [
+            572,
+            213,
+            1224,
+            778
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 130,
+      "inference_ms": 21.26,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9634,
+          "bbox": [
+            579,
+            219,
+            1223,
+            775
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 131,
+      "inference_ms": 25.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9624,
+          "bbox": [
+            580,
+            213,
+            1230,
+            774
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 132,
+      "inference_ms": 20.03,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9579,
+          "bbox": [
+            583,
+            213,
+            1228,
+            773
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 133,
+      "inference_ms": 19.48,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9683,
+          "bbox": [
+            584,
+            216,
+            1229,
+            774
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 134,
+      "inference_ms": 19.85,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9622,
+          "bbox": [
+            585,
+            225,
+            1224,
+            777
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 135,
+      "inference_ms": 27.42,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9647,
+          "bbox": [
+            586,
+            227,
+            1222,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 136,
+      "inference_ms": 19.38,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9602,
+          "bbox": [
+            588,
+            234,
+            1220,
+            783
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 137,
+      "inference_ms": 22.31,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9579,
+          "bbox": [
+            592,
+            233,
+            1221,
+            781
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 138,
+      "inference_ms": 22.56,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9607,
+          "bbox": [
+            593,
+            237,
+            1220,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 139,
+      "inference_ms": 22.5,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9586,
+          "bbox": [
+            591,
+            241,
+            1217,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 140,
+      "inference_ms": 14.47,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9549,
+          "bbox": [
+            589,
+            242,
+            1211,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 141,
+      "inference_ms": 19.09,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9609,
+          "bbox": [
+            591,
+            241,
+            1211,
+            782
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 142,
+      "inference_ms": 22.04,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9686,
+          "bbox": [
+            590,
+            241,
+            1207,
+            783
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 143,
+      "inference_ms": 20.89,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9454,
+          "bbox": [
+            587,
+            249,
+            1204,
+            784
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 144,
+      "inference_ms": 19.17,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9696,
+          "bbox": [
+            583,
+            252,
+            1200,
+            786
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 145,
+      "inference_ms": 20.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9637,
+          "bbox": [
+            583,
+            251,
+            1200,
+            785
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 146,
+      "inference_ms": 20.08,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9495,
+          "bbox": [
+            582,
+            263,
+            1198,
+            786
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 147,
+      "inference_ms": 22.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9709,
+          "bbox": [
+            581,
+            260,
+            1198,
+            787
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 148,
+      "inference_ms": 22.28,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.968,
+          "bbox": [
+            581,
+            268,
+            1196,
+            787
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 149,
+      "inference_ms": 24.42,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9692,
+          "bbox": [
+            578,
+            270,
+            1196,
+            789
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 150,
+      "inference_ms": 20.35,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9738,
+          "bbox": [
+            580,
+            267,
+            1188,
+            789
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 151,
+      "inference_ms": 21.29,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9588,
+          "bbox": [
+            576,
+            274,
+            1182,
+            791
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 152,
+      "inference_ms": 19.06,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9727,
+          "bbox": [
+            578,
+            265,
+            1179,
+            792
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 153,
+      "inference_ms": 20.42,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9662,
+          "bbox": [
+            576,
+            276,
+            1174,
+            794
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 154,
+      "inference_ms": 21.86,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.968,
+          "bbox": [
+            572,
+            280,
+            1171,
+            798
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 155,
+      "inference_ms": 23.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9663,
+          "bbox": [
+            573,
+            280,
+            1174,
+            797
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 156,
+      "inference_ms": 17.2,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9653,
+          "bbox": [
+            574,
+            285,
+            1171,
+            800
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 157,
+      "inference_ms": 21.64,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.964,
+          "bbox": [
+            573,
+            280,
+            1166,
+            796
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 158,
+      "inference_ms": 23.4,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9736,
+          "bbox": [
+            573,
+            294,
+            1168,
+            797
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 159,
+      "inference_ms": 21.64,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9639,
+          "bbox": [
+            578,
+            295,
+            1164,
+            797
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 160,
+      "inference_ms": 19.69,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9663,
+          "bbox": [
+            579,
+            299,
+            1168,
+            798
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 161,
+      "inference_ms": 17.46,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9679,
+          "bbox": [
+            579,
+            298,
+            1164,
+            800
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 162,
+      "inference_ms": 22.33,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9625,
+          "bbox": [
+            582,
+            300,
+            1164,
+            802
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 163,
+      "inference_ms": 22.71,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9634,
+          "bbox": [
+            578,
+            303,
+            1161,
+            805
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 164,
+      "inference_ms": 20.59,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9614,
+          "bbox": [
+            581,
+            304,
+            1160,
+            804
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 165,
+      "inference_ms": 20.2,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9601,
+          "bbox": [
+            582,
+            302,
+            1158,
+            804
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 166,
+      "inference_ms": 29.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9412,
+          "bbox": [
+            581,
+            303,
+            1158,
+            808
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 167,
+      "inference_ms": 23.63,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9413,
+          "bbox": [
+            581,
+            305,
+            1154,
+            809
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 168,
+      "inference_ms": 14.84,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9619,
+          "bbox": [
+            580,
+            309,
+            1155,
+            811
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 169,
+      "inference_ms": 17.8,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9612,
+          "bbox": [
+            579,
+            308,
+            1157,
+            814
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 170,
+      "inference_ms": 18.77,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9609,
+          "bbox": [
+            581,
+            314,
+            1154,
+            815
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 171,
+      "inference_ms": 24.65,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9569,
+          "bbox": [
+            580,
+            309,
+            1156,
+            816
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 172,
+      "inference_ms": 20.53,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9636,
+          "bbox": [
+            582,
+            313,
+            1155,
+            819
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 173,
+      "inference_ms": 17.08,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9657,
+          "bbox": [
+            580,
+            316,
+            1153,
+            818
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 174,
+      "inference_ms": 18.15,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9612,
+          "bbox": [
+            581,
+            320,
+            1154,
+            819
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 175,
+      "inference_ms": 20.32,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9624,
+          "bbox": [
+            581,
+            322,
+            1156,
+            822
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 176,
+      "inference_ms": 29.5,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9629,
+          "bbox": [
+            577,
+            325,
+            1156,
+            822
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 177,
+      "inference_ms": 27.44,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9594,
+          "bbox": [
+            580,
+            319,
+            1159,
+            823
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 178,
+      "inference_ms": 23.47,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9623,
+          "bbox": [
+            580,
+            311,
+            1157,
+            825
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 179,
+      "inference_ms": 22.95,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9647,
+          "bbox": [
+            578,
+            321,
+            1156,
+            824
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 180,
+      "inference_ms": 19.4,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9568,
+          "bbox": [
+            580,
+            312,
+            1159,
+            827
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 181,
+      "inference_ms": 21.76,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9651,
+          "bbox": [
+            582,
+            315,
+            1157,
+            829
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 182,
+      "inference_ms": 23.89,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9603,
+          "bbox": [
+            576,
+            325,
+            1154,
+            830
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 183,
+      "inference_ms": 19.48,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9581,
+          "bbox": [
+            577,
+            328,
+            1155,
+            834
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 184,
+      "inference_ms": 19.98,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9567,
+          "bbox": [
+            578,
+            324,
+            1157,
+            838
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 185,
+      "inference_ms": 23.41,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9584,
+          "bbox": [
+            579,
+            325,
+            1154,
+            840
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 186,
+      "inference_ms": 16.82,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9605,
+          "bbox": [
+            580,
+            329,
+            1154,
+            839
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 187,
+      "inference_ms": 23.16,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9568,
+          "bbox": [
+            576,
+            325,
+            1155,
+            842
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 188,
+      "inference_ms": 12.76,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9646,
+          "bbox": [
+            575,
+            336,
+            1152,
+            846
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 189,
+      "inference_ms": 18.91,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9613,
+          "bbox": [
+            576,
+            336,
+            1151,
+            846
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 190,
+      "inference_ms": 22.53,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9624,
+          "bbox": [
+            575,
+            342,
+            1152,
+            848
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 191,
+      "inference_ms": 25.2,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9647,
+          "bbox": [
+            574,
+            347,
+            1151,
+            852
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 192,
+      "inference_ms": 20.23,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9606,
+          "bbox": [
+            574,
+            345,
+            1154,
+            854
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 193,
+      "inference_ms": 23.03,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9691,
+          "bbox": [
+            576,
+            343,
+            1155,
+            854
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 194,
+      "inference_ms": 22.47,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9656,
+          "bbox": [
+            573,
+            350,
+            1151,
+            852
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 195,
+      "inference_ms": 21.23,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9605,
+          "bbox": [
+            572,
+            346,
+            1152,
+            856
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 196,
+      "inference_ms": 18.19,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9554,
+          "bbox": [
+            569,
+            346,
+            1150,
+            858
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 197,
+      "inference_ms": 20.13,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9532,
+          "bbox": [
+            569,
+            342,
+            1149,
+            860
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 198,
+      "inference_ms": 20.51,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9551,
+          "bbox": [
+            568,
+            345,
+            1150,
+            859
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 199,
+      "inference_ms": 24.29,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9585,
+          "bbox": [
+            568,
+            347,
+            1150,
+            862
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 200,
+      "inference_ms": 20.59,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9615,
+          "bbox": [
+            570,
+            343,
+            1147,
+            863
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 201,
+      "inference_ms": 21.46,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.955,
+          "bbox": [
+            569,
+            347,
+            1146,
+            863
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 202,
+      "inference_ms": 21.74,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9629,
+          "bbox": [
+            566,
+            351,
+            1147,
+            864
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 203,
+      "inference_ms": 22.32,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9554,
+          "bbox": [
+            564,
+            350,
+            1144,
+            866
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 204,
+      "inference_ms": 19.13,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9569,
+          "bbox": [
+            564,
+            350,
+            1148,
+            867
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 205,
+      "inference_ms": 20.47,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9553,
+          "bbox": [
+            563,
+            351,
+            1150,
+            868
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 206,
+      "inference_ms": 22.39,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9543,
+          "bbox": [
+            560,
+            351,
+            1148,
+            866
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 207,
+      "inference_ms": 18.38,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9501,
+          "bbox": [
+            561,
+            357,
+            1147,
+            868
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 208,
+      "inference_ms": 22.41,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9527,
+          "bbox": [
+            560,
+            360,
+            1145,
+            873
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 209,
+      "inference_ms": 16.73,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9498,
+          "bbox": [
+            560,
+            364,
+            1145,
+            875
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 210,
+      "inference_ms": 23.46,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9565,
+          "bbox": [
+            557,
+            362,
+            1145,
+            877
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 211,
+      "inference_ms": 22.11,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9607,
+          "bbox": [
+            556,
+            367,
+            1140,
+            876
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 212,
+      "inference_ms": 17.66,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9607,
+          "bbox": [
+            554,
+            369,
+            1140,
+            877
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 213,
+      "inference_ms": 20.54,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9635,
+          "bbox": [
+            554,
+            361,
+            1139,
+            878
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 214,
+      "inference_ms": 18.75,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9678,
+          "bbox": [
+            548,
+            360,
+            1131,
+            877
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 215,
+      "inference_ms": 26.55,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9655,
+          "bbox": [
+            550,
+            360,
+            1135,
+            880
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 216,
+      "inference_ms": 12.87,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9694,
+          "bbox": [
+            546,
+            355,
+            1137,
+            883
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 217,
+      "inference_ms": 18.32,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9594,
+          "bbox": [
+            549,
+            358,
+            1133,
+            887
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 218,
+      "inference_ms": 25.15,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9603,
+          "bbox": [
+            543,
+            360,
+            1126,
+            886
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 219,
+      "inference_ms": 24.86,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9424,
+          "bbox": [
+            543,
+            355,
+            1130,
+            882
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 220,
+      "inference_ms": 18.63,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9415,
+          "bbox": [
+            537,
+            356,
+            1125,
+            885
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 221,
+      "inference_ms": 20.98,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.957,
+          "bbox": [
+            532,
+            355,
+            1121,
+            885
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 222,
+      "inference_ms": 23.64,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9612,
+          "bbox": [
+            531,
+            350,
+            1120,
+            884
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 223,
+      "inference_ms": 24.76,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9639,
+          "bbox": [
+            526,
+            352,
+            1119,
+            886
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 224,
+      "inference_ms": 19.97,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9602,
+          "bbox": [
+            525,
+            357,
+            1113,
+            887
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 225,
+      "inference_ms": 21.62,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9533,
+          "bbox": [
+            523,
+            360,
+            1112,
+            891
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 226,
+      "inference_ms": 18.82,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9495,
+          "bbox": [
+            520,
+            359,
+            1117,
+            889
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 227,
+      "inference_ms": 24.22,
+      "stable_frames": 59,
+      "anchor_state": "ACTIVE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9561,
+          "bbox": [
+            516,
+            348,
+            1113,
+            891
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 228,
+      "inference_ms": 18.81,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9505,
+          "bbox": [
+            506,
+            347,
+            1107,
+            892
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 229,
+      "inference_ms": 18.52,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9554,
+          "bbox": [
+            500,
+            361,
+            1096,
+            894
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 230,
+      "inference_ms": 20.87,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9542,
+          "bbox": [
+            492,
+            364,
+            1084,
+            891
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 231,
+      "inference_ms": 17.05,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9466,
+          "bbox": [
+            483,
+            354,
+            1082,
+            894
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 232,
+      "inference_ms": 17.85,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9527,
+          "bbox": [
+            478,
+            354,
+            1075,
+            893
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 233,
+      "inference_ms": 20.04,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9523,
+          "bbox": [
+            473,
+            366,
+            1070,
+            896
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 234,
+      "inference_ms": 25.56,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9548,
+          "bbox": [
+            463,
+            363,
+            1063,
+            892
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 235,
+      "inference_ms": 21.43,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9471,
+          "bbox": [
+            456,
+            363,
+            1059,
+            895
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 236,
+      "inference_ms": 16.04,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9501,
+          "bbox": [
+            448,
+            355,
+            1054,
+            899
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 237,
+      "inference_ms": 21.0,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9562,
+          "bbox": [
+            442,
+            370,
+            1037,
+            900
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 238,
+      "inference_ms": 20.02,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9482,
+          "bbox": [
+            438,
+            361,
+            1027,
+            901
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 239,
+      "inference_ms": 23.48,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9394,
+          "bbox": [
+            428,
+            356,
+            1023,
+            903
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 240,
+      "inference_ms": 19.37,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9552,
+          "bbox": [
+            418,
+            362,
+            1014,
+            904
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 241,
+      "inference_ms": 19.43,
+      "stable_frames": 59,
+      "anchor_state": "FADE_OUT",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9425,
+          "bbox": [
+            407,
+            361,
+            1005,
+            908
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 242,
+      "inference_ms": 20.36,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.918,
+          "bbox": [
+            394,
+            363,
+            990,
+            912
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 243,
+      "inference_ms": 20.57,
+      "stable_frames": 1,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9433,
+          "bbox": [
+            382,
+            369,
+            982,
+            914
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 244,
+      "inference_ms": 17.38,
+      "stable_frames": 2,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9459,
+          "bbox": [
+            369,
+            371,
+            965,
+            917
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 245,
+      "inference_ms": 21.93,
+      "stable_frames": 3,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9361,
+          "bbox": [
+            347,
+            355,
+            959,
+            918
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 246,
+      "inference_ms": 21.0,
+      "stable_frames": 4,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9521,
+          "bbox": [
+            340,
+            379,
+            938,
+            923
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 247,
+      "inference_ms": 23.99,
+      "stable_frames": 5,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.934,
+          "bbox": [
+            325,
+            361,
+            922,
+            924
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 248,
+      "inference_ms": 18.42,
+      "stable_frames": 6,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9472,
+          "bbox": [
+            302,
+            363,
+            910,
+            932
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 249,
+      "inference_ms": 18.65,
+      "stable_frames": 7,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9552,
+          "bbox": [
+            278,
+            388,
+            889,
+            939
+          ],
+          "in_center_zone": true
+        }
+      ]
+    },
+    {
+      "frame": 250,
+      "inference_ms": 21.98,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9503,
+          "bbox": [
+            254,
+            385,
+            864,
+            945
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 251,
+      "inference_ms": 24.15,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.958,
+          "bbox": [
+            233,
+            389,
+            847,
+            950
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 252,
+      "inference_ms": 16.28,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9578,
+          "bbox": [
+            205,
+            375,
+            819,
+            957
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 253,
+      "inference_ms": 18.65,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9566,
+          "bbox": [
+            179,
+            389,
+            802,
+            963
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 254,
+      "inference_ms": 23.71,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9411,
+          "bbox": [
+            155,
+            397,
+            770,
+            966
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 255,
+      "inference_ms": 21.44,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9518,
+          "bbox": [
+            132,
+            391,
+            756,
+            973
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 256,
+      "inference_ms": 18.32,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9465,
+          "bbox": [
+            101,
+            396,
+            723,
+            979
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 257,
+      "inference_ms": 21.05,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9428,
+          "bbox": [
+            72,
+            403,
+            708,
+            985
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 258,
+      "inference_ms": 25.29,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8988,
+          "bbox": [
+            48,
+            407,
+            677,
+            990
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 259,
+      "inference_ms": 23.77,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9331,
+          "bbox": [
+            29,
+            414,
+            664,
+            996
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 260,
+      "inference_ms": 16.93,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9233,
+          "bbox": [
+            4,
+            403,
+            632,
+            1000
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 261,
+      "inference_ms": 19.84,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9409,
+          "bbox": [
+            0,
+            415,
+            615,
+            1004
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 262,
+      "inference_ms": 22.0,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9432,
+          "bbox": [
+            0,
+            412,
+            583,
+            1014
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 263,
+      "inference_ms": 21.73,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8549,
+          "bbox": [
+            0,
+            420,
+            568,
+            1016
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 264,
+      "inference_ms": 19.71,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9069,
+          "bbox": [
+            0,
+            417,
+            540,
+            1022
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 265,
+      "inference_ms": 24.4,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9308,
+          "bbox": [
+            0,
+            421,
+            516,
+            1029
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 266,
+      "inference_ms": 24.01,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8952,
+          "bbox": [
+            0,
+            423,
+            489,
+            1037
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 267,
+      "inference_ms": 21.93,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8627,
+          "bbox": [
+            0,
+            428,
+            470,
+            1043
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 268,
+      "inference_ms": 20.5,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8934,
+          "bbox": [
+            0,
+            432,
+            448,
+            1052
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 269,
+      "inference_ms": 44.68,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9394,
+          "bbox": [
+            0,
+            431,
+            419,
+            1054
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 270,
+      "inference_ms": 18.79,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9273,
+          "bbox": [
+            0,
+            434,
+            384,
+            1048
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 271,
+      "inference_ms": 23.72,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9454,
+          "bbox": [
+            0,
+            427,
+            368,
+            1038
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 272,
+      "inference_ms": 19.31,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9148,
+          "bbox": [
+            0,
+            446,
+            342,
+            1025
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 273,
+      "inference_ms": 23.4,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.9039,
+          "bbox": [
+            0,
+            451,
+            317,
+            1017
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 274,
+      "inference_ms": 26.79,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 275,
+      "inference_ms": 28.67,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": [
+        {
+          "class": "laptop",
+          "conf": 0.8698,
+          "bbox": [
+            0,
+            462,
+            274,
+            1003
+          ],
+          "in_center_zone": false
+        }
+      ]
+    },
+    {
+      "frame": 276,
+      "inference_ms": 19.27,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 277,
+      "inference_ms": 22.64,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 278,
+      "inference_ms": 17.39,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 279,
+      "inference_ms": 20.65,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 280,
+      "inference_ms": 16.27,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 281,
+      "inference_ms": 16.04,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 282,
+      "inference_ms": 21.05,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 283,
+      "inference_ms": 26.06,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 284,
+      "inference_ms": 19.45,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 285,
+      "inference_ms": 22.21,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 286,
+      "inference_ms": 23.01,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 287,
+      "inference_ms": 18.94,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 288,
+      "inference_ms": 19.5,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 289,
+      "inference_ms": 21.86,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 290,
+      "inference_ms": 25.53,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 291,
+      "inference_ms": 22.17,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 292,
+      "inference_ms": 18.28,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 293,
+      "inference_ms": 19.13,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 294,
+      "inference_ms": 25.51,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 295,
+      "inference_ms": 16.38,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 296,
+      "inference_ms": 17.78,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 297,
+      "inference_ms": 18.35,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 298,
+      "inference_ms": 23.75,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 299,
+      "inference_ms": 19.17,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 300,
+      "inference_ms": 13.45,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 301,
+      "inference_ms": 15.63,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 302,
+      "inference_ms": 17.95,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 303,
+      "inference_ms": 20.43,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 304,
+      "inference_ms": 14.07,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 305,
+      "inference_ms": 13.97,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 306,
+      "inference_ms": 27.65,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 307,
+      "inference_ms": 17.54,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 308,
+      "inference_ms": 16.56,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 309,
+      "inference_ms": 15.94,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 310,
+      "inference_ms": 22.16,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 311,
+      "inference_ms": 20.25,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 312,
+      "inference_ms": 14.53,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 313,
+      "inference_ms": 17.83,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 314,
+      "inference_ms": 24.87,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 315,
+      "inference_ms": 16.13,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 316,
+      "inference_ms": 14.46,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 317,
+      "inference_ms": 15.99,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 318,
+      "inference_ms": 25.66,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 319,
+      "inference_ms": 22.4,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 320,
+      "inference_ms": 14.02,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 321,
+      "inference_ms": 23.58,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 322,
+      "inference_ms": 16.65,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 323,
+      "inference_ms": 13.77,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 324,
+      "inference_ms": 17.55,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 325,
+      "inference_ms": 13.37,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 326,
+      "inference_ms": 15.67,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 327,
+      "inference_ms": 15.96,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    },
+    {
+      "frame": 328,
+      "inference_ms": 19.28,
+      "stable_frames": 0,
+      "anchor_state": "IDLE",
+      "detections": []
+    }
+  ]
+}
