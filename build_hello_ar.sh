@@ -12,7 +12,8 @@ ASSETS_PREP="$HOME/Desktop/AR_project/unity_assets_prep"
 LOG_DIR="$HOME/Desktop/AR_project/unity_logs"
 APK_PATH="$PROJECT_DIR/Build/EagleEye-HelloAR.apk"
 PACKAGE_NAME="com.eagleeye.helloar"
-ACTIVITY="com.unity3d.player.UnityPlayerActivity"
+# Unity 6 IL2CPP 기본 액티비티: UnityPlayerGameActivity (구버전은 UnityPlayerActivity)
+# 어느 쪽이든 monkey로 LAUNCHER intent만 보내면 정확한 클래스 몰라도 실행됨
 
 mkdir -p "$LOG_DIR"
 
@@ -35,8 +36,9 @@ echo "[2/5] Assets 복사 (HelloAR.cs + BuildHelloAR.cs)"
 echo "============================================================"
 mkdir -p "$PROJECT_DIR/Assets/Scripts"
 mkdir -p "$PROJECT_DIR/Assets/Editor"
-cp "$ASSETS_PREP/Scripts/HelloAR.cs" "$PROJECT_DIR/Assets/Scripts/"
-cp "$ASSETS_PREP/Editor/BuildHelloAR.cs" "$PROJECT_DIR/Assets/Editor/"
+cp "$ASSETS_PREP/Scripts/"*.cs "$PROJECT_DIR/Assets/Scripts/"
+cp "$ASSETS_PREP/Editor/"*.cs "$PROJECT_DIR/Assets/Editor/"
+# CAMERA 권한은 Unity가 WebCamTexture 사용 감지하면 자동 추가 (커스텀 manifest 없이도 OK)
 ls -la "$PROJECT_DIR/Assets/Scripts/" "$PROJECT_DIR/Assets/Editor/"
 
 echo ""
@@ -65,10 +67,11 @@ adb install -r "$APK_PATH"
 
 echo ""
 echo "============================================================"
-echo "[5/5] 안경에서 앱 실행"
+echo "[5/5] 안경에서 앱 실행 (am start, Unity 6 IL2CPP 기본 액티비티)"
 echo "============================================================"
-adb shell am start -n "${PACKAGE_NAME}/${ACTIVITY}"
+adb shell am start -n "${PACKAGE_NAME}/com.unity3d.player.UnityPlayerGameActivity" 2>&1 | tail -3 || \
+    adb shell am start -n "${PACKAGE_NAME}/com.unity3d.player.UnityPlayerActivity" 2>&1 | tail -3
 echo ""
 echo "  실행 명령 보냈음. 안경 디스플레이 확인."
-echo "  로그 모니터:  adb logcat -s Unity:V HelloAR:V"
+echo "  로그 모니터:  adb logcat -s Unity:V HelloAR:V CameraPreview:V"
 echo "  종료:         adb shell am force-stop ${PACKAGE_NAME}"

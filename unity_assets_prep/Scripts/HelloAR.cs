@@ -1,55 +1,120 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-// Hello AR — Eagle Eye PoC v0.1
-// 런타임에 Canvas + Text를 동적 생성. 검은 배경(=웨이브가이드 투명) + 흰 텍스트.
-// AR 글라스 디스플레이에 "Hello AR" 텍스트가 공중에 떠있는 것처럼 보이도록.
+// Eagle Eye PoC v0.2.0
+// - Stereo SBS 렌더링 (좌/우 절반에 동일 UI)
+// - GyroTrigger (one-shot per stable window)
+// - **NEW**: 카메라 라이브 프리뷰 (배경)
 public class HelloAR : MonoBehaviour
 {
+    GyroTrigger gyro;
+    CameraPreview cam;
+    float triggerFlashUntil = -1f;
+
+    GUIStyle big, small, flash, statusStyle;
+
     void Awake()
     {
-        Camera cam = Camera.main;
-        if (cam == null)
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
         {
             GameObject camObj = new GameObject("Main Camera");
-            cam = camObj.AddComponent<Camera>();
+            mainCam = camObj.AddComponent<Camera>();
             camObj.tag = "MainCamera";
         }
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = Color.black;
+        mainCam.clearFlags = CameraClearFlags.SolidColor;
+        mainCam.backgroundColor = Color.black;
 
-        GameObject canvasObj = new GameObject("HelloCanvas");
-        Canvas canvas = canvasObj.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvasObj.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-        canvasObj.AddComponent<GraphicRaycaster>();
+        gyro = gameObject.AddComponent<GyroTrigger>();
+        gyro.OnTrigger += HandleTrigger;
 
-        AddText(canvas.transform, "Hello AR", 80, new Vector2(0, 40), FontStyle.Bold);
-        AddText(canvas.transform, "Eagle Eye PoC v0.1", 32, new Vector2(0, -40), FontStyle.Normal);
+        cam = gameObject.AddComponent<CameraPreview>();
 
-        Debug.Log("[HelloAR] Initialized. Canvas + Text created.");
+        Debug.Log("[HelloAR] Init complete (v0.2.0). Gyro + Camera attached.");
     }
 
-    void AddText(Transform parent, string content, int size, Vector2 offset, FontStyle style)
+    void HandleTrigger()
     {
-        GameObject obj = new GameObject($"Text_{content}");
-        obj.transform.SetParent(parent, false);
+        triggerFlashUntil = Time.time + 1.0f;
+    }
 
-        Text text = obj.AddComponent<Text>();
-        text.text = content;
-        text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        text.fontSize = size;
-        text.fontStyle = style;
-        text.color = Color.white;
-        text.alignment = TextAnchor.MiddleCenter;
-        text.horizontalOverflow = HorizontalWrapMode.Overflow;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
+    void EnsureStyles()
+    {
+        if (big != null) return;
 
-        RectTransform rt = obj.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = offset;
-        rt.sizeDelta = new Vector2(800, size + 10);
+        big = new GUIStyle();
+        big.fontSize = 36;
+        big.fontStyle = FontStyle.Bold;
+        big.alignment = TextAnchor.MiddleCenter;
+        big.normal.textColor = Color.white;
+
+        small = new GUIStyle();
+        small.fontSize = 16;
+        small.alignment = TextAnchor.MiddleCenter;
+        small.normal.textColor = Color.white;
+
+        flash = new GUIStyle();
+        flash.fontSize = 44;
+        flash.fontStyle = FontStyle.Bold;
+        flash.alignment = TextAnchor.MiddleCenter;
+        flash.normal.textColor = new Color(0.2f, 1f, 0.3f);
+
+        statusStyle = new GUIStyle();
+        statusStyle.fontSize = 14;
+        statusStyle.alignment = TextAnchor.MiddleCenter;
+        statusStyle.normal.textColor = new Color(1f, 0.85f, 0.3f);  // 노란 — 상태 메시지
+    }
+
+    void OnGUI()
+    {
+        EnsureStyles();
+        if (gyro == null) return;
+
+        int halfW = Screen.width / 2;
+        int h = Screen.height;
+
+        DrawEye(0, 0, halfW, h);
+        DrawEye(halfW, 0, halfW, h);
+    }
+
+    void DrawEye(int x0, int y0, int w, int h)
+    {
+        // 1. 배경: 카메라 라이브 프리뷰 (있으면)
+        if (cam != null && cam.isReady && cam.webCamTex != null)
+        {
+            GUI.DrawTexture(new Rect(x0, y0, w, h), cam.webCamTex, ScaleMode.ScaleAndCrop);
+        }
+        else
+        {
+            // 검은색 사각형 (카메라 아직 준비 안 됐을 때)
+            GUI.DrawTexture(new Rect(x0, y0, w, h), Texture2D.blackTexture);
+        }
+
+        int cx = x0 + w / 2;
+        int cy = y0 + h / 2;
+        int labelW = Mathf.Min(w - 40, 600);
+        int xOff = cx - labelW / 2;
+
+        // 2. 타이틀
+        GUI.Label(new Rect(xOff, y0 + 20, labelW, 48), "Eagle Eye v0.2.0", big);
+
+        // 3. 카메라 상태
+        string camStatus = cam != null ? cam.statusMessage : "(camera component none)";
+        GUI.Label(new Rect(xOff, y0 + 70, labelW, 22), $"cam: {camStatus}", statusStyle);
+
+        // 4. 자이로 텔레메트리 (하단)
+        Vector3 g = gyro.currentGyro;
+        int yBottom = y0 + h - 100;
+        GUI.Label(new Rect(xOff, yBottom + 0,  labelW, 22),
+            $"gyro: ({g.x:F2}, {g.y:F2}, {g.z:F2})  max: {gyro.currentMaxAbs:F2}", small);
+        GUI.Label(new Rect(xOff, yBottom + 24, labelW, 22),
+            $"stable: {gyro.isStable}  elapsed: {gyro.stableElapsed:F2}s / {gyro.stableDuration:F1}s", small);
+        GUI.Label(new Rect(xOff, yBottom + 48, labelW, 22),
+            $"triggers: {gyro.totalTriggers}", small);
+
+        // 5. 트리거 깜빡
+        if (Time.time < triggerFlashUntil)
+        {
+            GUI.Label(new Rect(xOff, cy - 30, labelW, 60), "▶ TRIGGER ◀", flash);
+        }
     }
 }

@@ -97,11 +97,11 @@ public static class BuildHelloAR
     static void ConfigureAndroidSettings()
     {
         PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel31;
-        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel32;
+        PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevel34;
         PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARM64;
 
         PlayerSettings.SetScriptingBackend(NamedBuildTarget.Android, ScriptingImplementation.IL2CPP);
-        PlayerSettings.SetApiCompatibilityLevel(NamedBuildTarget.Android, ApiCompatibilityLevel.NET_Standard_2_1);
+        // NET API 호환성 레벨은 기본값 유지 (Unity 6에서 enum 이름이 NET_Standard로 변경됨)
 
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
