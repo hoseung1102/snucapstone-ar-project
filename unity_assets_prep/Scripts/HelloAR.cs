@@ -81,11 +81,41 @@ public class HelloAR : MonoBehaviour
         // 1. 배경: 카메라 라이브 프리뷰 (있으면)
         if (cam != null && cam.isReady && cam.webCamTex != null)
         {
-            GUI.DrawTexture(new Rect(x0, y0, w, h), cam.webCamTex, ScaleMode.ScaleAndCrop);
+            Rect rect = new Rect(x0, y0, w, h);
+            int rotation = cam.webCamTex.videoRotationAngle;  // Android 센서 orientation 보정값
+            bool mirror = cam.webCamTex.videoVerticallyMirrored;
+
+            if (rotation != 0 || mirror)
+            {
+                Matrix4x4 saved = GUI.matrix;
+                Vector2 pivot = new Vector2(x0 + w / 2f, y0 + h / 2f);
+
+                // 회전 (90°/180°/270°)
+                if (rotation != 0)
+                {
+                    GUIUtility.RotateAroundPivot(rotation, pivot);
+                }
+
+                // 수직 미러 (필요 시)
+                if (mirror)
+                {
+                    Matrix4x4 m = GUI.matrix;
+                    GUI.matrix = m * Matrix4x4.TRS(
+                        new Vector3(0, 2f * pivot.y, 0),
+                        Quaternion.identity,
+                        new Vector3(1, -1, 1));
+                }
+
+                GUI.DrawTexture(rect, cam.webCamTex, ScaleMode.ScaleAndCrop);
+                GUI.matrix = saved;
+            }
+            else
+            {
+                GUI.DrawTexture(rect, cam.webCamTex, ScaleMode.ScaleAndCrop);
+            }
         }
         else
         {
-            // 검은색 사각형 (카메라 아직 준비 안 됐을 때)
             GUI.DrawTexture(new Rect(x0, y0, w, h), Texture2D.blackTexture);
         }
 

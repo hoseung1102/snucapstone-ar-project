@@ -66,8 +66,8 @@ public class CameraPreview : MonoBehaviour
         }
 
         isReady = true;
-        statusMessage = $"✅ {webCamTex.width}×{webCamTex.height} @ {webCamTex.requestedFPS}fps  ({devices[0].name})";
-        Debug.Log($"[CameraPreview] {statusMessage}");
+        statusMessage = $"✅ {webCamTex.width}×{webCamTex.height} @ {webCamTex.requestedFPS}fps  rot={webCamTex.videoRotationAngle}° mir={webCamTex.videoVerticallyMirrored}";
+        Debug.Log($"[CameraPreview] {statusMessage}  device={devices[0].name}");
     }
 
     void OnDestroy()
