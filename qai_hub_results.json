@@ -1,0 +1,18 @@
+{
+  "yolo": {
+    "profile_job_id": "jgl7o3xm5",
+    "summary": {
+      "estimated_inference_time_us": 2381,
+      "compute_unit_breakdown": {}
+    },
+    "binary": "yolo11n.qnn_context.bin"
+  },
+  "clip": {
+    "profile_job_id": "jgj1oe7eg",
+    "summary": {
+      "estimated_inference_time_us": 16036,
+      "compute_unit_breakdown": {}
+    },
+    "binary": "mobileclip_s2_image.qnn_context.bin"
+  }
+}

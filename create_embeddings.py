@@ -36,8 +36,8 @@ EMBEDDINGS_DIR.mkdir(parents=True, exist_ok=True)
 # "영상 속 물체가 이 광고의 상품과 얼마나 비슷한가"를 CLIP이 판단.
 PRODUCT_DEFS = {
     # key: 레퍼런스로 쓸 이미지 경로 / value: (id, 이름, 광고 이미지 파일명)
-    "db/ads/laptop_ad.png": (0, "laptop", "laptop_ad.png"),
-    "db/ads/iphone_ad.jpg": (1, "cell phone", "iphone_ad.jpg"),
+    "products/laptop_ref.jpg": (0, "laptop", "laptop_ad.png"),
+    "db/ads/iphone_ad.jpg":    (1, "cell phone", "iphone_ad.jpg"),
 }
 # ─────────────────────────────────────────────────────────────
 
@@ -59,7 +59,7 @@ for ref_filename, (prod_id, name, ad_filename) in PRODUCT_DEFS.items():
         emb = emb / emb.norm(dim=-1, keepdim=True)  # L2 정규화
 
     emb_np = emb.cpu().float().numpy()  # (1, 512)
-    emb_path = EMBEDDINGS_DIR / f"{name}.npy"
+    emb_path = EMBEDDINGS_DIR / f"{name.replace(' ', '_')}.npy"
     np.save(emb_path, emb_np)
 
     ad_labels = {
