@@ -32,14 +32,36 @@ fi
 
 echo ""
 echo "============================================================"
-echo "[2/5] Assets 복사 (HelloAR.cs + BuildHelloAR.cs)"
+echo "[2/5] Assets + Packages 복사"
 echo "============================================================"
 mkdir -p "$PROJECT_DIR/Assets/Scripts"
 mkdir -p "$PROJECT_DIR/Assets/Editor"
+mkdir -p "$PROJECT_DIR/Assets/Resources"
+mkdir -p "$PROJECT_DIR/Packages"
+
+# C# 스크립트
 cp "$ASSETS_PREP/Scripts/"*.cs "$PROJECT_DIR/Assets/Scripts/"
 cp "$ASSETS_PREP/Editor/"*.cs "$PROJECT_DIR/Assets/Editor/"
-# CAMERA 권한은 Unity가 WebCamTexture 사용 감지하면 자동 추가 (커스텀 manifest 없이도 OK)
-ls -la "$PROJECT_DIR/Assets/Scripts/" "$PROJECT_DIR/Assets/Editor/"
+
+# Sentis 패키지 추가된 Packages/manifest.json
+if [ -f "$ASSETS_PREP/Packages/manifest.json" ]; then
+    cp "$ASSETS_PREP/Packages/manifest.json" "$PROJECT_DIR/Packages/manifest.json"
+    echo "  manifest.json 복사됨 (Sentis 포함)"
+fi
+
+# 모델 파일 (Resources에 두면 Unity Sentis가 ModelAsset로 자동 import)
+if [ -f "$HOME/Desktop/AR_project/yolo11n.onnx" ]; then
+    cp "$HOME/Desktop/AR_project/yolo11n.onnx" "$PROJECT_DIR/Assets/Resources/yolo11n.onnx"
+    echo "  yolo11n.onnx → Assets/Resources/"
+fi
+
+# 테스트 이미지 (Resources에 test_image.jpg로 복사)
+if [ -f "$HOME/Desktop/AR_project/products/laptop_ref.jpg" ]; then
+    cp "$HOME/Desktop/AR_project/products/laptop_ref.jpg" "$PROJECT_DIR/Assets/Resources/test_image.jpg"
+    echo "  test_image.jpg → Assets/Resources/"
+fi
+
+ls -la "$PROJECT_DIR/Assets/Scripts/" "$PROJECT_DIR/Assets/Editor/" "$PROJECT_DIR/Assets/Resources/"
 
 echo ""
 echo "============================================================"
