@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Unity 2022.3 LTS + ARDK 1.1.2 manifest
+     - Launcher = com.rayneo.openxradapter.UnityOpenXrActivity (skiing game 패턴)
+     - UnityOpenXrActivity extends RayNeoUnityPlayerActivity extends OpenXRActivity
+       → super.onCreate chain 으로 OpenXRActivity.Initialize() 호출
+       → mClient.bindService(MonitorService) + LauncherIPCManager.initIPC()
+       → native loader 의 EstablishServiceConnection 성공
+       → xrGetInstanceProcAddr 정상 -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-feature android:name="android.hardware.vr.headtracking"
+                  android:required="false"
+                  android:version="1" />
+
+    <application>
+        <!-- ARDK 의 UnityOpenXrActivity (skiing 게임이 사용하는 그것) 를 main launcher 로 -->
+        <activity android:name="com.rayneo.openxradapter.UnityOpenXrActivity"
+                  android:theme="@style/UnityThemeSelector"
+                  android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+                  android:hardwareAccelerated="false"
+                  android:launchMode="singleTask"
+                  android:resizeableActivity="false"
+                  android:screenOrientation="landscape"
+                  android:exported="true"
+                  tools:replace="android:exported">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+        </activity>
+
+        <!-- Mercury launcher 가 인식하는 metadata (skiing 게임 패턴) -->
+        <meta-data android:name="com.rayneo.mercury.app" android:value="true" />
+        <meta-data android:name="com.rayneo.mercury.support_key" android:value="true" />
+
+        <!-- Unity 가 자동 추가하는 default UnityPlayerActivity 는 제거 -->
+        <activity android:name="com.unity3d.player.UnityPlayerActivity"
+                  tools:node="remove" />
+    </application>
+</manifest>
