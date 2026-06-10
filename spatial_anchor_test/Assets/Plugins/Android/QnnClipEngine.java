@@ -72,8 +72,24 @@ public class QnnClipEngine {
         // v1.2: init 본문(Interpreter 생성=컴파일 포함)을 worker 로 비동기 실행 → 즉시 반환.
         // 반환 true = "submit 됨". 실제 준비는 isReady() 로만 판단.
         worker.submit(() -> {
-            try { initInternal(tfliteModelPath, nativeLibraryDir, null); }
+            try { initInternal(tfliteModelPath, nativeLibraryDir, null, true); }
             catch (Throwable t) { Log.e(TAG, "initialize worker 예외: " + t.getMessage(), t); ready = false; }
+        });
+        return true;
+    }
+
+    /**
+     * v1.7 CPU(XNNPACK) init 경로 — CDSP/HTP delegate 미사용.
+     *   RayNeo SLAM 과 Hexagon CDSP(domain 3) 를 공유하면 두 번째 FastRPC 세션이 CDSP user-PD 를
+     *   터뜨려(SSR) XR 런타임 핸들이 stale → system_server 사망(기기 재시작) 이 발생한다.
+     *   CLIP 을 CPU 로 돌리면 우리 앱이 CDSP 를 전혀 안 건드려 그 cascade 를 구조적으로 차단한다.
+     *   부수효과: ~125초 콜드 HTP 컴파일이 사라져 init 이 sub-second. CLIP 은 트리거당 단발 256² 라
+     *   CPU(XNNPACK) 수십~수백 ms 로 충분.
+     */
+    public boolean initializeCpu(String tfliteModelPath, String nativeLibraryDir) {
+        worker.submit(() -> {
+            try { initInternal(tfliteModelPath, nativeLibraryDir, null, false); }
+            catch (Throwable t) { Log.e(TAG, "initializeCpu worker 예외: " + t.getMessage(), t); ready = false; }
         });
         return true;
     }
@@ -96,11 +112,11 @@ public class QnnClipEngine {
                 File binFile = new File(binPath);
                 if (!binFile.exists() || binFile.length() == 0) {
                     Log.e(TAG, "사전 빌드 context bin 없음/비어있음: " + binPath + " — initialize() 폴백 권장");
-                    initInternal(tflitePath, nativeLibraryDir, null);
+                    initInternal(tflitePath, nativeLibraryDir, null, true);
                     return;
                 }
                 Log.i(TAG, "사전 빌드 HTP cache 발견: " + binPath + " (" + binFile.length() + " bytes)");
-                initInternal(tflitePath, nativeLibraryDir, binFile);
+                initInternal(tflitePath, nativeLibraryDir, binFile, true);
             } catch (Throwable t) {
                 Log.e(TAG, "initializeFromContextBin worker 예외: " + t.getMessage(), t);
                 ready = false;
@@ -109,7 +125,7 @@ public class QnnClipEngine {
         return true;
     }
 
-    private boolean initInternal(String tfliteModelPath, String nativeLibraryDir, File prebuiltCacheBin) {
+    private boolean initInternal(String tfliteModelPath, String nativeLibraryDir, File prebuiltCacheBin, boolean useNpu) {
         try {
             File modelFile = new File(tfliteModelPath);
             if (!modelFile.exists()) {
@@ -147,22 +163,28 @@ public class QnnClipEngine {
             MappedByteBuffer modelBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
             Log.i(TAG, "tflite 모델 로드: " + tfliteModelPath + " (" + channel.size() + " bytes)");
 
-            try {
-                QnnDelegate.Options opts = new QnnDelegate.Options();
-                opts.setBackendType(QnnDelegate.Options.BackendType.HTP_BACKEND);
-                opts.setSkelLibraryDir(nativeLibraryDir);
-                // HTP context cache 활성. (cache_dir + model_token 둘 다 set 해야 동작.)
-                opts.setCacheDir(cacheDir.getAbsolutePath());
-                opts.setModelToken(CACHE_MODEL_TOKEN);
-                try { opts.setLogLevel(QnnDelegate.Options.LogLevel.LOG_LEVEL_INFO); } catch (Throwable t1) {}
-                try { opts.setHtpPerformanceMode(QnnDelegate.Options.HtpPerformanceMode.HTP_PERFORMANCE_BURST); } catch (Throwable t1) {}
-                delegate = new QnnDelegate(opts);
-                Log.i(TAG, "QnnDelegate (HTP) 생성됨 cacheDir=" + cacheDir.getAbsolutePath()
-                    + " token=" + CACHE_MODEL_TOKEN
-                    + " prewarmed=" + cacheBinPrewarmed);
-            } catch (Throwable t) {
-                Log.e(TAG, "QnnDelegate 생성 실패 — CPU fallback: " + t.getMessage());
+            if (useNpu) {
+                try {
+                    QnnDelegate.Options opts = new QnnDelegate.Options();
+                    opts.setBackendType(QnnDelegate.Options.BackendType.HTP_BACKEND);
+                    opts.setSkelLibraryDir(nativeLibraryDir);
+                    // HTP context cache 활성. (cache_dir + model_token 둘 다 set 해야 동작.)
+                    opts.setCacheDir(cacheDir.getAbsolutePath());
+                    opts.setModelToken(CACHE_MODEL_TOKEN);
+                    try { opts.setLogLevel(QnnDelegate.Options.LogLevel.LOG_LEVEL_INFO); } catch (Throwable t1) {}
+                    try { opts.setHtpPerformanceMode(QnnDelegate.Options.HtpPerformanceMode.HTP_PERFORMANCE_BURST); } catch (Throwable t1) {}
+                    delegate = new QnnDelegate(opts);
+                    Log.i(TAG, "QnnDelegate (HTP) 생성됨 cacheDir=" + cacheDir.getAbsolutePath()
+                        + " token=" + CACHE_MODEL_TOKEN
+                        + " prewarmed=" + cacheBinPrewarmed);
+                } catch (Throwable t) {
+                    Log.e(TAG, "QnnDelegate 생성 실패 — CPU fallback: " + t.getMessage());
+                    delegate = null;
+                }
+            } else {
+                // v1.7: CPU(XNNPACK) 모드 — CDSP/HTP delegate 미사용 → RayNeo SLAM 과 Hexagon CDSP 미충돌.
                 delegate = null;
+                Log.i(TAG, "CPU(XNNPACK) 모드 — CDSP/HTP 미사용 (SLAM 과 DSP 충돌 회피, 125초 컴파일 없음)");
             }
 
             long tBeforeInterp = System.nanoTime();

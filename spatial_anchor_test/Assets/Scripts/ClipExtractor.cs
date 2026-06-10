@@ -25,6 +25,12 @@ public class ClipExtractor : MonoBehaviour
              "없어도 동작 — 첫 실행 1회만 컴파일 후 자동 캐싱돼서 이후 launch 는 즉시 ready.")]
     public string prebuiltContextBinFilename = "mobileclip_s2.qnn_context.bin";
 
+    [Header("v1.7 추론 백엔드 (DSP 충돌 회피)")]
+    [Tooltip("false = CPU(XNNPACK). RayNeo SLAM 과 Hexagon CDSP 를 공유하면 우리 HTP 세션이 CDSP 를 " +
+             "터뜨려(SSR) XR 런타임 핸들 stale → system_server 사망(기기 재시작). CPU 면 CDSP 미사용 → 충돌 구조적 차단 + 125초 컴파일 소멸.\n" +
+             "true(b24 기본) = HTP/NPU (빠르지만 SLAM 과 CDSP 충돌 위험). b24 통합 라인은 NPU on 유지, toggle 로 A/B.")]
+    public bool useNpu = true;   // b24: NPU stays on (toggle remains for A/B vs CPU)
+
     [Header("v0.7.3 중앙 crop (환경 무관 category 매칭)")]
     [Tooltip("프레임 중앙만 잘라 embedding → 배경(침대/주방/책상) 제거, 가운데 든 물체에 집중.\n" +
              "⚠️ build_adversarial_db.py 의 CLIP_CROP 과 반드시 같은 값이어야 query↔ref 비교 성립.")]
@@ -38,6 +44,7 @@ public class ClipExtractor : MonoBehaviour
 
     [Header("상태")]
     public bool isReady;
+    public float compileSeconds;   // v1.6 HUD: HTP 컴파일 경과초 (ready 후엔 총 컴파일 시간으로 고정 → "READY (Ns)")
     public string statusMessage = "초기화 중...";
     public long lastEmbedMs;
     // v1.2: 마지막 PreprocessTexture 의 중앙 박스 색 통계 (HelloAR ResolveBrandByColor 가 읽음).
@@ -126,7 +133,13 @@ public class ClipExtractor : MonoBehaviour
         {
             qnnEngine = new AndroidJavaObject("com.eagleeye.qnn.QnnClipEngine");
             bool ok;
-            if (prebuiltAvailable)
+            if (!useNpu)
+            {
+                // v1.7: CPU(XNNPACK) — CDSP 미사용. prebuilt/HTP 경로 전부 우회.
+                Debug.Log("[ClipExtractor] init path = initializeCpu (CPU/XNNPACK, CDSP 미사용)");
+                ok = qnnEngine.Call<bool>("initializeCpu", dstPath, nativeLibDir);
+            }
+            else if (prebuiltAvailable)
             {
                 Debug.Log("[ClipExtractor] init path = initializeFromContextBin (사전 빌드 cache 사용)");
                 ok = qnnEngine.Call<bool>("initializeFromContextBin", prebuiltDstPath, dstPath, nativeLibDir);
@@ -176,6 +189,7 @@ public class ClipExtractor : MonoBehaviour
             statusMessage = "CLIP 컴파일 중... (최초 1회 ~125초, 화면 정상)";
             yield return new WaitForSeconds(0.5f);
             compileElapsed += 0.5f;
+            compileSeconds = compileElapsed;   // v1.6 HUD: 진행초 노출
         }
 
         bool isMock = false;

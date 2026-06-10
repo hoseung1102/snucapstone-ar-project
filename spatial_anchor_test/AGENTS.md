@@ -28,3 +28,8 @@
 
 - `aapt dump badging <apk>` 와 `adb shell dumpsys package <pkg>` 의 versionName 이 둘 다 `BUILD_TAG` 와 일치 (Bee 캐시 stale 방지). 불일치면 `Library/Bee` 정리 후 재빌드.
 - `ProjectVersion.txt == 2022.3.62f3` 유지 재확인.
+
+## 런타임 검은화면 (빌드는 됐는데 안경에 아무것도 안 뜸)
+
+- Unity 로고조차 안 뜨면 두 원인: (1) **Unity 6 빌드**(위 §), (2) **RayNeo XR 시스템 서비스 사망** → `adb reboot` 로만 복구. 시그니처(`DeadSystemException`/`FFalconXRClient.loadProfile` NPE/`Need to set FrameLayout`/`openxr session had not being inited`)와 대응은 루트 [`../AGENTS.md`](../AGENTS.md) §4 "검은화면 = 두 원인 구분" 참조.
+- 빌드 자체가 안 되거나 HUD 고정/Unity 6 관련 결정은 루트 `../AGENTS.md` §4b 참조 (Unity 6 = NO 확정).

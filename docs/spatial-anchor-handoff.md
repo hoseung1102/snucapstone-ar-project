@@ -10,7 +10,7 @@
 ## 0. 한눈에
 
 - **프로젝트**: `spatial_anchor_test/` (Unity 2022.3.62f3, RayNeo X3 Pro / Snapdragon AR1 Gen1 / Hexagon v73 NPU)
-- **현재 빌드**: `b14` (versionName=`b14`, `BuildSpatialAnchorTest.cs:27`), 패키지 `com.eagleeye.spatialanchor.bisection`
+- **현재 빌드**: `b16` (versionName=`b16`, `BuildSpatialAnchorTest.cs:27`), 패키지 `com.eagleeye.spatialanchor.bisection`. (b16 = CLIP 컴파일 플래그 + 5카운터 + `[MONITOR]` 로그/eagle-monitor 대시보드 + 광고 미러 수정 + ATW=1/저해상도/head-locked HUD. §7 changelog 참조)
 - **데모**: 콜라/펩시 페트병을 응시 → 반대 진영 경쟁사 광고가 정면 시야에 world-anchored 로 뜸 (conquest)
 - **on-device 검증됨**: freeze 해결(b9~b11), 색 brand(b11), 정면배치(b12), max2 FIFO + 가로반전 + 평균색(b13/b14)
 - **★ 빌드는 반드시 Unity 2022.3.62f3** — Unity 6 (6000.0.76f1) 로 빌드하면 검은화면 + 프로젝트 오염 (§2.0)
@@ -215,5 +215,21 @@ const string BUILD_TAG  = "b14";                         // line 27  ← version
 2. **(a) QNN 프리베이크 검증** — AI Hub v73 `.qnn_context.bin` 생성 → StreamingAssets 번들 → `initializeFromContextBin` 가 실제 deserialize 하는지 on-device 확인. 성공 시 cold 컴파일 ~125초 → ~수백 ms. (구현은 이미 있음, 자산·검증만 남음.)
 3. **(c) 색 마진 실측 보정** — 펩시 빨간뚜껑/조명 변화 케이스 추가 캡처로 `colorBlueMargin`/`colorRedMargin` 튜닝.
 4. 새 버전 빌드 시 §2.5 (BUILD_TAG/OUTPUT_APK 2곳) + §2.3 (versionName 검증) 루틴 준수.
-</content>
-</invoke>
+
+---
+
+## 7. 변경 이력 (changelog)
+
+> 코드 커밋할 때마다 이 하단에 한 줄씩 덧붙이고 코드와 함께 푸시한다. (living changelog)
+
+- **b9** (`c3e82fa`): 진단 + skipOcr / pause-camera / SLAM 발산-재앵커 + 빌드환경 폴백.
+- **b11** (`ed4037f`): 단일 경쟁사 광고 + 색 brand conquest **on-device 검증**. CLIP 컴파일 백그라운드 스레드화(freeze 제거·provider 생존). ★ **Unity 2022.3.62f3 전용 확정**(Unity 6 → 검은화면).
+- **b12** (`feb64f0`): 광고 배치 옆칸 → **정면(응시 지점)**.
+- **b13+b14** (`e3f24ef`): 광고 **max 2 FIFO** + **가로 미러** + 색 brand 판별 dominant-count → **평균색(mean RGB)** (펩시 파란몸통 정확 판별, 중립 → 광고X = FP 방지).
+- **handoff** (`5b3ce08`,`20eccb6`): dev 핸드오프 + 빌드 런북. 캐시 섹션 정정(delegate disk SAVE/RESTORE 실재).
+- **b15** (`80f2d52`): 광고 작게(adQuadWidthM=0.22)/멀게(adDistanceM=1.2) + SLAM **ATW=1**(reprojection — 8Hz 체감 보간) + RGB 프리뷰 **640×480@10**(카메라 부하↓) + **HUD를 head-locked 2D 상단 오버레이**로(좌=카운터, 우=SLAM 진단; `hudMirror`/`hudLocalEuler`). 광고 quad는 월드 고정 유지.
+- **b16**: HUD에 **CLIP 컴파일 완료 플래그**(`ClipExtractor.compileSeconds` → `CLIP: COMPILING Ns`/`READY (Ns)`) + **카운터 5개**(TRIG/**MATCH**/COLA/COKE/PEPSI, `HelloAR.matchCount` 추가) + **`[MONITOR]` JSON logcat**(0.5s, `SpatialAnchorTest.EmitMonitorLog` — 카운터+CLIP+SLAM센서+소환물체위치) = **eagle-monitor 대시보드**(`tools/monitor/eagle_monitor.py`, `/eagle-monitor` 스킬) 소스. **광고 좌우반전 수정**(`adMirrorX=false` 기본 — 정면배치는 미러 불필요, 이전 과교정 제거). AGENTS.md 갱신(검은화면 두 원인/Unity6=NO/HUD결정/모니터). versionName=b16, vc19. (설치 device-offline 대기 → 재연결 시 install)
+  - **검은화면 진단(b16 세션)**: 빌드 정상인데 안경에 아무것도 안 뜸 = **RayNeo XR 시스템 서비스 사망**(`DeadSystemException`→`FFalconXRClient.loadProfile` NPE→`Need to set FrameLayout`→`openxr session had not being inited`). 프로세스 재시작 무효, **`adb reboot` 로만 복구**(uptime 확인). Unity6 빌드와 별개 원인.
+  - **HUD/Unity6/SLAM 결정(b16 세션, 확정)**: 진짜 디스플레이 고정 2D 오버레이 = 이 스택 불가(compositionlayers=Unity6전용 + RayNeo런타임 quad레이어 경로 0). swimming=ATW가 head-locked HUD까지 워프. **Unity6 마이그레이션=NO**(ARDK 비호환·검은화면·SLAM파괴, 4~8일·very-high). 유일 진짜경로=Unity2022 커스텀 OpenXRFeature(xrEndFrame VIEW-space quad)+1h 온디바이스 스파이크. → AGENTS.md §4b.
+- **b17** (코드 준비됨, 빌드/디바이스 검증 대기): **디바이스 크래시 근본 수정 = CLIP을 CPU(XNNPACK)로** (`ClipExtractor.useNpu=false` 기본 + `QnnClipEngine.initializeCpu`/`initInternal(...,useNpu)` HTP를 `if(useNpu)`로 분기). 우리 앱이 **공유 Hexagon CDSP를 안 건드림** → SLAM과의 CDSP 충돌(SSR→system_server 사망→리부트) 구조적 차단 + **125초 콜드 컴파일 소멸**. 인식 파이프라인 유지(CLIP은 트리거당 단발이라 CPU OK).
+  - **★ 2026-06-11 대형 조사 4건 박제 → [`findings-2026-06-11-crash-slam-openxr.md`](findings-2026-06-11-crash-slam-openxr.md)**: ①기기 크래시=공유 CDSP 충돌(증거·체크리스트·수정) ②SLAM 8Hz=회전전용 ATW+parallax(고칠 레이트 아님, 레버 랭킹) ③RayNeo OpenXR 제공/미제공 전체 지도+미사용 기회 3개(intrinsics depth배치/평면앵커/시선트리거) ④GPU-CLIP 불가(INT8 미지원). **통합 최소-빌드 계획: 단 1빌드(b17)로 크래시·DSP경합·8Hz·카메라경합 전부 검증.**

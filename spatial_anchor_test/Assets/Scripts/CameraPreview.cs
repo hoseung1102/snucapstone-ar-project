@@ -19,9 +19,9 @@ using static com.rayneo.xr.extensions.XRCamera;
 public class CameraPreview : MonoBehaviour
 {
     [Header("요청할 카메라 설정 (실제로는 안경이 가장 가까운 값 선택)")]
-    public int requestedWidth = 1280;
-    public int requestedHeight = 720;
-    public int requestedFps = 30;
+    public int requestedWidth = 640;
+    public int requestedHeight = 480;
+    public int requestedFps = 10;
 
     // 외부에서 cam.webCamTex 로 접근하는 호환 property.
     // ShareCamera 의 XRCameraHandler.texture (Texture2D) 를 그대로 노출.

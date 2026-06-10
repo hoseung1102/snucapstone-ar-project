@@ -667,7 +667,7 @@ MonoBehaviour:
   priority: 0
   required: 0
   OpenSLAMOnStart: 0
-  ATWSupport: 0
+  ATWSupport: 1
   CameraAttitudeType: 8193
 --- !u!114 &5432858391100027553
 MonoBehaviour:
