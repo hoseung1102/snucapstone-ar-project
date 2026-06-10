@@ -41,6 +41,15 @@ public class HelloAR : MonoBehaviour
     float lastInferenceTime = -10f;
     bool inferenceInFlight;
 
+    // v1.4 HUD 카운터 — SpatialAnchorTest 가 읽어 HUD 최상단에 노출.
+    //   triggerCount: 트리거 수신 횟수.
+    //   colaCount: CLIP category=cola 검출 횟수.
+    //   cokeCount/pepsiCount: brand 가 coca-cola/pepsi 로 "확정"된 횟수 (미확정이면 증가 안 함).
+    public int triggerCount;
+    public int colaCount;
+    public int cokeCount;
+    public int pepsiCount;
+
     float triggerFlashUntil = -1f;
     // v1.1: 광고 표시 중 재트리거 무시 게이트 (트리거 폭주 → 파이프라인 재진입 방지)
     float adShowingUntil = -1f;
@@ -223,6 +232,9 @@ public class HelloAR : MonoBehaviour
         long ocrMs = 0;
         if (category != null)
         {
+            // v1.4: HUD 카운터 — cola category 검출 1회 카운트.
+            if (category.name == "cola") colaCount++;
+
             // ───── Stage 3b: OCR — category 매칭된 것만 라벨 글자 추출 ─────
             if (ocr != null && ocr.isReady)
             {
@@ -250,10 +262,17 @@ public class HelloAR : MonoBehaviour
                                              out brandSrc, out brandScore);
             }
             if (brand != null)
+            {
+                // v1.4: HUD 카운터 — brand 확정 시점에 coke/pepsi 카운트 (미확정 null 이면 증가 안 함).
+                string confirmed = brand.name != null ? brand.name.ToLowerInvariant() : "";
+                if (confirmed == "coca-cola") cokeCount++;
+                else if (confirmed == "pepsi") pepsiCount++;
+
                 result = new ProductMatcher.MatchResult {
                     category = category, brand = brand, categoryScore = catScore,
                     brandSource = brandSrc, brandScore = brandScore,
                 };
+            }
         }
 
         // v0.5.9: YOLO detection 의 class+conf 로그 (false positive 진단)
@@ -375,6 +394,8 @@ public class HelloAR : MonoBehaviour
 
     void HandleTrigger()
     {
+        // v1.4: HUD 카운터 — 트리거 수신 시점 카운트 (무시 게이트와 무관하게 수신 자체를 셈).
+        triggerCount++;
         // v1.1: 광고 표시 중엔 재트리거 무시 (cooldown 5s < adShowSeconds 10s 라 폭주 가능했음)
         if (Time.time < adShowingUntil)
         {

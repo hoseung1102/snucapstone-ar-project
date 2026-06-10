@@ -215,5 +215,18 @@ const string BUILD_TAG  = "b14";                         // line 27  ← version
 2. **(a) QNN 프리베이크 검증** — AI Hub v73 `.qnn_context.bin` 생성 → StreamingAssets 번들 → `initializeFromContextBin` 가 실제 deserialize 하는지 on-device 확인. 성공 시 cold 컴파일 ~125초 → ~수백 ms. (구현은 이미 있음, 자산·검증만 남음.)
 3. **(c) 색 마진 실측 보정** — 펩시 빨간뚜껑/조명 변화 케이스 추가 캡처로 `colorBlueMargin`/`colorRedMargin` 튜닝.
 4. 새 버전 빌드 시 §2.5 (BUILD_TAG/OUTPUT_APK 2곳) + §2.3 (versionName 검증) 루틴 준수.
+
+---
+
+## 7. 변경 이력 (changelog)
+
+> 코드 커밋할 때마다 이 하단에 한 줄씩 덧붙이고 코드와 함께 푸시한다. (living changelog)
+
+- **b9** (`c3e82fa`): 진단 + skipOcr / pause-camera / SLAM 발산-재앵커 + 빌드환경 폴백.
+- **b11** (`ed4037f`): 단일 경쟁사 광고 + 색 brand conquest **on-device 검증**. CLIP 컴파일 백그라운드 스레드화(freeze 제거·provider 생존). ★ **Unity 2022.3.62f3 전용 확정**(Unity 6 → 검은화면).
+- **b12** (`feb64f0`): 광고 배치 옆칸 → **정면(응시 지점)**.
+- **b13+b14** (`e3f24ef`): 광고 **max 2 FIFO** + **가로 미러** + 색 brand 판별 dominant-count → **평균색(mean RGB)** (펩시 파란몸통 정확 판별, 중립 → 광고X = FP 방지).
+- **handoff** (`5b3ce08`,`20eccb6`): dev 핸드오프 + 빌드 런북. 캐시 섹션 정정(delegate disk SAVE/RESTORE 실재).
+- **b15**: 광고 작게(adQuadWidthM=0.22)/멀게(adDistanceM=1.2) + SLAM **ATW=1**(reprojection — 8Hz 체감 보간) + RGB 프리뷰 **640×480@10**(카메라 부하↓) + **HUD를 head-locked 2D 상단 오버레이**로(좌=카운터 트리거/콜라/코크/펩시, 우=SLAM 진단; `hudMirror`/`hudLocalEuler`/localPos 튜닝). 광고 quad는 월드 고정 유지. (착용/미러 검증 + SLAM Hz 측정 대기)
 </content>
 </invoke>
