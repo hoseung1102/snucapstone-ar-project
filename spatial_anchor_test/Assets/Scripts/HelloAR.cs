@@ -113,12 +113,24 @@ public class HelloAR : MonoBehaviour
         // top-3 평균이 broad-coverage refs 에 유리 → coke 시연 시 pepsi 잡는 문제 해결 시도.
         matcher.topK = 1;
         ad = gameObject.AddComponent<AdRenderer>();
-        spatial = gameObject.AddComponent<SpatialAnchorTest>();   // v0.8: 객체 옆 3D world-anchored 영상 광고
+        // v1.0: B8 에선 scene 의 SpatialAnchorHost 가 이미 SpatialAnchorTest 를 갖고 HelloAR 를 AddComponent 함.
+        //   기존 인스턴스 재사용 — 두 번째 AddComponent 면 SLAM 구독·anchor·HUD 가 이중 spawn 됨.
+        spatial = GetComponent<SpatialAnchorTest>();
+        if (spatial == null) spatial = gameObject.AddComponent<SpatialAnchorTest>();
         aip = gameObject.AddComponent<AmbientInterestProfile>();
         ocr = gameObject.AddComponent<OCRExtractor>();
 
         Debug.Log($"[HelloAR] Init complete (v0.5.1). pipeline mode={(clipOnlyMode ? "CLIP-only" : "YOLO+CLIP")}");
     }
+
+    // v1.0 conquest 매핑: 인식 brand → 경쟁사 광고 mp4 (StreamingAssets/db/ads_video/ 상대경로).
+    // brand.name 은 metadata.json 의 정확한 문자열. 매핑 없으면 호출부가 brand 자체 ad_image 로 fallback.
+    static readonly System.Collections.Generic.Dictionary<string, string> CompetitorAdVideo =
+        new System.Collections.Generic.Dictionary<string, string>
+    {
+        { "coca-cola", "db/ads_video/pepsi_bottle_ad.mp4" },   // 코크 인식 → 펩시 광고
+        { "pepsi",     "db/ads_video/coke_bottle_ad.mp4"  },   // 펩시 인식 → 코크 광고
+    };
 
     bool pendingInference;
     float lastTriggerTime;   // v0.3.6 진단: 트리거 발화 ~ 추론 사이 lag 측정
@@ -216,10 +228,15 @@ public class HelloAR : MonoBehaviour
         // ───── Stage 4: Ad rendering — brand 의 ad ─────
         if (result != null)
         {
-            // 기존 ad_image 의 .png → .mp4 변환 그대로 사용 (v0.7.5 와 동일)
-            string vidPath = result.brand.ad_image
-                .Replace("db/ads/", "db/ads_video/")
-                .Replace("_ad.png", "_ad.mp4");
+            // v1.0 conquest: 인식 brand → 경쟁사 광고 mp4. 매핑 없으면 brand 자체 ad_image 에서 파생.
+            string vidPath;
+            string bname = result.brand.name != null ? result.brand.name.ToLowerInvariant() : "";
+            if (!CompetitorAdVideo.TryGetValue(bname, out vidPath))
+            {
+                vidPath = (result.brand.ad_image ?? "")
+                    .Replace("db/ads/", "db/ads_video/")
+                    .Replace("_ad.png", "_ad.mp4");
+            }
             // 2D HUD 대체 → 3D world-anchored 영상 spawn (가장 큰 bbox 옆에 객체와 같은 depth)
             int W = (cam != null && cam.webCamTex != null) ? cam.webCamTex.width  : QnnYoloDetector.INPUT_SIZE;
             int H = (cam != null && cam.webCamTex != null) ? cam.webCamTex.height : QnnYoloDetector.INPUT_SIZE;

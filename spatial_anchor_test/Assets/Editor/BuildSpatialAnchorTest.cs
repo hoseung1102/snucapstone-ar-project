@@ -21,10 +21,10 @@ public static class BuildSpatialAnchorTest
     const string PACKAGE_NAME = "com.eagleeye.spatialanchor.bisection";
     const string PRODUCT_NAME = "SpatialAnchor Bisection";
     const string COMPANY_NAME = "Eagle Eye";
-    const string OUTPUT_APK   = "Build/EagleEye-SA-loaderfix.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-SA-b8demo.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
     // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "loaderfix";
+    const string BUILD_TAG    = "b8demo";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()

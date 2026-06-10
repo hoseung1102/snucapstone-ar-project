@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
 
 // SpatialAnchorTest v2 — RayNeo OpenXR ARDK 6DoF SLAM, 즉시 spawn + 점진 refine 패턴.
 //
@@ -25,12 +26,15 @@ public class SpatialAnchorTest : MonoBehaviour
 
     // bisection: helloar component 추가 case. B0=baseline only, B1=+Gyro, B2=+Camera (ShareCamera),
     // B3=+Clip, B4=+OCR, B5=+Gyro+Camera, B6=+Gyro+Clip, B7=+Camera+Clip, B8=full helloar.
-    public string bisectionCase = "B0";
+    public string bisectionCase = "B8";
 
     // ----- state -----
     Camera xrCam;
     GameObject anchorQuad;
     GameObject adQuad;
+    // v1.0: world-anchored 광고 영상 (VideoPlayer→RenderTexture, AdRenderer 셋업 미러).
+    VideoPlayer adVp;
+    RenderTexture adRT;
     TextMesh hudText;
     GameObject hudObj;
 
@@ -158,6 +162,8 @@ public class SpatialAnchorTest : MonoBehaviour
 #if !UNITY_EDITOR
         try { RayNeo.HeadTrackedPoseDriver.OnPostUpdate -= OnHeadPose; } catch { }
 #endif
+        if (adVp != null) { adVp.prepareCompleted -= OnAdVideoPrepared; try { adVp.Stop(); } catch { } }
+        if (adRT != null) { adRT.Release(); adRT = null; }
     }
 
     void SpawnProvisional()
@@ -214,64 +220,113 @@ public class SpatialAnchorTest : MonoBehaviour
         q.transform.localScale = new Vector3(quadWidthM, quadWidthM * aspect, 1f);
 
         var mr = q.GetComponent<MeshRenderer>();
-        // DIAG(greentest): 배포→화면 체인 검증용 — 텍스처 무시하고 강제 형광 초록 단색.
-        // 화면에 초록 quad 가 보이면 빌드/배포/렌더 체인 정상(이전 'cola'는 텍스처였음).
-        var solid = Shader.Find("Unlit/Color");
-        if (solid == null) solid = Shader.Find("Sprites/Default");
-        if (solid == null) solid = Shader.Find("Standard");
-        if (solid != null)
+        var unlit = Shader.Find("Unlit/Texture");
+        if (unlit == null) unlit = Shader.Find("Sprites/Default");
+        if (unlit == null) unlit = Shader.Find("Standard");
+        if (unlit != null)
         {
-            var mat = new Material(solid);
-            mat.color = new Color(0f, 1f, 0f, 1f);
+            var mat = new Material(unlit);
+            if (tex != null) mat.mainTexture = tex;
             mr.material = mat;
         }
-        else
-        {
-            Debug.LogWarning("[SpatialAnchorTest] solid shader 다 stripped — default material");
-            mr.material.color = new Color(0f, 1f, 0f, 1f);
-        }
+        else if (tex != null) mr.material.mainTexture = tex;
 
         var col = q.GetComponent<Collider>();
         if (col != null) Destroy(col);
         return q;
     }
 
-    // v0.8: 매칭된 제품 옆 공간에 world-anchored 광고 spawn (conquest 데모 핵심).
-    // HelloAR 전체 pipeline (B8) 에서만 호출됨 — B0~B7 baseline 에선 미실행.
+    // v1.0: 트리거 시점 응시 물체 옆에 world-anchored 경쟁사 광고 영상 spawn (conquest 데모 핵심).
+    // HelloAR 전체 pipeline (B8) 에서만 호출됨. 6DoF 가 카메라를 구동하므로 quad 는 spawn 순간
+    // world 좌표에 한 번만 고정 (head re-follow 안 함 → 진짜 world-anchored).
     public void ShowAdBesideMatch(string vidPath, ProductMatcher.MatchResult result,
                                   List<Detection> detections, int W, int H)
     {
         if (xrCam == null) return;
 
-        // 제품 앵커 오른쪽으로 quad 한 칸 떨어진 곳에 광고 quad 배치.
-        Vector3 camFwd = xrCam.transform.forward;
-        Vector3 camUp  = xrCam.transform.up;
+        // ── 트리거 시점 응시 지점 ≈ 인식된 물체 위치 (clipOnlyMode: bbox 없어 gaze-ray 근사) ──
+        Vector3 camPos   = xrCam.transform.position;
+        Vector3 camFwd   = xrCam.transform.forward;
+        Vector3 camUp    = xrCam.transform.up;
         Vector3 camRight = xrCam.transform.right;
-        Vector3 adPos = anchorWorldPos + camRight * (quadWidthM * 1.2f);
-        Quaternion adRot = Quaternion.LookRotation(-camFwd, camUp);
+        Vector3 objectPos = camPos + camFwd * anchorDistanceM;             // 응시 물체
+        Vector3 adPos     = objectPos + camRight * (quadWidthM * 1.2f);    // 그 오른쪽 한 칸
+        Quaternion faceUser = Quaternion.LookRotation(-camFwd, camUp);     // spawn 시점 1회 (billboard X)
 
+        // 앵커 마커(quad)를 응시 물체로 이동 (world 고정).
+        if (anchorQuad != null)
+        {
+            anchorQuad.transform.position = objectPos;
+            anchorQuad.transform.rotation = faceUser;
+            anchorWorldPos = objectPos;
+        }
+
+        // 광고 quad spawn (world 고정).
         if (adQuad != null) Destroy(adQuad);
         adQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
         adQuad.name = "AdQuad";
         adQuad.transform.position = adPos;
-        adQuad.transform.rotation = adRot;
+        adQuad.transform.rotation = faceUser;
         adQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * 0.75f, 1f);
         var col = adQuad.GetComponent<Collider>();
         if (col != null) Destroy(col);
-
-        // TODO(B8): VideoPlayer 로 vidPath(.mp4) 재생. 현재는 brand 정지 광고 텍스처.
         var mr = adQuad.GetComponent<MeshRenderer>();
-        Texture2D adTex = Resources.Load<Texture2D>(textureResourceName);
+
+        // material (영상 prepare 완료 시 RT 로 교체; 그 전엔 정지 텍스처/단색).
         var sh = Shader.Find("Unlit/Texture") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
         if (sh != null)
         {
             var m = new Material(sh);
+            Texture2D adTex = Resources.Load<Texture2D>(textureResourceName);
             if (adTex != null) m.mainTexture = adTex;
             mr.material = m;
         }
 
+        // ── 경쟁사 광고 영상 재생 (AdRenderer VideoPlayer→RenderTexture 미러) ──
+        bool videoStarted = false;
+        try
+        {
+            if (adVp == null)
+            {
+                adVp = gameObject.AddComponent<VideoPlayer>();
+                adVp.playOnAwake = false;
+                adVp.isLooping = true;
+                adVp.audioOutputMode = VideoAudioOutputMode.None;
+                adVp.renderMode = VideoRenderMode.RenderTexture;
+                adVp.aspectRatio = VideoAspectRatio.FitInside;
+            }
+            adVp.url = System.IO.Path.Combine(Application.streamingAssetsPath, vidPath);
+            adVp.prepareCompleted -= OnAdVideoPrepared;
+            adVp.prepareCompleted += OnAdVideoPrepared;
+            adVp.Prepare();
+            videoStarted = true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[SpatialAnchorTest] VideoPlayer 셋업 실패 ({e.Message}) → 정지 텍스처 fallback");
+        }
+
         string brandName = result != null && result.brand != null ? result.brand.name : "AD";
-        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} vid='{vidPath}' at {adPos} (W={W} H={H} dets={(detections != null ? detections.Count : 0)})");
+        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} comp-vid='{vidPath}' video={videoStarted} obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
+    }
+
+    // VideoPlayer prepare 완료 → 영상 해상도 RenderTexture 할당 후 quad material 에 바인딩.
+    void OnAdVideoPrepared(VideoPlayer vp)
+    {
+        if (adQuad == null) { try { vp.Stop(); } catch { } return; }
+        int w = (int)vp.width, h = (int)vp.height;
+        if (w <= 0 || h <= 0) { Debug.LogWarning("[SpatialAnchorTest] ad video 0 dim"); return; }
+        if (adRT == null || adRT.width != w || adRT.height != h)
+        {
+            if (adRT != null) adRT.Release();
+            adRT = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
+            adRT.Create();
+        }
+        vp.targetTexture = adRT;
+        var mr = adQuad.GetComponent<MeshRenderer>();
+        if (mr != null && mr.material != null) mr.material.mainTexture = adRT;
+        vp.Play();
+        Debug.Log($"[SpatialAnchorTest] ad video playing {w}x{h}");
     }
 
     float _logNext = 0f;
@@ -294,12 +349,7 @@ public class SpatialAnchorTest : MonoBehaviour
             Vector3 p = xrCam.transform.position;
             Vector3 e = xrCam.transform.eulerAngles;
             Vector3 hp = lastHeadPose.position;
-            Vector3 hr = lastHeadPose.rotation.eulerAngles;
-#if !UNITY_EDITOR
-            try { htRet = com.rayneo.xr.extensions.XRInterfaces.RayNeoApi_GetHeadTrackerPose(htPos, htRot); }
-            catch (System.Exception ex) { htRet = -1; Debug.LogError($"[SpatialAnchorTest][DIAG2] GetHeadTrackerPose: {ex.Message}"); }
-#endif
-            Debug.Log($"[SpatialAnchorTest] SLAM status={lastSlamStatus} camPos=({p.x:F3},{p.y:F3},{p.z:F3}) camRot=({e.x:F1},{e.y:F1},{e.z:F1}) | headDrv calls={headPoseCallCount} pos=({hp.x:F3},{hp.y:F3},{hp.z:F3}) | nativePose ret={htRet} pos=({htPos[0]:F3},{htPos[1]:F3},{htPos[2]:F3}) rot=({htRot[0]:F3},{htRot[1]:F3},{htRot[2]:F3},{htRot[3]:F3}) uptime={Time.time:F1}s");
+            Debug.Log($"[SpatialAnchorTest] SLAM status={lastSlamStatus} camPos=({p.x:F3},{p.y:F3},{p.z:F3}) camRot=({e.x:F1},{e.y:F1},{e.z:F1}) | headDrv calls={headPoseCallCount} pos=({hp.x:F3},{hp.y:F3},{hp.z:F3}) uptime={Time.time:F1}s");
             _logNext = Time.time + 1f;
         }
 
