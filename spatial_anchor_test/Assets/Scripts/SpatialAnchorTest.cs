@@ -44,6 +44,12 @@ public class SpatialAnchorTest : MonoBehaviour
     Vector3 anchorAtPlacementCamFwd;
 
     int lastSlamStatus = -1;
+    // v1.1: SLAM 발산 감지 + 콘텐츠 재앵커. 근거: ShareCamera preview 열린 채 pause 시
+    //   camera provider SIGPIPE 사망 → SLAM 발산 (camPos 595m 관측, 06-11 00:10:44).
+    //   복구 로직 없으면 콘텐츠가 시야에서 영구 소실.
+    float divergedSince = -1f;
+    int divergenceRecoveries;
+    float lastReanchorTime = -999f;
     bool slamEnableCalled;
     float slamSeekStartTime = -1f;
     float slamConvergeSeconds = -1f;
@@ -272,42 +278,47 @@ public class SpatialAnchorTest : MonoBehaviour
         if (col != null) Destroy(col);
         var mr = adQuad.GetComponent<MeshRenderer>();
 
-        // material (영상 prepare 완료 시 RT 로 교체; 그 전엔 정지 텍스처/단색).
+        // material 기본 셋업 (이미지 로드 완료 시 mainTexture 교체).
         var sh = Shader.Find("Unlit/Texture") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
-        if (sh != null)
-        {
-            var m = new Material(sh);
-            Texture2D adTex = Resources.Load<Texture2D>(textureResourceName);
-            if (adTex != null) m.mainTexture = adTex;
-            mr.material = m;
-        }
+        if (sh != null) mr.material = new Material(sh);
 
-        // ── 경쟁사 광고 영상 재생 (AdRenderer VideoPlayer→RenderTexture 미러) ──
-        bool videoStarted = false;
-        try
-        {
-            if (adVp == null)
-            {
-                adVp = gameObject.AddComponent<VideoPlayer>();
-                adVp.playOnAwake = false;
-                adVp.isLooping = true;
-                adVp.audioOutputMode = VideoAudioOutputMode.None;
-                adVp.renderMode = VideoRenderMode.RenderTexture;
-                adVp.aspectRatio = VideoAspectRatio.FitInside;
-            }
-            adVp.url = System.IO.Path.Combine(Application.streamingAssetsPath, vidPath);
-            adVp.prepareCompleted -= OnAdVideoPrepared;
-            adVp.prepareCompleted += OnAdVideoPrepared;
-            adVp.Prepare();
-            videoStarted = true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning($"[SpatialAnchorTest] VideoPlayer 셋업 실패 ({e.Message}) → 정지 텍스처 fallback");
-        }
+        // Candidate A: 영상(VideoPlayer→world quad) 경로가 spawn 직후 앱 크래시 → 정지 PNG 로 대체.
+        // vidPath(db/ads_video/x.mp4) → 이미지(db/ads/x.png). AdRenderer.LoadAndShow 의 UnityWebRequest 로딩 미러.
+        string imgPath = (vidPath ?? "").Replace("ads_video", "ads").Replace(".mp4", ".png");
+        StartCoroutine(LoadCompetitorImage(imgPath, mr));
 
         string brandName = result != null && result.brand != null ? result.brand.name : "AD";
-        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} comp-vid='{vidPath}' video={videoStarted} obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
+        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} img='{imgPath}' obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
+    }
+
+    // Candidate A: 경쟁사 광고 정지 이미지를 StreamingAssets 에서 로드해 quad 에 적용 (Android jar → UnityWebRequest).
+    IEnumerator LoadCompetitorImage(string imgRelPath, MeshRenderer mr)
+    {
+        if (mr == null) yield break;
+        string url = System.IO.Path.Combine(Application.streamingAssetsPath, imgRelPath);
+        byte[] bytes = null;
+#if UNITY_ANDROID && !UNITY_EDITOR
+        var req = UnityEngine.Networking.UnityWebRequest.Get(url);
+        yield return req.SendWebRequest();
+        if (req.result == UnityEngine.Networking.UnityWebRequest.Result.Success) bytes = req.downloadHandler.data;
+        else Debug.LogError($"[SpatialAnchorTest] 광고 이미지 로드 실패: {imgRelPath} — {req.error}");
+#else
+        if (System.IO.File.Exists(url)) bytes = System.IO.File.ReadAllBytes(url);
+        yield return null;
+#endif
+        if (bytes != null && mr != null && mr.material != null)
+        {
+            var tex = new Texture2D(2, 2);
+            tex.LoadImage(bytes);
+            mr.material.mainTexture = tex;
+            // 광고 가로세로비에 맞춰 quad 스케일 보정 (찌그러짐 방지).
+            if (adQuad != null && tex.height > 0)
+            {
+                float a = (float)tex.height / tex.width;
+                adQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * a, 1f);
+            }
+            Debug.Log($"[SpatialAnchorTest] 광고 이미지 적용 {tex.width}x{tex.height}: {imgRelPath}");
+        }
     }
 
     // VideoPlayer prepare 완료 → 영상 해상도 RenderTexture 할당 후 quad material 에 바인딩.
@@ -382,6 +393,29 @@ public class SpatialAnchorTest : MonoBehaviour
             Debug.Log($"[SpatialAnchorTest] Repositioned anchor on converge: world={anchorPos}");
         }
 
+        // v1.1: SLAM 발산 감지 — |camPos| > 30m 가 2초 이상 연속이면 diverged 판정.
+        //   재앵커는 최대 10초당 1회 (발산 지속 중 매 frame 재앵커 방지).
+        //   SLAM 재토글(Disable/Enable)은 검증 전이라 금지 — 콘텐츠 재앵커만 (시야 복귀).
+        if (xrCam != null)
+        {
+            float camMag = xrCam.transform.position.magnitude;
+            if (camMag > 30f)
+            {
+                if (divergedSince < 0) divergedSince = Time.time;
+                if (Time.time - divergedSince >= 2f && Time.time - lastReanchorTime >= 10f)
+                {
+                    divergenceRecoveries++;
+                    lastReanchorTime = Time.time;
+                    Debug.LogError($"[SpatialAnchorTest] SLAM DIVERGED |camPos|={camMag:F1}m → re-anchor #{divergenceRecoveries}");
+                    ReanchorContentToCamera();
+                }
+            }
+            else
+            {
+                divergedSince = -1f;
+            }
+        }
+
         // FPS / velocity
         float now = Time.unscaledTime;
         if (now - fpsSampleStart >= 0.5f)
@@ -407,6 +441,39 @@ public class SpatialAnchorTest : MonoBehaviour
 
         // HUD update
         UpdateHud();
+    }
+
+    // v1.1: 발산 시 콘텐츠를 현재 카메라 앞으로 재앵커 (SpawnProvisional 의 배치 수식 재사용).
+    //   발산한 world 좌표계에서도 콘텐츠가 시야로 복귀 → 데모 계속 가능.
+    void ReanchorContentToCamera()
+    {
+        if (xrCam == null) return;
+        Vector3 camPos   = xrCam.transform.position;
+        Vector3 camFwd   = xrCam.transform.forward;
+        Vector3 camUp    = xrCam.transform.up;
+        Vector3 camRight = xrCam.transform.right;
+        Vector3 anchorPos = camPos + camFwd * anchorDistanceM;
+        Quaternion faceUser = Quaternion.LookRotation(-camFwd, camUp);
+
+        if (anchorQuad != null)
+        {
+            anchorQuad.transform.position = anchorPos;
+            anchorQuad.transform.rotation = faceUser;
+        }
+        if (adQuad != null)
+        {
+            // ShowAdBesideMatch 와 동일: 응시 지점 오른쪽 한 칸
+            adQuad.transform.position = anchorPos + camRight * (quadWidthM * 1.2f);
+            adQuad.transform.rotation = faceUser;
+        }
+        if (hudObj != null)
+        {
+            hudObj.transform.position = camPos + camFwd * hudDistanceM + camUp * hudOffsetLocal.y;
+            hudObj.transform.rotation = faceUser;
+        }
+        anchorWorldPos = anchorPos;
+        anchorAtPlacementCamPos = camPos;
+        anchorAtPlacementCamFwd = camFwd;
     }
 
     void UpdateHud()
@@ -438,7 +505,10 @@ public class SpatialAnchorTest : MonoBehaviour
         float fwdAngleDeg = Mathf.Acos(Mathf.Clamp(fwdDot, -1f, 1f)) * Mathf.Rad2Deg;
 
         string slamLabel;
-        if (lastSlamStatus == 1) slamLabel = repositionedOnConverge ? "CONVERGED" : "TRACKING";
+        // v1.1: 발산 판정 (|camPos|>30m 가 2초 이상) 이면 상태와 복구 횟수 표시
+        if (divergedSince >= 0 && Time.time - divergedSince >= 2f)
+            slamLabel = $"DIVERGED(re-anchored x{divergenceRecoveries})";
+        else if (lastSlamStatus == 1) slamLabel = repositionedOnConverge ? "CONVERGED" : "TRACKING";
         else if (lastSlamStatus == 0) slamLabel = "SEEKING";
         else if (lastSlamStatus == -2) slamLabel = "EXCEPTION";
         else slamLabel = $"?({lastSlamStatus})";

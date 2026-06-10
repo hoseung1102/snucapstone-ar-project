@@ -21,10 +21,10 @@ public static class BuildSpatialAnchorTest
     const string PACKAGE_NAME = "com.eagleeye.spatialanchor.bisection";
     const string PRODUCT_NAME = "SpatialAnchor Bisection";
     const string COMPANY_NAME = "Eagle Eye";
-    const string OUTPUT_APK   = "Build/EagleEye-SA-b8demo.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-SA-b9resilient.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
     // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "b8demo";
+    const string BUILD_TAG    = "b9resilient";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()
@@ -203,8 +203,50 @@ public static class BuildSpatialAnchorTest
         // (AndroidSDKTools.ctor:62 fail). Unity 의 default 자체 install 사용.
         string editorRoot = EditorApplication.applicationContentsPath;
         string androidPlayerRoot = Path.Combine(editorRoot, "PlaybackEngines", "AndroidPlayer");
-        AndroidExternalToolsSettings.jdkRootPath = Path.Combine(androidPlayerRoot, "OpenJDK");
+        // 후보 순서: (1) 이 에디터에 번들된 OpenJDK, (2) 시스템 JDK 17 (Unity 6 / 최신 AGP 요구 버전).
+        // 이 머신의 6000.0.76f1 에는 OpenJDK 모듈이 미설치 → fallback 필요.
+        string[] jdkCandidates =
+        {
+            Path.Combine(androidPlayerRoot, "OpenJDK"),
+            @"C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot",
+        };
+        string jdk = jdkCandidates.FirstOrDefault(p =>
+            File.Exists(Path.Combine(p, "bin", "javac.exe")));
+        if (jdk == null)
+        {
+            Debug.LogError("[BuildSpatialAnchorTest] 유효한 JDK 못 찾음. 후보: " + string.Join(", ", jdkCandidates));
+            return;
+        }
+        AndroidExternalToolsSettings.jdkRootPath = jdk;
         Debug.Log($"[BuildSpatialAnchorTest] JDK = {AndroidExternalToolsSettings.jdkRootPath}");
+
+        // SDK/NDK 를 이 에디터(6000.0.76f1) 번들 경로로 강제.
+        // 안 하면 inherited preference 가 다른 에디터(2022.3.62f3) SDK 를 가리켜
+        // "Missing CMake 3.22.1" 로 빌드 실패함 (그 SDK 엔 cmake 미설치).
+        // 이 번들 SDK 는 cmake 3.22.1 + platforms(android-32~36) + build-tools 보유.
+        string bundledSdk = Path.Combine(androidPlayerRoot, "SDK");
+        string bundledNdk = Path.Combine(androidPlayerRoot, "NDK");
+        if (Directory.Exists(Path.Combine(bundledSdk, "cmake", "3.22.1")))
+        {
+            AndroidExternalToolsSettings.sdkRootPath = bundledSdk;
+            Debug.Log($"[BuildSpatialAnchorTest] SDK = {AndroidExternalToolsSettings.sdkRootPath}");
+        }
+        else
+        {
+            Debug.LogError($"[BuildSpatialAnchorTest] 번들 SDK 에 cmake 3.22.1 없음: {bundledSdk}");
+        }
+        if (Directory.Exists(bundledNdk))
+        {
+            AndroidExternalToolsSettings.ndkRootPath = bundledNdk;
+            Debug.Log($"[BuildSpatialAnchorTest] NDK = {AndroidExternalToolsSettings.ndkRootPath}");
+        }
+
+        // Gradle 도 이 에디터 번들로 강제. 머신의 EditorPrefs 가 custom Gradle 로
+        // 2022.3.62f3 의 Gradle 7.5.1 을 가리켜 "Minimum supported Gradle version is 8.11.1" 로 실패함.
+        // 6000.0.76f1 번들은 Gradle 8.13 → Unity 6 의 AGP 요구 충족.
+        // AndroidExternalToolsSettings 엔 gradle path setter 가 없으므로 EditorPrefs 로 embedded 강제.
+        EditorPrefs.SetBool("GradleUseEmbedded", true);
+        Debug.Log("[BuildSpatialAnchorTest] GradleUseEmbedded = true (이 에디터 번들 Gradle 8.13 사용)");
     }
 
     static void ConfigurePlayerSettings()

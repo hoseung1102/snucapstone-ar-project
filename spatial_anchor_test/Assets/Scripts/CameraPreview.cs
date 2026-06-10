@@ -203,6 +203,24 @@ public class CameraPreview : MonoBehaviour
 #endif
     }
 
+    // v1.1: pause 시 카메라 close / resume 시 reopen — camera provider 보호.
+    // 근거: 06-11 00:10:44 캡처에서 앱 pause 중 열린 preview 채널 → 미소비 preview 버퍼로
+    //   camera provider SIGPIPE 사망 → SLAM(camera 1) 발산 595m 확인. pause 동안 채널을
+    //   닫아 provider 사망을 예방하고, resume 시 자동 reopen.
+    void OnApplicationPause(bool paused)
+    {
+        if (paused && isReady)
+        {
+            Debug.Log("[CameraPreview] OnApplicationPause → CloseCamera (provider 보호: pause 중 미소비 preview 버퍼가 SIGPIPE 유발)");
+            CloseCamera();
+        }
+        else if (!paused && !isReady && !_isOpening)
+        {
+            Debug.Log("[CameraPreview] OnApplicationResume → OpenCamera");
+            OpenCamera();
+        }
+    }
+
     void OnDestroy()
     {
         CloseCamera();

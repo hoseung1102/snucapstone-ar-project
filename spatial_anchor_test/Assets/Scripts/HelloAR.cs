@@ -42,6 +42,8 @@ public class HelloAR : MonoBehaviour
     bool inferenceInFlight;
 
     float triggerFlashUntil = -1f;
+    // v1.1: 광고 표시 중 재트리거 무시 게이트 (트리거 폭주 → 파이프라인 재진입 방지)
+    float adShowingUntil = -1f;
 
     [Header("v0.5.0 Detection pipeline mode")]
     [Tooltip("true = CLIP only (YOLO skip, 매 트리거마다 CLIP. 비교용)\n" +
@@ -52,6 +54,15 @@ public class HelloAR : MonoBehaviour
     [Tooltip("매칭 후 N초 동안 ShareCamera off (SLAM 의 RGB pipeline 자유 → quad world-anchored). \n"+
              "이 시간 후 자동 reopen → DETECTING state 복귀.")]
     public float adShowSeconds = 10f;
+
+    [Header("v1.1 OCR 데모 경로 제거")]
+    [Tooltip("v1.1: OCR 메인스레드 블록(init+5s 추론) 데모 경로 제거.\n" +
+             "CLIP brand fallback(enableClipBrandFallback=true)으로 brand 확정.")]
+    public bool skipOcr = true;
+
+    [Header("v1.1 핫패스 디스크 쓰기")]
+    [Tooltip("true 면 매 trigger 시 frame jpg 저장 (ref 수집용). 데모에선 off — 핫패스 블로킹 제거.")]
+    public bool saveTriggerFrames = false;
 
     [Header("v0.5.0 CLIP 매칭 임계값")]
     [Tooltip("v0.7.3: 0.45. 온디바이스 CLIP sim 이 Mac 대비 ~0.3 낮게 나오고(전처리/양자화 차이),\n" +
@@ -118,7 +129,10 @@ public class HelloAR : MonoBehaviour
         spatial = GetComponent<SpatialAnchorTest>();
         if (spatial == null) spatial = gameObject.AddComponent<SpatialAnchorTest>();
         aip = gameObject.AddComponent<AmbientInterestProfile>();
-        ocr = gameObject.AddComponent<OCRExtractor>();
+        // v1.1: skipOcr=true 면 OCR 엔진 init 자체를 안 함 — MLKit init JNI 가 메인스레드를
+        //   블록해 시작 직후 렌더링 정지 유발. brand 확정은 CLIP fallback 경로로.
+        if (!skipOcr)
+            ocr = gameObject.AddComponent<OCRExtractor>();
 
         Debug.Log($"[HelloAR] Init complete (v0.5.1). pipeline mode={(clipOnlyMode ? "CLIP-only" : "YOLO+CLIP")}");
     }
@@ -151,7 +165,8 @@ public class HelloAR : MonoBehaviour
         float triggerToInferLag = Time.time - lastTriggerTime;
 
         // v0.5.16: 매 trigger 시 webCamTex frame 저장 (ref 만들기용)
-        SaveCurrentFrame();
+        // v1.1: 핫패스 디스크 쓰기 off (GPU readback+jpg encode+File write 가 트리거 직후 프레임 블록)
+        if (saveTriggerFrames) SaveCurrentFrame();
 
         // ───── Stage 1: YOLO (1차 필터, 발열 절약) ─────
         int yoloDetCount = 0;
@@ -241,12 +256,16 @@ public class HelloAR : MonoBehaviour
             int W = (cam != null && cam.webCamTex != null) ? cam.webCamTex.width  : QnnYoloDetector.INPUT_SIZE;
             int H = (cam != null && cam.webCamTex != null) ? cam.webCamTex.height : QnnYoloDetector.INPUT_SIZE;
             spatial.ShowAdBesideMatch(vidPath, result, detections, W, H);
+            // v1.1: 광고 표시 동안 HandleTrigger 무시 (재트리거 폭주 게이트)
+            adShowingUntil = Time.time + adShowSeconds;
             Debug.Log($"[HelloAR] ✅ MATCH yolo={yoloDetCount}/{yoloMs}ms [{yoloInfo}] clip={clipMs}ms ocr={ocrMs}ms → " +
                       $"category={result.category.name}({result.categoryScore:F2}) brand={result.brand.name} → spatial '{vidPath}'");
-            // v0.9.1: 광고 spawn 즉시 ShareCamera close → SLAM RGB pipeline 회복 → quad world-anchored.
-            // adShowSeconds 후 자동 reopen (DETECTING state 복귀).
-            if (cam != null) cam.CloseCamera();
-            StartCoroutine(ReopenCameraAfter(adShowSeconds));
+            // v1.1 H1 fix: 매칭 직후 cam.CloseCamera() 가 네이티브 카메라 HAL teardown 을 SLAM/디코더와
+            //   동시 실행해 메인스레드 hang (정지 이미지에서도 freeze 확인 — PID alive·S·runInBackground=1).
+            //   ShareCamera RGB 와 SLAM mono 는 별도 채널이라 닫지 않아도 quad 는 world-anchored 유지.
+            //   (상시 open 의 SLAM 지연은 후속 takePicture 단발 전환으로 해소 예정.)
+            // if (cam != null) cam.CloseCamera();
+            // StartCoroutine(ReopenCameraAfter(adShowSeconds));
         }
         else
         {
@@ -283,6 +302,12 @@ public class HelloAR : MonoBehaviour
 
     void HandleTrigger()
     {
+        // v1.1: 광고 표시 중엔 재트리거 무시 (cooldown 5s < adShowSeconds 10s 라 폭주 가능했음)
+        if (Time.time < adShowingUntil)
+        {
+            Debug.Log("[HelloAR] trigger ignored — ad showing");
+            return;
+        }
         triggerFlashUntil = Time.time + 1.0f;
         pendingInference = true;
         lastTriggerTime = Time.time;
