@@ -164,8 +164,10 @@ const string BUILD_TAG  = "b14";                         // line 27  ← version
 
 ### (a) cold 실행마다 NPU 컴파일 ~95-168초
 - 매 cold start 마다 CLIP HTP 그래프 재컴파일(`Interpreter init` 로그 기준 ~125초, 관측 범위 95-168초). **백그라운드 스레드라 freeze 는 아님** — 컴파일 동안 렌더는 ~15fps 로 계속 돌고 "CLIP 컴파일 중..." 표시.
-- 디스크 캐시가 작동 안 하는 이유: qnn-litert-delegate 2.47.0 의 `setCacheDir`+`setModelToken` 조합이 디스크에 .bin 을 안 쓰고 **휘발성 DSP 커널 캐시**만 효과 → process death/reboot 시 evict (상세 `freeze-accuracy-diagnosis.md` §1.3).
-- **계획**: (1) QNN context **프리베이크** — AI Hub v73 타겟 `.qnn_context.bin` 생성 → StreamingAssets 번들. `ClipExtractor` 와 `QnnClipEngine.initializeFromContextBin` 경로는 **이미 구현돼 있음** — 자산만 없을 뿐(`ClipExtractor.cs:95-112`, `QnnClipEngine.java:92-110`). 미확정: 2.47.0 delegate 가 프리베이크 .bin 을 실제 deserialize 하는지, AI Hub 에 정확 v73 타겟이 있는지(검증 후 적용). (2) 프리워밍.
+- **★ 정정(캐시 심층 조사)**: delegate(`libQnnTFLiteDelegate.so`)는 **디스크 SAVE/RESTORE MODE 직렬화를 실제로 구현**하고 있다 (바이너리 문자열 `Wrote/Found serialized data for model`, `caching in SAVE MODE`/`RESTORE MODE` 확인). 즉 "disk 캐시 불가"가 아니라 **SAVE MODE 실패**(`Failed to create folder`/권한, 또는 `Context blob too large to serialize safely`) 때문에 stub(20B/1.6KB)만 남은 것. Java 손잡이는 `setCacheDir`+`setModelToken` 둘뿐(javap 로 Options 전체 확정 — 별도 context-binary setter 없음).
+- **가장 현실적 해법 = 디스크 캐시를 작동시켜 "첫 설치만 컴파일, 이후 cold start 도 instant"**: (1) `cacheDir`(`QnnClipEngine.java:126` 현재 persistentDataPath 옆) 를 app-internal 절대경로(`getCacheDir()`/`getFilesDir()`)로 교체, (2) cold 재시작 logcat 에서 `SAVE MODE`→`RESTORE MODE` 전환 + `Interpreter init <1s` 로 검증 (캐시 hit 판정은 파일명 아닌 init latency 로 — delegate 실제 파일명은 `qnn_binary_*` prefix 라 코드의 `<token>.bin` 가정과 다름). `setHtpOptimizationStrategy(HTP_OPTIMIZE_FOR_PREPARE)` 로 컴파일 시간 단축 여지.
+- **프리베이크(AI Hub `.qnn_context.bin`)는 포맷 비호환** — AI Hub `qnn_context_binary` ≠ TFLite delegate cacheDir 포맷이라 `initializeFromContextBin` 의 단순 복사로는 deserialize 안 됨(현 경로는 사실상 dead). 유일한 프리베이크 변종 = 위 (1)로 device 가 생성한 캐시 파일을 `adb pull` 해 **동일 v73 기종 한정** StreamingAssets 번들. root 없이 libQnnHtp 직접 호출은 불가(delegate 경유만 합법).
+- **프리워밍**: DSP 커널 캐시는 한 OS 프로세스 생존+DSP power-on 동안만 유지 → 세션 내 재진입만 instant, cold start(프로세스 새로 뜸)는 못 품. 상세: `freeze-accuracy-diagnosis.md` §1.3.
 
 ### (b) SLAM ~8Hz 로 느림
 - world-anchor pose 갱신이 ~8Hz 로 느려 앵커가 머리 움직임을 매끄럽게 못 따라옴.
