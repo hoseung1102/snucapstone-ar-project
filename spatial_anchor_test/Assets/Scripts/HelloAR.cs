@@ -69,6 +69,15 @@ public class HelloAR : MonoBehaviour
              "중앙 crop 적용 후 환경 무관 매칭이라 0.45 로 완화 (coke 온디바이스 0.53~0.55 통과).")]
     [Range(0f, 1f)] public float clipMatchThreshold = 0.45f;
 
+    [Header("v1.2 brand 판별기 선택")]
+    [Tooltip("\"color\": cola category 는 색(코크 빨강/펩시 파랑)으로 brand 확정.\n" +
+             "그 외 값: 기존 matcher.ResolveBrand(OCR + CLIP fallback) 경로 사용.")]
+    public string brandDisambiguator = "color";
+    [Tooltip("색 판별 최소 비율 — 우세 색 ratio 가 이 값 미만이면 brand 미확정.")]
+    public float colorBrandMinRatio = 0.15f;
+    [Tooltip("우세 색이 반대 색의 몇 배 이상이어야 확정하는지 (예: red ≥ blue*1.5).")]
+    public float colorBrandDominance = 1.5f;
+
     GUIStyle big, small, flash, statusStyle, boxLabelStyle;
     Texture2D boxTex;
 
@@ -216,9 +225,23 @@ public class HelloAR : MonoBehaviour
                         System.Diagnostics.Stopwatch.Frequency;
             }
 
-            // ───── Stage 3c: category 안에서 OCR brand 확정 ─────
-            var brand = matcher.ResolveBrand(category, embedding, ocrText,
-                                             out string brandSrc, out float brandScore);
+            // ───── Stage 3c: category 안에서 brand 확정 ─────
+            // v1.2: cola category 는 색 판별기로만 brand 확정 (코크 빨강/펩시 파랑).
+            //   색이 애매하면(red·blue 둘 다 약함) brand 미확정 → 광고 X.
+            //   여기서 ResolveBrand 로 폴백하면 enableClipBrandFallback=true 인 이 인스턴스가
+            //   "항상 coca-cola" 환경편향 경로를 발동해 빈 책상/천장도 코크 false positive 재발 → 폴백 금지.
+            //   그 외 category(또는 brandDisambiguator != "color")는 기존 OCR + CLIP fallback 경로 유지.
+            ProductMatcher.Brand brand;
+            string brandSrc; float brandScore;
+            if (brandDisambiguator == "color" && category.name == "cola")
+            {
+                brand = ResolveBrandByColor(category, out brandSrc, out brandScore);
+            }
+            else
+            {
+                brand = matcher.ResolveBrand(category, embedding, ocrText,
+                                             out brandSrc, out brandScore);
+            }
             if (brand != null)
                 result = new ProductMatcher.MatchResult {
                     category = category, brand = brand, categoryScore = catScore,
@@ -288,6 +311,40 @@ public class HelloAR : MonoBehaviour
                 aip.Log(-1, "(clip-only)", 0f, pname, psim);
             }
         }
+    }
+
+    // v1.2 — 색 기반 brand 판별. ClipExtractor 가 PreprocessTexture 에서 카운트해 둔 중앙 박스
+    //   red/blue ratio 를 읽어 코크(빨강)/펩시(파랑)를 확정. category 의 brand 객체로 매핑해 반환.
+    //   색 신호가 약하거나 모호하면 null (호출부가 기존 OCR/CLIP 경로로 폴백).
+    ProductMatcher.Brand ResolveBrandByColor(ProductMatcher.Category category, out string src, out float score)
+    {
+        src = "color";
+        score = 0f;
+        if (clip == null || !clip.lastColorValid)
+        {
+            Debug.Log("[HelloAR] color brand: 색 통계 없음(lastColorValid=false) → 폴백");
+            return null;
+        }
+
+        float red = clip.lastRedRatio, blue = clip.lastBlueRatio;
+        string brandName = null;
+        if (red >= colorBrandMinRatio && red > blue * colorBrandDominance) { brandName = "coca-cola"; score = red; }
+        else if (blue >= colorBrandMinRatio && blue > red * colorBrandDominance) { brandName = "pepsi"; score = blue; }
+
+        if (brandName == null)
+        {
+            Debug.Log($"[HelloAR] color brand: 모호 red={red:F2} blue={blue:F2} (minRatio={colorBrandMinRatio:F2} dom={colorBrandDominance:F1}) → 폴백");
+            return null;
+        }
+
+        var brand = matcher.GetBrandByName(category, brandName);
+        if (brand == null)
+        {
+            Debug.Log($"[HelloAR] color brand: '{brandName}' 결정했지만 category={category.name} 에 해당 brand 없음 → 폴백");
+            return null;
+        }
+        Debug.Log($"[HelloAR] ✅ color brand 확정: {brandName} (red={red:F2} blue={blue:F2})");
+        return brand;
     }
 
     System.Collections.IEnumerator ReopenCameraAfter(float seconds)

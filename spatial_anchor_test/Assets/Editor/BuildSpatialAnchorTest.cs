@@ -21,10 +21,10 @@ public static class BuildSpatialAnchorTest
     const string PACKAGE_NAME = "com.eagleeye.spatialanchor.bisection";
     const string PRODUCT_NAME = "SpatialAnchor Bisection";
     const string COMPANY_NAME = "Eagle Eye";
-    const string OUTPUT_APK   = "Build/EagleEye-SA-b9resilient.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-SA-b11.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
     // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "b9resilient";
+    const string BUILD_TAG    = "b11";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()
@@ -226,14 +226,20 @@ public static class BuildSpatialAnchorTest
         // 이 번들 SDK 는 cmake 3.22.1 + platforms(android-32~36) + build-tools 보유.
         string bundledSdk = Path.Combine(androidPlayerRoot, "SDK");
         string bundledNdk = Path.Combine(androidPlayerRoot, "NDK");
-        if (Directory.Exists(Path.Combine(bundledSdk, "cmake", "3.22.1")))
+        // 이 에디터에 번들된 SDK 를 무조건 set. (예전엔 cmake 3.22.1 유무로 게이트했으나
+        // 그건 6000.0.76f1 SDK 레이아웃 가정이었음. 2022.3.62f3 번들 SDK 는 cmake 디렉토리가
+        // 비어있지만 이 프로젝트는 CMakeLists/네이티브 C++ 소스가 없어 — 모든 네이티브는 prebuilt .so —
+        // cmake 가 필요 없다. 게이트 때문에 SDK 미설정 → "Android SDK not found" 로 빌드 실패했었음.)
+        if (Directory.Exists(bundledSdk))
         {
             AndroidExternalToolsSettings.sdkRootPath = bundledSdk;
             Debug.Log($"[BuildSpatialAnchorTest] SDK = {AndroidExternalToolsSettings.sdkRootPath}");
+            if (!Directory.Exists(Path.Combine(bundledSdk, "cmake", "3.22.1")))
+                Debug.Log($"[BuildSpatialAnchorTest] (참고) 번들 SDK 에 cmake 3.22.1 없음 — 이 빌드는 네이티브 C++ 컴파일이 없어 무관.");
         }
         else
         {
-            Debug.LogError($"[BuildSpatialAnchorTest] 번들 SDK 에 cmake 3.22.1 없음: {bundledSdk}");
+            Debug.LogError($"[BuildSpatialAnchorTest] 번들 SDK 디렉토리 없음: {bundledSdk}");
         }
         if (Directory.Exists(bundledNdk))
         {

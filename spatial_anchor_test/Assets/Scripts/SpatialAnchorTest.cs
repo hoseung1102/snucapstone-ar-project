@@ -23,6 +23,8 @@ public class SpatialAnchorTest : MonoBehaviour
 
     [Header("Resources")]
     public string textureResourceName = "cola_anchor";
+    [Tooltip("v1.2: conquest 데모는 provisional 마커(cola_anchor) 숨김 — 경쟁사 광고 1개만 표시. true 면 SLAM 디버그 마커 표시.")]
+    public bool showAnchorMarker = false;
 
     // bisection: helloar component 추가 case. B0=baseline only, B1=+Gyro, B2=+Camera (ShareCamera),
     // B3=+Clip, B4=+OCR, B5=+Gyro+Camera, B6=+Gyro+Clip, B7=+Camera+Clip, B8=full helloar.
@@ -183,6 +185,9 @@ public class SpatialAnchorTest : MonoBehaviour
         Quaternion anchorRot = Quaternion.LookRotation(-camFwd, camUp);
 
         anchorQuad = BuildImageQuad(anchorPos, anchorRot);
+        // v1.2: conquest 데모에선 provisional 마커(cola_anchor) 숨김 — 경쟁사 광고(adQuad) 1개만.
+        //   앵커 위치 추적/HUD drift 계산은 유지(quad 는 살아있고 invisible).
+        if (!showAnchorMarker) { var amr = anchorQuad.GetComponent<MeshRenderer>(); if (amr != null) amr.enabled = false; }
         anchorWorldPos = anchorPos;
         anchorAtPlacementCamPos = camPos;
         anchorAtPlacementCamFwd = camFwd;

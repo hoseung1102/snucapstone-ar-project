@@ -318,6 +318,22 @@ public class ProductMatcher : MonoBehaviour
         };
     }
 
+    /// <summary>
+    /// v1.2 — category 안에서 이름으로 brand 조회 (read-only helper, 대소문자 무시).
+    /// 색 기반 brand 판별기(HelloAR.ResolveBrandByColor)가 "coca-cola"/"pepsi" 를 brand 객체로 매핑할 때 사용.
+    /// 코어 매칭 로직(MatchCategory/ResolveBrand)은 건드리지 않음.
+    /// </summary>
+    public Brand GetBrandByName(Category cat, string name)
+    {
+        if (cat == null || cat.brands == null || string.IsNullOrEmpty(name)) return null;
+        foreach (var b in cat.brands)
+        {
+            if (b == null || b.name == null) continue;
+            if (string.Equals(b.name, name, StringComparison.OrdinalIgnoreCase)) return b;
+        }
+        return null;
+    }
+
     // ──────── metadata.json schema 어댑터 (Windows repo 전용) ────────
     // Mac 의 build_*_db.py 가 생성하는 unity_db.json 이 없으므로 metadata.json + .npy 파일을
     // 런타임에 평탄화한다. embedding 은 numpy V1.0 (.npy) — 10B magic + 2B header_len + ASCII header

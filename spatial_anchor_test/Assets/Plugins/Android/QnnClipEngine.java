@@ -48,9 +48,16 @@ public class QnnClipEngine {
 
     private Interpreter interpreter;
     private QnnDelegate delegate;
-    private boolean ready = false;
+    // v1.2: worker 가 write·메인이 read → JMM happens-before 보장 위해 volatile.
+    private volatile boolean ready = false;
     private boolean mockMode = false;
     private boolean cacheBinPrewarmed = false;
+
+    // v1.2: Interpreter 생성(=HTP 컴파일, 첫 실행 ~125초)과 run 을 한 스레드에 묶는다.
+    // TFLite Interpreter 는 생성·실행 동일 스레드 바인딩 필수 → single-thread executor 하나가 init+embed 전담.
+    // init 을 worker 로 비동기화해 메인스레드 동결을 제거하고, ready 플래그는 worker 가 컴파일 끝에서 set.
+    private final java.util.concurrent.ExecutorService worker =
+        java.util.concurrent.Executors.newSingleThreadExecutor();
 
     public static final int IN_C = 3, IN_H = 256, IN_W = 256;
     public static final int EMBED_DIM = 512;
@@ -62,7 +69,13 @@ public class QnnClipEngine {
      *   이후:     캐시 hit 으로 즉시 로드 (~수백 ms)
      */
     public boolean initialize(String tfliteModelPath, String nativeLibraryDir) {
-        return initInternal(tfliteModelPath, nativeLibraryDir, null);
+        // v1.2: init 본문(Interpreter 생성=컴파일 포함)을 worker 로 비동기 실행 → 즉시 반환.
+        // 반환 true = "submit 됨". 실제 준비는 isReady() 로만 판단.
+        worker.submit(() -> {
+            try { initInternal(tfliteModelPath, nativeLibraryDir, null); }
+            catch (Throwable t) { Log.e(TAG, "initialize worker 예외: " + t.getMessage(), t); ready = false; }
+        });
+        return true;
     }
 
     /**
@@ -77,18 +90,23 @@ public class QnnClipEngine {
      *   tflite 만 있고 .bin 이 없으면 호출하지 말고 initialize() 직접 호출할 것.
      */
     public boolean initializeFromContextBin(String binPath, String tflitePath, String nativeLibraryDir) {
-        try {
-            File binFile = new File(binPath);
-            if (!binFile.exists() || binFile.length() == 0) {
-                Log.e(TAG, "사전 빌드 context bin 없음/비어있음: " + binPath + " — initialize() 폴백 권장");
-                return initInternal(tflitePath, nativeLibraryDir, null);
+        // v1.2: init 본문(컴파일 포함)을 worker 로 비동기 실행 → 즉시 반환. 준비 여부는 isReady().
+        worker.submit(() -> {
+            try {
+                File binFile = new File(binPath);
+                if (!binFile.exists() || binFile.length() == 0) {
+                    Log.e(TAG, "사전 빌드 context bin 없음/비어있음: " + binPath + " — initialize() 폴백 권장");
+                    initInternal(tflitePath, nativeLibraryDir, null);
+                    return;
+                }
+                Log.i(TAG, "사전 빌드 HTP cache 발견: " + binPath + " (" + binFile.length() + " bytes)");
+                initInternal(tflitePath, nativeLibraryDir, binFile);
+            } catch (Throwable t) {
+                Log.e(TAG, "initializeFromContextBin worker 예외: " + t.getMessage(), t);
+                ready = false;
             }
-            Log.i(TAG, "사전 빌드 HTP cache 발견: " + binPath + " (" + binFile.length() + " bytes)");
-            return initInternal(tflitePath, nativeLibraryDir, binFile);
-        } catch (Throwable t) {
-            Log.e(TAG, "initializeFromContextBin 예외: " + t.getMessage(), t);
-            return false;
-        }
+        });
+        return true;
     }
 
     private boolean initInternal(String tfliteModelPath, String nativeLibraryDir, File prebuiltCacheBin) {
@@ -192,6 +210,21 @@ public class QnnClipEngine {
      * 입력 형식: input[0..196607] = 채널순 [R[256*256], G[256*256], B[256*256]] OpenAI CLIP normalized.
      */
     public float[] embed(float[] input) {
+        // v1.2: submit 전 ready 가드. 컴파일(125초) 중이면 submit 한 embed 가 큐 뒤에 잡혀
+        //   .get() 이 메인을 최대 125초 블록한다. ready=false 면 큐잉 자체를 안 함.
+        //   release() 가 ready=false 를 shutdown 보다 선행하므로 shutdown 후 RejectedExecutionException 경쟁도 차단.
+        if (!ready) return new float[EMBED_DIM];
+        // v1.2: interpreter.run 도 Interpreter 가 생성된 worker 스레드에서 실행 (thread-affinity 유지).
+        // embed 는 isReady=true 이후에만 C# 이 호출하므로 컴파일과 겹치지 않고 짧다.
+        try {
+            return worker.submit(() -> embedOnWorker(input)).get();
+        } catch (Throwable t) {
+            Log.e(TAG, "embed submit 실패: " + t.getMessage());
+            return new float[EMBED_DIM];
+        }
+    }
+
+    private float[] embedOnWorker(float[] input) {
         if (!ready) return new float[EMBED_DIM];
         if (input.length != INPUT_FLOATS) {
             Log.e(TAG, "입력 길이 불일치: " + input.length + " vs " + INPUT_FLOATS);
@@ -227,9 +260,17 @@ public class QnnClipEngine {
     }
 
     public void release() {
-        if (interpreter != null) { interpreter.close(); interpreter = null; }
-        if (delegate != null) { delegate.close(); delegate = null; }
+        // v1.2: interpreter/delegate close 도 생성 스레드(worker)에서 수행 후 worker 종료.
         ready = false;
+        try {
+            worker.submit(() -> {
+                if (interpreter != null) { interpreter.close(); interpreter = null; }
+                if (delegate != null) { delegate.close(); delegate = null; }
+            });
+        } catch (Throwable t) {
+            Log.e(TAG, "release submit 실패: " + t.getMessage());
+        }
+        worker.shutdown();
     }
 
     public boolean isMockMode() { return mockMode; }

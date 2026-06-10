@@ -30,10 +30,20 @@ public class ClipExtractor : MonoBehaviour
              "⚠️ build_adversarial_db.py 의 CLIP_CROP 과 반드시 같은 값이어야 query↔ref 비교 성립.")]
     [Range(0.2f, 1.0f)] public float cropFraction = 0.5f;
 
+    [Header("v1.2 색 기반 brand 판별 (코크 빨강 / 펩시 파랑)")]
+    [Tooltip("PreprocessTexture readback 의 중앙 박스 비율. 256² 평면에서 중앙만 색 카운트 (배경 색 제거).")]
+    [Range(0.4f, 1.0f)] public float colorSampleFraction = 0.8f;
+    [Tooltip("채널 우세 판정 마진. r>g+m && r>b+m → red. b>r+m && b>g+m → blue.")]
+    public int colorMargin = 20;
+
     [Header("상태")]
     public bool isReady;
     public string statusMessage = "초기화 중...";
     public long lastEmbedMs;
+    // v1.2: 마지막 PreprocessTexture 의 중앙 박스 색 통계 (HelloAR ResolveBrandByColor 가 읽음).
+    public float lastRedRatio { get; private set; }
+    public float lastBlueRatio { get; private set; }
+    public bool lastColorValid { get; private set; }
 
     AndroidJavaObject qnnEngine;
     float[] inputBuffer;     // NCHW (3*256*256) float32 normalized
@@ -136,6 +146,31 @@ public class ClipExtractor : MonoBehaviour
         inputBuffer = new float[3 * INPUT_SIZE * INPUT_SIZE];
         readbackTex = new Texture2D(INPUT_SIZE, INPUT_SIZE, TextureFormat.RGB24, false);
 
+        // v1.2: initialize/initializeFromContextBin 은 worker 스레드로 submit 만 하고 즉시 true 반환.
+        //   실제 HTP 컴파일(첫 실행 ~125초)이 끝나야 isReady=true → 그때까지 폴링.
+        //   컴파일은 worker 스레드라 메인스레드(렌더)는 안 멈춤.
+        //   컴파일 영구실패 시 무한 폴링 방지 — 180초 타임아웃.
+        const float COMPILE_TIMEOUT_SEC = 180f;
+        float compileElapsed = 0f;
+        while (!qnnEngine.Call<bool>("isReady"))
+        {
+            if (compileElapsed >= COMPILE_TIMEOUT_SEC)
+            {
+                bool timeoutMock = false;
+                try { timeoutMock = qnnEngine.Call<bool>("isMockMode"); } catch { }
+                if (!timeoutMock)
+                {
+                    statusMessage = $"❌ CLIP 컴파일 timeout ({COMPILE_TIMEOUT_SEC:F0}초 초과)";
+                    Debug.LogError($"[ClipExtractor] {statusMessage}");
+                    yield break;
+                }
+                break;   // mock 모드면 mock 진입 (아래 isReady=true)
+            }
+            statusMessage = "CLIP 컴파일 중... (최초 1회 ~125초, 화면 정상)";
+            yield return new WaitForSeconds(0.5f);
+            compileElapsed += 0.5f;
+        }
+
         bool isMock = false;
         bool prewarmed = false;
         try { isMock = qnnEngine.Call<bool>("isMockMode"); } catch { }
@@ -203,12 +238,29 @@ public class ClipExtractor : MonoBehaviour
 
         Color32[] pixels = readbackTex.GetPixels32();
         int plane = INPUT_SIZE * INPUT_SIZE;
+        // v1.2: NCHW 정규화와 같은 루프에서 중앙 박스 색 카운트 (별도 readback 금지).
+        float cs = Mathf.Clamp(colorSampleFraction, 0.4f, 1.0f);
+        int colMargin = (int)(INPUT_SIZE * (1f - cs) * 0.5f);
+        int lo = colMargin, hi = INPUT_SIZE - colMargin;
+        int m = colorMargin;
+        int red = 0, blue = 0, sampled = 0;
         for (int i = 0; i < plane; i++)
         {
             // (pixel - mean) / std for each channel, NCHW layout
             inputBuffer[0 * plane + i] = (pixels[i].r / 255f - CLIP_MEAN[0]) / CLIP_STD[0];
             inputBuffer[1 * plane + i] = (pixels[i].g / 255f - CLIP_MEAN[1]) / CLIP_STD[1];
             inputBuffer[2 * plane + i] = (pixels[i].b / 255f - CLIP_MEAN[2]) / CLIP_STD[2];
+
+            // 중앙 colorSampleFraction 박스 안의 픽셀만 색 우세 카운트
+            int x = i % INPUT_SIZE, y = i / INPUT_SIZE;
+            if (x < lo || x >= hi || y < lo || y >= hi) continue;
+            int r = pixels[i].r, g = pixels[i].g, b = pixels[i].b;
+            if (r > g + m && r > b + m) red++;
+            else if (b > r + m && b > g + m) blue++;
+            sampled++;
         }
+        lastColorValid = sampled > 0;
+        lastRedRatio = lastColorValid ? (float)red / sampled : 0f;
+        lastBlueRatio = lastColorValid ? (float)blue / sampled : 0f;
     }
 }
