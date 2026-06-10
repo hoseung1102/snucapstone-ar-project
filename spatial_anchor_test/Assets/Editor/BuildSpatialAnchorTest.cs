@@ -18,13 +18,14 @@ using UnityEditor.XR.Management.Metadata;
 //         -buildTarget Android -logFile <log>
 public static class BuildSpatialAnchorTest
 {
-    const string PACKAGE_NAME = "com.eagleeye.spatialanchor.bisection";
-    const string PRODUCT_NAME = "SpatialAnchor Bisection";
+    // b22 OCR+SLAM 통합: 원본 real-pipeline package(spatialanchor.bisection)는 옆 세션 점유 → helloar override.
+    const string PACKAGE_NAME = "com.eagleeye.helloar";
+    const string PRODUCT_NAME = "EagleEye OCR+SLAM";
     const string COMPANY_NAME = "Eagle Eye";
-    const string OUTPUT_APK   = "Build/EagleEye-SA-b14.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-HelloAR-b22-slam-ocr.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
     // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "b14";
+    const string BUILD_TAG    = "b22-slam-ocr";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()

@@ -51,7 +51,12 @@ public class EasyOCREngine {
 
     // 검출 임계. 너무 낮으면 노이즈로 박스 폭발 → 인식기 부하 ↑.
     // CRAFT 원본은 text_threshold=0.7, low_text=0.4. 여기서는 quantized 라 약간 보수적.
-    private static final float TEXT_THRESHOLD = 0.5f;
+    // CRAFT 정석 후처리 임계. detector 2채널: region(글자 score)=ch0, link(글자사이 affinity)=ch1.
+    // 단어 박스 = (region>=LOW_TEXT || link>=LINK_THRESHOLD) connected-component, peak region>=TEXT_THRESHOLD 필터.
+    // (link map 미사용 시 글자단위 과분할 → recognizer 에 글자 1개 strip → 인식 깨짐. Mac detector 검증으로 확인.)
+    private static final float TEXT_THRESHOLD = 0.6f;    // component peak region 필터(노이즈 제거)
+    private static final float LOW_TEXT       = 0.4f;    // region 포함 임계
+    private static final float LINK_THRESHOLD = 0.4f;    // affinity(글자묶기) 임계
     private static final int MIN_BOX_AREA = 40;          // 5x8 px 이하 박스 버림
     private static final int MAX_BOXES = 32;             // 박스 너무 많으면 latency 폭발
 
@@ -72,7 +77,10 @@ public class EasyOCREngine {
     public boolean initialize(String detectorPath, String recognizerPath,
                               String charsetPath, String nativeLibraryDir) {
         try {
+            long tInit0 = System.nanoTime();
+            Log.i(TAG, "INIT begin detector=" + detectorPath + " recognizer=" + recognizerPath);
             // --- charset 로드 (96 chars expected) ---
+            long tCharset0 = System.nanoTime();
             File charsetFile = new File(charsetPath);
             if (charsetFile.exists()) {
                 java.io.FileInputStream fis = new java.io.FileInputStream(charsetFile);
@@ -82,14 +90,17 @@ public class EasyOCREngine {
                 String csStr = new String(buf, 0, read, "UTF-8").replace("\r", "").replace("\n", "");
                 charset = csStr.toCharArray();
                 Log.i(TAG, "charset 로드: " + charset.length + " chars (CTC blank 미포함)");
+                Log.i(TAG, String.format("INIT charset load: %.1f ms", (System.nanoTime() - tCharset0) / 1e6));
             } else {
                 Log.e(TAG, "charset 파일 없음: " + charsetPath);
                 return false;
             }
 
             // --- detector 로드 ---
+            long tDet0 = System.nanoTime();
             detector = loadInterpreter(detectorPath, nativeLibraryDir, "detector");
             if (detector == null) return false;
+            long tDet1 = System.nanoTime();
             org.tensorflow.lite.Tensor detIn = detector.getInputTensor(0);
             org.tensorflow.lite.Tensor detOut = detector.getOutputTensor(0);
             if (detIn.quantizationParams() != null) {
@@ -105,10 +116,13 @@ public class EasyOCREngine {
             Log.i(TAG, "detector in=" + arr(detInShape) + " out=" + arr(detOutShape)
                 + " inScale=" + detInScale + " inZp=" + detInZp
                 + " outScale=" + detOutScale + " outZp=" + detOutZp);
+            Log.i(TAG, String.format("INIT detector total: %.1f ms", (tDet1 - tDet0) / 1e6));
 
             // --- recognizer 로드 ---
+            long tRec0 = System.nanoTime();
             recognizer = loadInterpreter(recognizerPath, nativeLibraryDir, "recognizer");
             if (recognizer == null) return false;
+            long tRec1 = System.nanoTime();
             org.tensorflow.lite.Tensor recIn = recognizer.getInputTensor(0);
             org.tensorflow.lite.Tensor recOut = recognizer.getOutputTensor(0);
             if (recIn.quantizationParams() != null) {
@@ -124,10 +138,18 @@ public class EasyOCREngine {
             Log.i(TAG, "recognizer in=" + arr(recInShape) + " out=" + arr(recOutShape)
                 + " inScale=" + recInScale + " inZp=" + recInZp
                 + " outScale=" + recOutScale + " outZp=" + recOutZp);
+            Log.i(TAG, String.format("INIT recognizer total: %.1f ms", (tRec1 - tRec0) / 1e6));
 
-            // sanity check
-            if (recOutShape.length != 3 || recOutShape[2] != REC_CLASSES) {
-                Log.e(TAG, "recognizer output class count mismatch: " + arr(recOutShape));
+            // sanity check: the unrolled QCS8450 recognizer must remain compatible
+            // with the existing grayscale input and CTC greedy decoder.
+            if (!sameShape(recInShape, 1, REC_H, REC_W, REC_C)) {
+                Log.e(TAG, "recognizer input shape mismatch: " + arr(recInShape)
+                    + " expected=[1," + REC_H + "," + REC_W + "," + REC_C + "]");
+                return false;
+            }
+            if (!sameShape(recOutShape, 1, REC_T, REC_CLASSES)) {
+                Log.e(TAG, "recognizer output shape mismatch: " + arr(recOutShape)
+                    + " expected=[1," + REC_T + "," + REC_CLASSES + "]");
                 return false;
             }
             if (charset.length + 1 != REC_CLASSES) {
@@ -137,6 +159,7 @@ public class EasyOCREngine {
 
             ready = true;
             Log.i(TAG, "EasyOCR ready (NPU det=" + (detDelegate != null) + " rec=" + (recDelegate != null) + ")");
+            Log.i(TAG, String.format("INIT total: %.1f ms", (System.nanoTime() - tInit0) / 1e6));
             return true;
         } catch (Throwable t) {
             Log.e(TAG, "initialize 실패: " + t.getMessage(), t);
@@ -152,24 +175,32 @@ public class EasyOCREngine {
                 return null;
             }
             FileChannel ch = new FileInputStream(f).getChannel();
+            long tMap0 = System.nanoTime();
             MappedByteBuffer mb = ch.map(FileChannel.MapMode.READ_ONLY, 0, ch.size());
             Log.i(TAG, label + " tflite 로드: " + path + " (" + ch.size() + " bytes)");
+            Log.i(TAG, String.format("INIT %s mmap: %.1f ms", label, (System.nanoTime() - tMap0) / 1e6));
 
             QnnDelegate del = null;
             try {
+                long tDelegate0 = System.nanoTime();
                 QnnDelegate.Options opts = new QnnDelegate.Options();
                 opts.setBackendType(QnnDelegate.Options.BackendType.HTP_BACKEND);
                 opts.setSkelLibraryDir(nativeLibDir);
                 try { opts.setLogLevel(QnnDelegate.Options.LogLevel.LOG_LEVEL_INFO); } catch (Throwable ignored) {}
                 try { opts.setHtpPerformanceMode(QnnDelegate.Options.HtpPerformanceMode.HTP_PERFORMANCE_BURST); } catch (Throwable ignored) {}
                 del = new QnnDelegate(opts);
+                Log.i(TAG, String.format("INIT %s delegate create: %.1f ms", label, (System.nanoTime() - tDelegate0) / 1e6));
             } catch (Throwable t) {
                 Log.e(TAG, label + " QnnDelegate 생성 실패 — CPU fallback: " + t.getMessage());
             }
 
             Interpreter.Options io = new Interpreter.Options();
             if (del != null) io.addDelegate(del);
+            long tInterp0 = System.nanoTime();
             Interpreter interp = new Interpreter(mb, io);
+            long tInterp1 = System.nanoTime();
+            Log.i(TAG, String.format("INIT %s Interpreter: %.1f ms (delegate=%s)",
+                label, (tInterp1 - tInterp0) / 1e6, del != null));
 
             if ("detector".equals(label)) detDelegate = del;
             else recDelegate = del;
@@ -211,17 +242,20 @@ public class EasyOCREngine {
 
             long tDet = System.nanoTime();
 
-            // text score map dequant → float[304*400]
-            float[] textMap = new float[DET_OUT_H * DET_OUT_W];
+            // CRAFT 2채널 dequant: region(글자 score)=ch0, link(글자사이 affinity)=ch1.
+            float[] regionMap = new float[DET_OUT_H * DET_OUT_W];
+            float[] linkMap   = new float[DET_OUT_H * DET_OUT_W];
             for (int y = 0; y < DET_OUT_H; y++) {
                 for (int x = 0; x < DET_OUT_W; x++) {
-                    int q = detOut[0][y][x][0] & 0xFF;
-                    textMap[y * DET_OUT_W + x] = (q - detOutZp) * detOutScale;
+                    int qr = detOut[0][y][x][0] & 0xFF;
+                    int ql = detOut[0][y][x][1] & 0xFF;
+                    regionMap[y * DET_OUT_W + x] = (qr - detOutZp) * detOutScale;
+                    linkMap[y * DET_OUT_W + x]   = (ql - detOutZp) * detOutScale;
                 }
             }
 
-            // connected component → 박스 추출 (heatmap 좌표계).
-            List<Rect> boxesHm = extractBoxes(textMap, DET_OUT_W, DET_OUT_H, TEXT_THRESHOLD);
+            // CRAFT 정석: region+link 결합 → 글자를 단어로 묶어 박스 추출 (heatmap 좌표계).
+            List<Rect> boxesHm = extractBoxes(regionMap, linkMap, DET_OUT_W, DET_OUT_H);
             // top-to-bottom 정렬 → 자연스러운 reading order.
             Collections.sort(boxesHm, new Comparator<Rect>() {
                 @Override public int compare(Rect a, Rect b) {
@@ -322,19 +356,26 @@ public class EasyOCREngine {
         return sb.toString().trim();
     }
 
-    // text score map 에서 binary threshold → 4-connected component → bounding boxes.
-    private List<Rect> extractBoxes(float[] map, int w, int h, float threshold) {
+    // CRAFT 정석 후처리: (region>=LOW_TEXT || link>=LINK_THRESHOLD) 결합 마스크에 4-connected
+    // component → 글자들이 affinity(link)로 이어져 단어 박스가 됨. component peak region 이
+    // TEXT_THRESHOLD 미만이면 노이즈로 버림. (Mac detector 검증: region-only 30박스 → region+link 6박스,
+    //  "COCA-COLA" 한 줄이 박스 1개로 병합.)
+    private List<Rect> extractBoxes(float[] region, float[] link, int w, int h) {
         List<Rect> out = new ArrayList<>();
-        int[] labels = new int[w * h];           // 0 = unlabeled
-        int[] stack = new int[w * h];            // BFS 큐 (인덱스)
+        int n = w * h;
+        boolean[] mask = new boolean[n];
+        for (int i = 0; i < n; i++) mask[i] = region[i] >= LOW_TEXT || link[i] >= LINK_THRESHOLD;
+        int[] labels = new int[n];               // 0 = unlabeled
+        int[] stack = new int[n];                // BFS 큐 (인덱스)
         int curLabel = 0;
-        for (int i = 0; i < map.length; i++) {
-            if (map[i] < threshold || labels[i] != 0) continue;
+        for (int i = 0; i < n; i++) {
+            if (!mask[i] || labels[i] != 0) continue;
             curLabel++;
             int sp = 0;
             stack[sp++] = i;
             labels[i] = curLabel;
             int minX = i % w, maxX = minX, minY = i / w, maxY = minY;
+            float peak = region[i];
             while (sp > 0) {
                 int idx = stack[--sp];
                 int x = idx % w, y = idx / w;
@@ -342,13 +383,15 @@ public class EasyOCREngine {
                 if (x > maxX) maxX = x;
                 if (y < minY) minY = y;
                 if (y > maxY) maxY = y;
-                if (x + 1 < w) { int n = idx + 1; if (labels[n] == 0 && map[n] >= threshold) { labels[n] = curLabel; stack[sp++] = n; } }
-                if (x - 1 >= 0) { int n = idx - 1; if (labels[n] == 0 && map[n] >= threshold) { labels[n] = curLabel; stack[sp++] = n; } }
-                if (y + 1 < h) { int n = idx + w; if (labels[n] == 0 && map[n] >= threshold) { labels[n] = curLabel; stack[sp++] = n; } }
-                if (y - 1 >= 0) { int n = idx - w; if (labels[n] == 0 && map[n] >= threshold) { labels[n] = curLabel; stack[sp++] = n; } }
+                if (region[idx] > peak) peak = region[idx];
+                if (x + 1 < w)  { int m = idx + 1; if (labels[m] == 0 && mask[m]) { labels[m] = curLabel; stack[sp++] = m; } }
+                if (x - 1 >= 0) { int m = idx - 1; if (labels[m] == 0 && mask[m]) { labels[m] = curLabel; stack[sp++] = m; } }
+                if (y + 1 < h)  { int m = idx + w; if (labels[m] == 0 && mask[m]) { labels[m] = curLabel; stack[sp++] = m; } }
+                if (y - 1 >= 0) { int m = idx - w; if (labels[m] == 0 && mask[m]) { labels[m] = curLabel; stack[sp++] = m; } }
             }
             int bw = maxX - minX + 1, bh = maxY - minY + 1;
-            if (bw * bh >= MIN_BOX_AREA) out.add(new Rect(minX, minY, maxX + 1, maxY + 1));
+            if (bw * bh >= MIN_BOX_AREA && peak >= TEXT_THRESHOLD)
+                out.add(new Rect(minX, minY, maxX + 1, maxY + 1));
         }
         return out;
     }
@@ -454,5 +497,13 @@ public class EasyOCREngine {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < a.length; i++) { if (i > 0) sb.append(","); sb.append(a[i]); }
         return sb.append("]").toString();
+    }
+
+    private static boolean sameShape(int[] actual, int... expected) {
+        if (actual == null || actual.length != expected.length) return false;
+        for (int i = 0; i < expected.length; i++) {
+            if (actual[i] != expected[i]) return false;
+        }
+        return true;
     }
 }

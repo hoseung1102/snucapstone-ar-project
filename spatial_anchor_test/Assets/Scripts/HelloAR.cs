@@ -58,7 +58,7 @@ public class HelloAR : MonoBehaviour
     [Header("v1.1 OCR 데모 경로 제거")]
     [Tooltip("v1.1: OCR 메인스레드 블록(init+5s 추론) 데모 경로 제거.\n" +
              "CLIP brand fallback(enableClipBrandFallback=true)으로 brand 확정.")]
-    public bool skipOcr = true;
+    public bool skipOcr = false;   // b22 OCR 통합: NPU EasyOCR(word-box fix) 켜고 트리거→OCR 실호출
 
     [Header("v1.1 핫패스 디스크 쓰기")]
     [Tooltip("true 면 매 trigger 시 frame jpg 저장 (ref 수집용). 데모에선 off — 핫패스 블로킹 제거.")]
@@ -72,7 +72,7 @@ public class HelloAR : MonoBehaviour
     [Header("v1.2 brand 판별기 선택")]
     [Tooltip("\"color\": cola category 는 색(코크 빨강/펩시 파랑)으로 brand 확정.\n" +
              "그 외 값: 기존 matcher.ResolveBrand(OCR + CLIP fallback) 경로 사용.")]
-    public string brandDisambiguator = "color";
+    public string brandDisambiguator = "ocr";   // b22: 색이 아니라 OCR 키워드로 brand 확정 (matcher.ResolveBrand(ocrText))
     // v1.3 deprecated — dominant 픽셀 count(ratio) 방식 미사용. 평균색 lean 으로 전환.
     //   펩시 파란 몸통이 strict count 임계 미달로 blue=0.00 → 빨간 뚜껑 때문에 coke 오판되던 문제.
     [Tooltip("[deprecated v1.3] 색 판별 최소 비율 — count 방식 시절 값. 미사용.")]
@@ -133,9 +133,9 @@ public class HelloAR : MonoBehaviour
         clip = gameObject.AddComponent<ClipExtractor>();
         matcher = gameObject.AddComponent<ProductMatcher>();
         matcher.minSimilarity = clipMatchThreshold;
-        // v0.8.5: RayNeo 에서 MLKit OCR 5초씩 걸리며 text='' 일관 → STAGE2 영구 FAIL.
-        // CLIP brand-specific fallback ON 으로 demo escape. OCR fix 후에도 안전망으로 유지.
-        matcher.enableClipBrandFallback = true;
+        // b22 OCR 통합: brand 를 OCR 이 결정해야 함 → fallback OFF.
+        //   fallback 켜두면 광고가 OCR 없이 CLIP 환경편향 추정으로도 떠서 "광고뜸≠OCR동작" → goal①③ 해석 불가.
+        matcher.enableClipBrandFallback = false;
         // v0.5.15: topK=1 (가장 가까운 ref 만 사용). environment-aligned + laptop fairness.
         // top-3 평균이 broad-coverage refs 에 유리 → coke 시연 시 pepsi 잡는 문제 해결 시도.
         matcher.topK = 1;

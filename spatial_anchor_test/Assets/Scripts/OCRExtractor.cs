@@ -13,7 +13,7 @@ public class OCRExtractor : MonoBehaviour
 
     [Header("EasyOCR 모델 (StreamingAssets)")]
     public string detectorFilename = "easyocr_detector.tflite";
-    public string recognizerFilename = "easyocr_recognizer.tflite";
+    public string recognizerFilename = "easyocr_recognizer_unroll_qcs8450.tflite";
     public string charsetFilename = "easyocr_charset.txt";
 
     [Header("v0.7.3 회전 보정")]
@@ -33,6 +33,13 @@ public class OCRExtractor : MonoBehaviour
     public bool saveOcrInput = true;
     int _ocrSaveIdx;
 
+    [Header("Track① read 검증 self-test")]
+    [Tooltip("true: OCR ready 직후 (a) 번들 라벨 카드 + (b) persistentDataPath/ocr_selftest/*.{jpg,png} 에 " +
+             "recognize 자동 실행 → [OCR-SELFTEST] 로그 출력. 카메라/트리거/조준 없이 NPU recognizer 의 라벨 read 정확도를 결정적·재현 가능하게 검증.")]
+    public bool runSelfTest = false;   // b21: 실제 파이프라인 통합 — self-test off (트리거→OCR 실호출 경로 측정)
+    [Tooltip("StreamingAssets 상대경로. read 검증용 라벨 이미지(글자 또렷한 것).")]
+    public string[] selfTestBundled = { "db/ads/coke_bottle_ad.png", "db/ads/pepsi_bottle_ad.png" };
+
 #if UNITY_ANDROID && !UNITY_EDITOR
     AndroidJavaObject _ocr;
 #endif
@@ -40,6 +47,7 @@ public class OCRExtractor : MonoBehaviour
     void Awake()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
+        StartupProbe.Mark("OCR", "Awake start coroutine");
         StartCoroutine(InitializeEasyOcr());
 #else
         isReady = false;
@@ -57,6 +65,7 @@ public class OCRExtractor : MonoBehaviour
         string recDst = System.IO.Path.Combine(Application.persistentDataPath, recognizerFilename);
         string charDst = System.IO.Path.Combine(Application.persistentDataPath, charsetFilename);
 
+        StartupProbe.Mark("OCR", "InitializeEasyOcr begin");
         yield return CopyAsset(detSrc, detDst, "detector");
         yield return CopyAsset(recSrc, recDst, "recognizer");
         yield return CopyAsset(charSrc, charDst, "charset");
@@ -72,7 +81,9 @@ public class OCRExtractor : MonoBehaviour
         try
         {
             _ocr = new AndroidJavaObject("com.eagleeye.ocr.EasyOCREngine");
+            StartupProbe.Mark("OCR", "Java EasyOCREngine.initialize begin");
             bool ok = _ocr.Call<bool>("initialize", detDst, recDst, charDst, nativeLibDir);
+            StartupProbe.Mark("OCR", $"Java EasyOCREngine.initialize end ok={ok}");
             if (!ok)
             {
                 statusMessage = "❌ EasyOCR init 실패";
@@ -82,12 +93,80 @@ public class OCRExtractor : MonoBehaviour
             isReady = true;
             statusMessage = "✅ EasyOCR ready (NPU)";
             Debug.Log("[OCRExtractor] " + statusMessage);
+            StartupProbe.Mark("OCR", "ready");
         }
         catch (System.Exception e)
         {
             statusMessage = "❌ EasyOCR init 예외: " + e.Message;
             Debug.LogError("[OCRExtractor] " + statusMessage);
         }
+
+        // Track① read 검증 — ready 직후 self-test. 트리거/카메라/foreground 무관하게 실행.
+        if (isReady && runSelfTest)
+            yield return RunSelfTest();
+    }
+
+    // 번들 라벨 카드 + push 된 ocr_selftest/ 이미지에 recognize 자동 실행 → [OCR-SELFTEST] 로그.
+    System.Collections.IEnumerator RunSelfTest()
+    {
+        Debug.Log("[OCR-SELFTEST] begin");
+        int savedRot = rotationOverride;
+        rotationOverride = 0;   // static 이미지: 카메라 회전 보정 끔
+
+        // (a) StreamingAssets 번들 라벨 카드
+        foreach (var rel in selfTestBundled)
+        {
+            string src = System.IO.Path.Combine(Application.streamingAssetsPath, rel);
+            var req = UnityEngine.Networking.UnityWebRequest.Get(src);
+            yield return req.SendWebRequest();
+            if (req.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                Debug.LogWarning($"[OCR-SELFTEST] bundled load 실패 {rel}: {req.error}");
+                continue;
+            }
+            yield return RunOneSelfTest(rel, req.downloadHandler.data);
+        }
+
+        // (b) adb push 한 실프레임: persistentDataPath/ocr_selftest/*.{jpg,jpeg,png}
+        string dir = System.IO.Path.Combine(Application.persistentDataPath, "ocr_selftest");
+        if (System.IO.Directory.Exists(dir))
+        {
+            var files = System.IO.Directory.GetFiles(dir);
+            System.Array.Sort(files);
+            foreach (var f in files)
+            {
+                string lf = f.ToLowerInvariant();
+                if (!lf.EndsWith(".jpg") && !lf.EndsWith(".jpeg") && !lf.EndsWith(".png")) continue;
+                byte[] bytes = null;
+                try { bytes = System.IO.File.ReadAllBytes(f); }
+                catch (System.Exception e) { Debug.LogWarning("[OCR-SELFTEST] read 실패 " + f + ": " + e.Message); }
+                if (bytes != null)
+                    yield return RunOneSelfTest("ocr_selftest/" + System.IO.Path.GetFileName(f), bytes);
+            }
+        }
+        else
+        {
+            Debug.Log("[OCR-SELFTEST] push 폴더 없음 (스킵): " + dir);
+        }
+
+        rotationOverride = savedRot;
+        Debug.Log("[OCR-SELFTEST] done");
+    }
+
+    System.Collections.IEnumerator RunOneSelfTest(string label, byte[] imgBytes)
+    {
+        var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        bool ok = tex.LoadImage(imgBytes);   // 디코드 + 리사이즈
+        if (!ok || tex.width < 16)
+        {
+            Debug.LogWarning($"[OCR-SELFTEST] decode 실패 {label}");
+            Destroy(tex);
+            yield break;
+        }
+        string txt = ExtractText(tex);
+        Debug.Log($"[OCR-SELFTEST] src={label} ({tex.width}x{tex.height}) decoded='{(txt ?? "").Replace('\n', '|')}'");
+        Destroy(tex);
+        yield return null;
     }
 
     System.Collections.IEnumerator CopyAsset(string srcPath, string dstPath, string label)
@@ -95,9 +174,11 @@ public class OCRExtractor : MonoBehaviour
         if (System.IO.File.Exists(dstPath) && new System.IO.FileInfo(dstPath).Length > 0)
         {
             Debug.Log($"[OCRExtractor] {label} 이미 복사됨: {dstPath}");
+            StartupProbe.Mark("OCR", $"{label} copy skip existing bytes={new System.IO.FileInfo(dstPath).Length}");
             yield break;
         }
         statusMessage = $"{label} 복사 중...";
+        StartupProbe.Mark("OCR", $"{label} copy begin {srcPath}");
         var req = UnityEngine.Networking.UnityWebRequest.Get(srcPath);
         yield return req.SendWebRequest();
         if (req.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
@@ -108,6 +189,7 @@ public class OCRExtractor : MonoBehaviour
         }
         System.IO.File.WriteAllBytes(dstPath, req.downloadHandler.data);
         Debug.Log($"[OCRExtractor] {label} 복사: {dstPath} ({req.downloadHandler.data.Length} bytes)");
+        StartupProbe.Mark("OCR", $"{label} copy end bytes={req.downloadHandler.data.Length}");
     }
 #endif
 
@@ -141,9 +223,20 @@ public class OCRExtractor : MonoBehaviour
             }
 
             // v0.9.0: ShareCamera 는 videoRotationAngle 가 없음 → XRCameraHelper.getOrientation("0").
+            // ⚠️ rotationOverride 가 설정돼 있으면 getOrientation 호출 자체를 건너뛴다.
+            //    XR/카메라 세션이 없는 scene(ColdStartProbeScene self-test 등)에서 getOrientation 은
+            //    libRayNeoXRApiLayerClient(XRWarp_getOrientation) 에서 null deref → SIGSEGV (C# try/catch 로 못 막음).
+            int rot;
             int autoRot = 0;
-            try { autoRot = com.rayneo.xr.extensions.XRCameraHelper.getOrientation("0"); } catch { }
-            int rot = rotationOverride >= 0 ? rotationOverride : autoRot;
+            if (rotationOverride >= 0)
+            {
+                rot = rotationOverride;
+            }
+            else
+            {
+                try { autoRot = com.rayneo.xr.extensions.XRCameraHelper.getOrientation("0"); } catch { }
+                rot = autoRot;
+            }
 
             string text = _ocr.Call<string>("recognize", jpg, rot);
             lastExtractedText = text ?? "";
