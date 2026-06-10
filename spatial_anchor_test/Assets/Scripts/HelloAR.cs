@@ -73,10 +73,17 @@ public class HelloAR : MonoBehaviour
     [Tooltip("\"color\": cola category 는 색(코크 빨강/펩시 파랑)으로 brand 확정.\n" +
              "그 외 값: 기존 matcher.ResolveBrand(OCR + CLIP fallback) 경로 사용.")]
     public string brandDisambiguator = "color";
-    [Tooltip("색 판별 최소 비율 — 우세 색 ratio 가 이 값 미만이면 brand 미확정.")]
+    // v1.3 deprecated — dominant 픽셀 count(ratio) 방식 미사용. 평균색 lean 으로 전환.
+    //   펩시 파란 몸통이 strict count 임계 미달로 blue=0.00 → 빨간 뚜껑 때문에 coke 오판되던 문제.
+    [Tooltip("[deprecated v1.3] 색 판별 최소 비율 — count 방식 시절 값. 미사용.")]
     public float colorBrandMinRatio = 0.15f;
-    [Tooltip("우세 색이 반대 색의 몇 배 이상이어야 확정하는지 (예: red ≥ blue*1.5).")]
+    [Tooltip("[deprecated v1.3] 우세 색이 반대 색의 몇 배 이상이어야 했는지 — count 방식 시절 값. 미사용.")]
     public float colorBrandDominance = 1.5f;
+    [Header("v1.3 평균색 lean 마진")]
+    [Tooltip("파랑이 살짝만 우세해도(blueLean > 이 값) 펩시 — 코크는 파랑 거의 0이라 평균이 파랑 쪽이면 펩시.")]
+    public float colorBlueMargin = 5f;
+    [Tooltip("코크는 빨강이 명확히 우세해야(redLean > 이 값) 확정 — FP 차단.")]
+    public float colorRedMargin = 25f;
 
     GUIStyle big, small, flash, statusStyle, boxLabelStyle;
     Texture2D boxTex;
@@ -313,9 +320,12 @@ public class HelloAR : MonoBehaviour
         }
     }
 
-    // v1.2 — 색 기반 brand 판별. ClipExtractor 가 PreprocessTexture 에서 카운트해 둔 중앙 박스
-    //   red/blue ratio 를 읽어 코크(빨강)/펩시(파랑)를 확정. category 의 brand 객체로 매핑해 반환.
-    //   색 신호가 약하거나 모호하면 null (호출부가 기존 OCR/CLIP 경로로 폴백).
+    // v1.3 — 영역 평균색(mean RGB) 기반 brand 판별. ClipExtractor 가 PreprocessTexture 에서
+    //   산출해 둔 중앙 박스 평균색을 읽어 코크(빨강)/펩시(파랑)를 확정.
+    //   v1.2 의 dominant 픽셀 count 방식은 펩시 파란 몸통이 strict 임계 미달로 blue=0.00 →
+    //   빨간 뚜껑 때문에 coke 오판됐음(실측: pepsi 인데 red=0.41 blue=0.00). 평균색이면 면적 큰
+    //   파란 몸통이 평균을 파랑으로 끌어 펩시로 정확. 중립 평균이면 null → no-ad 로 FP 차단.
+    //   색 신호가 없거나 중립/모호하면 null (호출부가 기존 OCR/CLIP 경로로 폴백).
     ProductMatcher.Brand ResolveBrandByColor(ProductMatcher.Category category, out string src, out float score)
     {
         src = "color";
@@ -326,14 +336,20 @@ public class HelloAR : MonoBehaviour
             return null;
         }
 
-        float red = clip.lastRedRatio, blue = clip.lastBlueRatio;
+        float mR = clip.lastMeanR, mG = clip.lastMeanG, mB = clip.lastMeanB;
+        float blueLean = mB - mR;   // 평균이 파랑 쪽으로 기운 정도
+        float redLean  = mR - mB;   // 평균이 빨강 쪽으로 기운 정도
+
+        // 파랑 우선 — 코크는 파랑 거의 0이라 평균이 조금이라도 파랑 쪽이면 펩시.
         string brandName = null;
-        if (red >= colorBrandMinRatio && red > blue * colorBrandDominance) { brandName = "coca-cola"; score = red; }
-        else if (blue >= colorBrandMinRatio && blue > red * colorBrandDominance) { brandName = "pepsi"; score = blue; }
+        if (blueLean > colorBlueMargin) { brandName = "pepsi"; score = blueLean; }
+        else if (redLean > colorRedMargin) { brandName = "coca-cola"; score = redLean; }
+
+        Debug.Log($"[HelloAR] color mean=({mR:F0},{mG:F0},{mB:F0}) blueLean={blueLean:F1} redLean={redLean:F1} → {brandName ?? "none"}");
 
         if (brandName == null)
         {
-            Debug.Log($"[HelloAR] color brand: 모호 red={red:F2} blue={blue:F2} (minRatio={colorBrandMinRatio:F2} dom={colorBrandDominance:F1}) → 폴백");
+            // 중립/모호 → 광고 X (FP 방지). 폴백하면 enableClipBrandFallback 환경편향이 coke FP 재발.
             return null;
         }
 
@@ -343,7 +359,7 @@ public class HelloAR : MonoBehaviour
             Debug.Log($"[HelloAR] color brand: '{brandName}' 결정했지만 category={category.name} 에 해당 brand 없음 → 폴백");
             return null;
         }
-        Debug.Log($"[HelloAR] ✅ color brand 확정: {brandName} (red={red:F2} blue={blue:F2})");
+        Debug.Log($"[HelloAR] ✅ color brand 확정: {brandName} (score={score:F1})");
         return brand;
     }
 

@@ -41,9 +41,16 @@ public class ClipExtractor : MonoBehaviour
     public string statusMessage = "초기화 중...";
     public long lastEmbedMs;
     // v1.2: 마지막 PreprocessTexture 의 중앙 박스 색 통계 (HelloAR ResolveBrandByColor 가 읽음).
+    // v1.3: dominant 픽셀 카운트 → 영역 평균색(mean RGB) 으로 brand 판별 전환. 아래 ratio 들은
+    //   strict count 방식이라 펩시 파란 몸통이 임계 미달로 blue=0.00 → 빨간 뚜껑 때문에 coke 오판됨.
+    //   ratio 3종은 로그 비교용으로만 유지 (실측 보정 시 mean 과 대조).
     public float lastRedRatio { get; private set; }
     public float lastBlueRatio { get; private set; }
     public bool lastColorValid { get; private set; }
+    // v1.3: 중앙 박스 평균색 (0-255 스케일 float). 면적 큰 색이 평균을 끌어 brand 판별.
+    public float lastMeanR { get; private set; }
+    public float lastMeanG { get; private set; }
+    public float lastMeanB { get; private set; }
 
     AndroidJavaObject qnnEngine;
     float[] inputBuffer;     // NCHW (3*256*256) float32 normalized
@@ -244,6 +251,8 @@ public class ClipExtractor : MonoBehaviour
         int lo = colMargin, hi = INPUT_SIZE - colMargin;
         int m = colorMargin;
         int red = 0, blue = 0, sampled = 0;
+        // v1.3: 중앙 박스 평균색 누적 (Color32 r/g/b 는 0-255 byte). long 으로 overflow 방지.
+        long sumR = 0, sumG = 0, sumB = 0;
         for (int i = 0; i < plane; i++)
         {
             // (pixel - mean) / std for each channel, NCHW layout
@@ -257,10 +266,16 @@ public class ClipExtractor : MonoBehaviour
             int r = pixels[i].r, g = pixels[i].g, b = pixels[i].b;
             if (r > g + m && r > b + m) red++;
             else if (b > r + m && b > g + m) blue++;
+            // v1.3: 같은 박스 픽셀의 채널 합 누적 → 루프 후 평균색 산출.
+            sumR += r; sumG += g; sumB += b;
             sampled++;
         }
         lastColorValid = sampled > 0;
         lastRedRatio = lastColorValid ? (float)red / sampled : 0f;
         lastBlueRatio = lastColorValid ? (float)blue / sampled : 0f;
+        // v1.3: 영역 평균색 (0-255 스케일). 면적 큰 색이 평균을 지배 → 펩시 파란 몸통이 평균을 파랑으로.
+        lastMeanR = lastColorValid ? (float)sumR / sampled : 0f;
+        lastMeanG = lastColorValid ? (float)sumG / sampled : 0f;
+        lastMeanB = lastColorValid ? (float)sumB / sampled : 0f;
     }
 }

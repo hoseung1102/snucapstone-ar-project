@@ -33,7 +33,10 @@ public class SpatialAnchorTest : MonoBehaviour
     // ----- state -----
     Camera xrCam;
     GameObject anchorQuad;
-    GameObject adQuad;
+    // v1.4: 경쟁사 광고 quad 를 단일 교체에서 최대 maxAds 개 누적(FIFO)으로 변경.
+    //   초과 시 가장 오래된 것부터 제거 → 동시에 여러 경쟁사 비교 표시 가능.
+    List<GameObject> adQuads = new List<GameObject>();
+    public int maxAds = 2;
     // v1.0: world-anchored 광고 영상 (VideoPlayer→RenderTexture, AdRenderer 셋업 미러).
     VideoPlayer adVp;
     RenderTexture adRT;
@@ -172,6 +175,9 @@ public class SpatialAnchorTest : MonoBehaviour
 #endif
         if (adVp != null) { adVp.prepareCompleted -= OnAdVideoPrepared; try { adVp.Stop(); } catch { } }
         if (adRT != null) { adRT.Release(); adRT = null; }
+        // v1.4: 누적된 광고 quad 전부 정리.
+        foreach (var q in adQuads) if (q != null) Destroy(q);
+        adQuads.Clear();
     }
 
     void SpawnProvisional()
@@ -274,19 +280,26 @@ public class SpatialAnchorTest : MonoBehaviour
         }
 
         // 광고 quad spawn (world 고정).
-        if (adQuad != null) Destroy(adQuad);
-        adQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
-        adQuad.name = "AdQuad";
-        adQuad.transform.position = adPos;
-        adQuad.transform.rotation = faceUser;
-        adQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * 0.75f, 1f);
-        var col = adQuad.GetComponent<Collider>();
+        // v1.4: 단일 교체 대신 누적 — adQuads 에 추가 후 maxAds 초과분(FIFO, 앞=오래된 것) 제거.
+        GameObject newQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        newQuad.name = "AdQuad";
+        newQuad.transform.position = adPos;
+        newQuad.transform.rotation = faceUser;
+        newQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * 0.75f, 1f);
+        var col = newQuad.GetComponent<Collider>();
         if (col != null) Destroy(col);
-        var mr = adQuad.GetComponent<MeshRenderer>();
+        var mr = newQuad.GetComponent<MeshRenderer>();
 
         // material 기본 셋업 (이미지 로드 완료 시 mainTexture 교체).
         var sh = Shader.Find("Unlit/Texture") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
         if (sh != null) mr.material = new Material(sh);
+
+        adQuads.Add(newQuad);
+        while (adQuads.Count > maxAds)
+        {
+            if (adQuads[0] != null) Destroy(adQuads[0]);
+            adQuads.RemoveAt(0);
+        }
 
         // Candidate A: 영상(VideoPlayer→world quad) 경로가 spawn 직후 앱 크래시 → 정지 PNG 로 대체.
         // vidPath(db/ads_video/x.mp4) → 이미지(db/ads/x.png). AdRenderer.LoadAndShow 의 UnityWebRequest 로딩 미러.
@@ -317,20 +330,27 @@ public class SpatialAnchorTest : MonoBehaviour
             var tex = new Texture2D(2, 2);
             tex.LoadImage(bytes);
             mr.material.mainTexture = tex;
+            // v1.4: quad 가 사용자 향해 180° 회전하면 텍스처가 거울상 → U축 미러로 좌우 반전 교정.
+            mr.material.mainTextureScale = new Vector2(-1f, 1f);
+            mr.material.mainTextureOffset = new Vector2(1f, 0f);
             // 광고 가로세로비에 맞춰 quad 스케일 보정 (찌그러짐 방지).
-            if (adQuad != null && tex.height > 0)
+            // v1.4: 전역 adQuad 대신 이 텍스처를 받은 quad(mr.transform) 기준으로 보정.
+            if (tex.height > 0)
             {
                 float a = (float)tex.height / tex.width;
-                adQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * a, 1f);
+                mr.transform.localScale = new Vector3(quadWidthM, quadWidthM * a, 1f);
             }
             Debug.Log($"[SpatialAnchorTest] 광고 이미지 적용 {tex.width}x{tex.height}: {imgRelPath}");
         }
     }
 
     // VideoPlayer prepare 완료 → 영상 해상도 RenderTexture 할당 후 quad material 에 바인딩.
+    // v1.0: 영상 경로 — 현재 휴면(정지 PNG 로 대체, ShowAdBesideMatch 주석 참조). dead code.
     void OnAdVideoPrepared(VideoPlayer vp)
     {
-        if (adQuad == null) { try { vp.Stop(); } catch { } return; }
+        // v1.4: 전역 adQuad 제거 → 가장 최근 광고 quad 에 바인딩.
+        GameObject target = adQuads.Count > 0 ? adQuads[adQuads.Count - 1] : null;
+        if (target == null) { try { vp.Stop(); } catch { } return; }
         int w = (int)vp.width, h = (int)vp.height;
         if (w <= 0 || h <= 0) { Debug.LogWarning("[SpatialAnchorTest] ad video 0 dim"); return; }
         if (adRT == null || adRT.width != w || adRT.height != h)
@@ -340,7 +360,7 @@ public class SpatialAnchorTest : MonoBehaviour
             adRT.Create();
         }
         vp.targetTexture = adRT;
-        var mr = adQuad.GetComponent<MeshRenderer>();
+        var mr = target.GetComponent<MeshRenderer>();
         if (mr != null && mr.material != null) mr.material.mainTexture = adRT;
         vp.Play();
         Debug.Log($"[SpatialAnchorTest] ad video playing {w}x{h}");
@@ -457,7 +477,6 @@ public class SpatialAnchorTest : MonoBehaviour
         Vector3 camPos   = xrCam.transform.position;
         Vector3 camFwd   = xrCam.transform.forward;
         Vector3 camUp    = xrCam.transform.up;
-        Vector3 camRight = xrCam.transform.right;
         Vector3 anchorPos = camPos + camFwd * anchorDistanceM;
         Quaternion faceUser = Quaternion.LookRotation(-camFwd, camUp);
 
@@ -466,11 +485,13 @@ public class SpatialAnchorTest : MonoBehaviour
             anchorQuad.transform.position = anchorPos;
             anchorQuad.transform.rotation = faceUser;
         }
-        if (adQuad != null)
+        // v1.4: 누적된 광고 quad 전부를 카메라 정면(응시 지점)으로 재배치.
+        //   ShowAdBesideMatch 와 일관되게 정면(anchorPos) 으로 통일 (이전엔 camRight 옆칸).
+        foreach (var q in adQuads)
         {
-            // ShowAdBesideMatch 와 동일: 응시 지점 오른쪽 한 칸
-            adQuad.transform.position = anchorPos + camRight * (quadWidthM * 1.2f);
-            adQuad.transform.rotation = faceUser;
+            if (q == null) continue;
+            q.transform.position = anchorPos;
+            q.transform.rotation = faceUser;
         }
         if (hudObj != null)
         {
