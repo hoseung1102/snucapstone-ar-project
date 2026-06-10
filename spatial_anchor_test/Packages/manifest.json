@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.unity.xr.rayneo.openxr": "file:com.unity.xr.rayneo.openxr",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.openxr": "1.7.0",
     "com.unity.xr.management": "4.2.1",
@@ -11,6 +12,8 @@
     "com.unity.modules.jsonserialize": "1.0.0",
     "com.unity.modules.particlesystem": "1.0.0",
     "com.unity.modules.physics": "1.0.0",
+    "com.unity.modules.video": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
     "com.unity.modules.screencapture": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.vr": "1.0.0",

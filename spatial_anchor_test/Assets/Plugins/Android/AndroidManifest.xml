@@ -9,11 +9,31 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.vr.headtracking"
                   android:required="false"
                   android:version="1" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application>
+        <!-- v0.8.4 fix: Android 11+ vendor namespace .so 접근에 명시 필요.
+             helloar reference APK 에서 추출 (12개). 없으면 libQnnHtpV73Stub.so 가
+             libcdsprpc.so dlopen 실패 → QnnClipEngine init 실패 → CLIP NPU 불가 → 광고 spawn X. -->
+        <uses-native-library android:name="libcdsprpc.so" android:required="false" />
+        <uses-native-library android:name="libadsprpc.so" android:required="false" />
+        <uses-native-library android:name="libhidlbase.so" android:required="false" />
+        <uses-native-library android:name="libhardware.so" android:required="false" />
+        <uses-native-library android:name="libutils.so" android:required="false" />
+        <uses-native-library android:name="libcutils.so" android:required="false" />
+        <uses-native-library android:name="libc++.so" android:required="false" />
+        <uses-native-library android:name="libbase.so" android:required="false" />
+        <uses-native-library android:name="libprocessgroup.so" android:required="false" />
+        <uses-native-library android:name="libhwbinder.so" android:required="false" />
+        <uses-native-library android:name="libbinder_ndk.so" android:required="false" />
+        <uses-native-library android:name="libandroid_runtime_lazy.so" android:required="false" />
+
         <!-- ARDK 의 UnityOpenXrActivity (skiing 게임이 사용하는 그것) 를 main launcher 로 -->
         <activity android:name="com.rayneo.openxradapter.UnityOpenXrActivity"
                   android:theme="@style/UnityThemeSelector"

@@ -1,0 +1,102 @@
+[
+  {
+    "id": 0,
+    "name": "cola",
+    "category_label": "Cola bottle",
+    "embedding": "db/embeddings/cola.npy",
+    "reference_images": [
+      "refs/cola/jetson_coke_4.jpg",
+      "refs/cola/jetson_coke_5.jpg",
+      "refs/cola/coke_4.jpg",
+      "refs/cola/coke_12.jpg",
+      "refs/cola/pepsi_new_1.jpg",
+      "refs/cola/pepsi_new_4.jpg"
+    ],
+    "brands": [
+      {
+        "name": "coca-cola",
+        "keywords": [
+          "coca-cola",
+          "coca cola",
+          "cocacola",
+          "coke",
+          "coca"
+        ],
+        "negative_keywords": [
+          "zero",
+          "diet",
+          "light",
+          "no sugar"
+        ],
+        "embedding": "db/embeddings/coca-cola.npy",
+        "ad_image": "db/ads/pepsi_bottle_ad.png",
+        "ad_label": "Pepsi Classic",
+        "comparison": {
+          "identified_name": "Coca-Cola Classic",
+          "ad_brand": "Pepsi Classic",
+          "rating": 4.3,
+          "price": "$1.20",
+          "differentiator": "Sweeter and less caffeine",
+          "location": "Beverage aisle, left 2"
+        }
+      },
+      {
+        "name": "pepsi",
+        "keywords": [
+          "pepsi"
+        ],
+        "negative_keywords": [
+          "zero",
+          "max",
+          "diet",
+          "light",
+          "no sugar"
+        ],
+        "embedding": "db/embeddings/pepsi.npy",
+        "ad_image": "db/ads/coke_bottle_ad.png",
+        "ad_label": "Coca-Cola Original Taste",
+        "comparison": {
+          "identified_name": "Pepsi Classic",
+          "ad_brand": "Coca-Cola Original Taste",
+          "rating": 4.5,
+          "price": "$1.20",
+          "differentiator": "Original flavor, more caffeine",
+          "location": "Beverage aisle, right 1"
+        }
+      }
+    ],
+    "_comment": "cola category. Stage1 CLIP=cola, Stage2 brand 확정 (OCR primary, CLIP brand-specific fallback)."
+  },
+  {
+    "id": 1,
+    "name": "laptop",
+    "category_label": "Laptop",
+    "embedding": "db/embeddings/laptop.npy",
+    "reference_images": [
+      "refs/laptop/laptop_ref.jpg"
+    ],
+    "brands": [
+      {
+        "name": "macbook",
+        "keywords": [
+          "macbook",
+          "apple",
+          "mac"
+        ],
+        "negative_keywords": [],
+        "embedding": null,
+        "ad_image": "db/ads/laptop_ad.png",
+        "ad_label": "MacBook Air M3",
+        "comparison": {
+          "identified_name": "Laptop",
+          "ad_brand": "MacBook Air M3",
+          "rating": 4.7,
+          "price": "$1,299",
+          "differentiator": "Fanless design, 18h battery",
+          "location": "Apple Store / Online"
+        }
+      }
+    ],
+    "_comment": "laptop category. brand 1개 (macbook) — OCR fail 시 default fallback."
+  }
+]

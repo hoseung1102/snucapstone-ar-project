@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+// apply from: '../shared/keepUnitySymbols.gradle' — 원본 Mac 환경의 별도 gradle file. repo 에 없어서 disabled.
+**APPLY_PLUGINS**
+
+repositories {
+    google()
+    mavenCentral()
+    // Qualcomm QNN artifacts (com.qualcomm.qti:qnn-runtime, qnn-litert-delegate)는
+    // Maven Central 에 publish 되어 있어 별도 repo 불필요.
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+**DEPS**
+    // === Eagle Eye v0.2.6: NPU 가속을 위한 Qualcomm 공식 라이브러리 ===
+    // root 불필요. Maven Central에서 자동 다운로드.
+    implementation 'org.tensorflow:tensorflow-lite:2.15.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.4'
+    implementation 'com.qualcomm.qti:qnn-runtime:2.47.0'
+    implementation 'com.qualcomm.qti:qnn-litert-delegate:2.47.0'
+    // v0.9.0: MLKit (CPU, ~10s latency) → EasyOCR w8a8 TFLite + QNN HTP (Hexagon v73) 로 교체.
+    // EasyOCREngine.java 가 위 tensorflow-lite + qnn-litert-delegate 만 사용.
+}
+
+android {
+    namespace "com.unity3d.player"
+    ndkPath "**NDKPATH**"
+    ndkVersion "**NDKVERSION**"
+
+    compileSdk **APIVERSION**
+    buildToolsVersion = "**BUILDTOOLS**"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        minSdk **MINSDK**
+        targetSdk **TARGETSDK**
+        ndk {
+            abiFilters **ABIFILTERS**
+            debugSymbolLevel **DEBUGSYMBOLLEVEL**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+        consumerProguardFiles 'proguard-unity.txt'**USER_PROGUARD**
+**DEFAULT_CONFIG_SETUP**
+    }
+
+    lint {
+        abortOnError false
+    }
+
+    androidResources {
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**PACKAGING**
+}
+**IL_CPP_BUILD_SETUP**
+**SOURCE_BUILD_SETUP**
+**EXTERNAL_SOURCES**

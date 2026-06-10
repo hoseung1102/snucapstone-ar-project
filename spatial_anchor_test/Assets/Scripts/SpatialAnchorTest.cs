@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 // SpatialAnchorTest v2 — RayNeo OpenXR ARDK 6DoF SLAM, 즉시 spawn + 점진 refine 패턴.
@@ -20,11 +21,16 @@ public class SpatialAnchorTest : MonoBehaviour
     public int hudFontSize = 80;
 
     [Header("Resources")]
-    public string textureResourceName = "tiger_anchor";
+    public string textureResourceName = "cola_anchor";
+
+    // bisection: helloar component 추가 case. B0=baseline only, B1=+Gyro, B2=+Camera (ShareCamera),
+    // B3=+Clip, B4=+OCR, B5=+Gyro+Camera, B6=+Gyro+Clip, B7=+Camera+Clip, B8=full helloar.
+    public string bisectionCase = "B0";
 
     // ----- state -----
     Camera xrCam;
     GameObject anchorQuad;
+    GameObject adQuad;
     TextMesh hudText;
     GameObject hudObj;
 
@@ -48,6 +54,16 @@ public class SpatialAnchorTest : MonoBehaviour
     Vector3 linearVel;
     Vector3 angularVelDps;
 
+    // DIAG: HeadTrackedPoseDriver.OnPostUpdate 로 전달되는 ground-truth pose 추적
+    Pose lastHeadPose;
+    int headPoseCallCount;
+
+    // DIAG2: 네이티브 head tracker pose 직접 폴링 (centerEye 라우팅 우회).
+    // nonzero 면 SLAM 은 pose 생산 중인데 centerEye 라우팅이 깨진 것 → 직접 구동으로 우회 가능.
+    float[] htPos = new float[3];
+    float[] htRot = new float[4];
+    int htRet = -999;
+
     void Awake()
     {
         xrCam = Camera.main;
@@ -68,18 +84,9 @@ public class SpatialAnchorTest : MonoBehaviour
     void Start()
     {
 #if !UNITY_EDITOR
-        // XR loader (idempotent — UnityOpenXrActivity 가 이미 init 했어도 무해)
-        try
-        {
-            var xrSettings = UnityEngine.XR.Management.XRGeneralSettings.Instance;
-            if (xrSettings != null && xrSettings.Manager != null)
-            {
-                xrSettings.Manager.InitializeLoaderSync();
-                xrSettings.Manager.StartSubsystems();
-            }
-        }
-        catch (System.Exception e) { Debug.LogError($"[SpatialAnchorTest] XR init: {e.Message}"); }
-
+        // vendor SlamDemoCtrl.Start() 와 동일한 최소 시퀀스: EnableSlamHeadTracker + OnPostUpdate 구독만.
+        // 이전의 InitializeLoaderSync/StartSubsystems(런타임 XR 재초기화) 와 EnablePlaneDetection 은
+        // vendor 가 하지 않는 divergence 라 제거 — XR 은 auto-init(automaticLoading=1) 로 이미 떠 있음.
         try
         {
             com.rayneo.xr.extensions.XRInterfaces.EnableSlamHeadTracker();
@@ -88,18 +95,69 @@ public class SpatialAnchorTest : MonoBehaviour
         }
         catch (System.Exception e) { Debug.LogError($"[SpatialAnchorTest] EnableSlam: {e.Message}"); }
 
+        // vendor 패턴 — HeadTrackedPoseDriver.OnPostUpdate 구독 (pose ground-truth).
         try
         {
-            com.rayneo.xr.extensions.XRInterfaces.EnablePlaneDetection();
-            Debug.Log("[SpatialAnchorTest] EnablePlaneDetection() called.");
+            RayNeo.HeadTrackedPoseDriver.OnPostUpdate += OnHeadPose;
+            var cams = FindObjectsOfType<Camera>();
+            int mainTagged = 0;
+            foreach (var c in cams) if (c.CompareTag("MainCamera")) mainTagged++;
+            var drivers = FindObjectsOfType<RayNeo.HeadTrackedPoseDriver>();
+            bool mainHasDriver = xrCam != null && xrCam.GetComponent<RayNeo.HeadTrackedPoseDriver>() != null;
+            Debug.Log($"[SpatialAnchorTest][DIAG] Camera.main={(xrCam != null ? xrCam.gameObject.name : "NULL")} totalCams={cams.Length} mainTagged={mainTagged} HeadTrackedPoseDrivers={drivers.Length} mainHasDriver={mainHasDriver}");
         }
-        catch { }
+        catch (System.Exception e) { Debug.LogError($"[SpatialAnchorTest][DIAG] OnPostUpdate subscribe: {e.Message}"); }
 #endif
 
         slamSeekStartTime = Time.time;
 
         // 즉시 provisional anchor + HUD spawn. SLAM 미수렴 상태에서도 visible.
         SpawnProvisional();
+
+        // bisection: case 별 helloar component conditional AddComponent.
+#if !UNITY_EDITOR
+        Debug.Log($"[Bisection] case={bisectionCase}");
+        try
+        {
+            switch (bisectionCase)
+            {
+                case "B0": break;
+                case "B1": gameObject.AddComponent<GyroTrigger>(); break;
+                case "B2": gameObject.AddComponent<CameraPreview>(); break;
+                case "B3": gameObject.AddComponent<ClipExtractor>(); break;
+                case "B4": gameObject.AddComponent<OCRExtractor>(); break;
+                case "B5":
+                    gameObject.AddComponent<GyroTrigger>();
+                    gameObject.AddComponent<CameraPreview>();
+                    break;
+                case "B6":
+                    gameObject.AddComponent<GyroTrigger>();
+                    gameObject.AddComponent<ClipExtractor>();
+                    break;
+                case "B7":
+                    gameObject.AddComponent<CameraPreview>();
+                    gameObject.AddComponent<ClipExtractor>();
+                    break;
+                case "B8":
+                    gameObject.AddComponent<HelloAR>();
+                    break;
+            }
+        }
+        catch (System.Exception e) { Debug.LogError($"[Bisection] AddComponent: {e.Message}"); }
+#endif
+    }
+
+    void OnHeadPose(Pose p)
+    {
+        lastHeadPose = p;
+        headPoseCallCount++;
+    }
+
+    void OnDestroy()
+    {
+#if !UNITY_EDITOR
+        try { RayNeo.HeadTrackedPoseDriver.OnPostUpdate -= OnHeadPose; } catch { }
+#endif
     }
 
     void SpawnProvisional()
@@ -156,25 +214,67 @@ public class SpatialAnchorTest : MonoBehaviour
         q.transform.localScale = new Vector3(quadWidthM, quadWidthM * aspect, 1f);
 
         var mr = q.GetComponent<MeshRenderer>();
-        var unlit = Shader.Find("Unlit/Texture");
-        if (unlit == null) unlit = Shader.Find("Sprites/Default");
-        if (unlit == null) unlit = Shader.Find("Standard");
-        if (unlit != null)
+        // DIAG(greentest): 배포→화면 체인 검증용 — 텍스처 무시하고 강제 형광 초록 단색.
+        // 화면에 초록 quad 가 보이면 빌드/배포/렌더 체인 정상(이전 'cola'는 텍스처였음).
+        var solid = Shader.Find("Unlit/Color");
+        if (solid == null) solid = Shader.Find("Sprites/Default");
+        if (solid == null) solid = Shader.Find("Standard");
+        if (solid != null)
         {
-            var mat = new Material(unlit);
-            if (tex != null) mat.mainTexture = tex;
+            var mat = new Material(solid);
+            mat.color = new Color(0f, 1f, 0f, 1f);
             mr.material = mat;
         }
         else
         {
-            Debug.LogWarning("[SpatialAnchorTest] Unlit/Sprites/Standard shader 다 stripped — default material 유지");
-            if (tex != null) mr.material.mainTexture = tex;
+            Debug.LogWarning("[SpatialAnchorTest] solid shader 다 stripped — default material");
+            mr.material.color = new Color(0f, 1f, 0f, 1f);
         }
 
         var col = q.GetComponent<Collider>();
         if (col != null) Destroy(col);
         return q;
     }
+
+    // v0.8: 매칭된 제품 옆 공간에 world-anchored 광고 spawn (conquest 데모 핵심).
+    // HelloAR 전체 pipeline (B8) 에서만 호출됨 — B0~B7 baseline 에선 미실행.
+    public void ShowAdBesideMatch(string vidPath, ProductMatcher.MatchResult result,
+                                  List<Detection> detections, int W, int H)
+    {
+        if (xrCam == null) return;
+
+        // 제품 앵커 오른쪽으로 quad 한 칸 떨어진 곳에 광고 quad 배치.
+        Vector3 camFwd = xrCam.transform.forward;
+        Vector3 camUp  = xrCam.transform.up;
+        Vector3 camRight = xrCam.transform.right;
+        Vector3 adPos = anchorWorldPos + camRight * (quadWidthM * 1.2f);
+        Quaternion adRot = Quaternion.LookRotation(-camFwd, camUp);
+
+        if (adQuad != null) Destroy(adQuad);
+        adQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        adQuad.name = "AdQuad";
+        adQuad.transform.position = adPos;
+        adQuad.transform.rotation = adRot;
+        adQuad.transform.localScale = new Vector3(quadWidthM, quadWidthM * 0.75f, 1f);
+        var col = adQuad.GetComponent<Collider>();
+        if (col != null) Destroy(col);
+
+        // TODO(B8): VideoPlayer 로 vidPath(.mp4) 재생. 현재는 brand 정지 광고 텍스처.
+        var mr = adQuad.GetComponent<MeshRenderer>();
+        Texture2D adTex = Resources.Load<Texture2D>(textureResourceName);
+        var sh = Shader.Find("Unlit/Texture") ?? Shader.Find("Sprites/Default") ?? Shader.Find("Standard");
+        if (sh != null)
+        {
+            var m = new Material(sh);
+            if (adTex != null) m.mainTexture = adTex;
+            mr.material = m;
+        }
+
+        string brandName = result != null && result.brand != null ? result.brand.name : "AD";
+        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} vid='{vidPath}' at {adPos} (W={W} H={H} dets={(detections != null ? detections.Count : 0)})");
+    }
+
+    float _logNext = 0f;
 
     void Update()
     {
@@ -187,6 +287,21 @@ public class SpatialAnchorTest : MonoBehaviour
 #else
         lastSlamStatus = 1;
 #endif
+
+        // bisection diagnostic: 1Hz log of SLAM status + camPos + camRot. measurable fact 위해.
+        if (xrCam != null && Time.time > _logNext)
+        {
+            Vector3 p = xrCam.transform.position;
+            Vector3 e = xrCam.transform.eulerAngles;
+            Vector3 hp = lastHeadPose.position;
+            Vector3 hr = lastHeadPose.rotation.eulerAngles;
+#if !UNITY_EDITOR
+            try { htRet = com.rayneo.xr.extensions.XRInterfaces.RayNeoApi_GetHeadTrackerPose(htPos, htRot); }
+            catch (System.Exception ex) { htRet = -1; Debug.LogError($"[SpatialAnchorTest][DIAG2] GetHeadTrackerPose: {ex.Message}"); }
+#endif
+            Debug.Log($"[SpatialAnchorTest] SLAM status={lastSlamStatus} camPos=({p.x:F3},{p.y:F3},{p.z:F3}) camRot=({e.x:F1},{e.y:F1},{e.z:F1}) | headDrv calls={headPoseCallCount} pos=({hp.x:F3},{hp.y:F3},{hp.z:F3}) | nativePose ret={htRet} pos=({htPos[0]:F3},{htPos[1]:F3},{htPos[2]:F3}) rot=({htRot[0]:F3},{htRot[1]:F3},{htRot[2]:F3},{htRot[3]:F3}) uptime={Time.time:F1}s");
+            _logNext = Time.time + 1f;
+        }
 
         // 수렴 도달 시 한 번만: convergence time 기록 + anchor 위치 refine
         if (lastSlamStatus == 1 && slamConvergeSeconds < 0 && slamSeekStartTime > 0)

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Android;
 using UnityEditor.Build;
@@ -6,6 +7,9 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Management;
+using UnityEditor.XR.Management;
+using UnityEditor.XR.Management.Metadata;
 
 // Unity batch-mode 빌드 진입점.
 // 호출:
@@ -14,11 +18,13 @@ using UnityEngine.SceneManagement;
 //         -buildTarget Android -logFile <log>
 public static class BuildSpatialAnchorTest
 {
-    const string PACKAGE_NAME = "com.eagleeye.spatialanchor.v2";
-    const string PRODUCT_NAME = "SpatialAnchor v2";
+    const string PACKAGE_NAME = "com.eagleeye.spatialanchor.bisection";
+    const string PRODUCT_NAME = "SpatialAnchor Bisection";
     const string COMPANY_NAME = "Eagle Eye";
-    const string OUTPUT_APK   = "Build/EagleEye-SpatialAnchor-v2.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-SA-loaderfix.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
+    // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
+    const string BUILD_TAG    = "loaderfix";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()
@@ -30,9 +36,11 @@ public static class BuildSpatialAnchorTest
         // 여기서 SwitchActiveBuildTarget 을 다시 호출하면 domain reload 가 트리거되어
         // PerformBuild 의 나머지 코드가 끊김. 호출하지 않는다.
 
+        EnsureOpenXRLoader();        // ★ OpenXR 로더가 제대로 된 IXRLoaderPreInit 타입인지 보장 (build hook 전체 실행 → lib+pre-init 자동 포함)
         ConfigureExternalTools();   // ★ JDK/SDK/NDK/Gradle 경로 강제 set (batch 가 GUI Preferences 못 봄)
         ConfigurePlayerSettings();
         ConfigureAndroidSettings();
+        EnsureRayNeoSettingsPreloaded();  // ★ RayNeoXRGeneralSettings 를 PreloadedAssets 에 주입 (안 하면 런타임 SLAM pose 죽음)
 
         // PlayerSettings 변경을 ProjectSettings.asset 에 즉시 flush.
         // 이게 빠지면 OpenXR OnPreprocessBuild 가 이전 캐시 값을 봐서 minSdk validation 으로 빌드 실패.
@@ -113,6 +121,81 @@ public static class BuildSpatialAnchorTest
         EditorSceneManager.SaveScene(scene, SCENE_PATH);
     }
 
+    // RayNeo SDK 의 RayNeoXRGeneralSettings 에셋을 PlayerSettings PreloadedAssets 에 보장.
+    // 없으면 런타임 [RuntimeInitializeOnLoadMethod] XRSDK.Initialize() 가 RayNeoXRGeneralSettings.Instance(null)
+    // 접근 → NullReferenceException → RayNeo pose 파이프라인 미초기화 → HeadTrackedPoseDriver 가 SLAM pose 못 받음
+    // → 카메라 transform 정지(camPos=0,0,0) → 렌더 head-locked, 6DoF 죽음.
+    // 정상 빌드는 Project Settings > RayNeo GUI 의 ConfigPreloadInfo() 가 주입하지만 batchmode 는 GUI 미실행이라 직접 주입.
+    const string RAYNEO_SETTINGS = "Assets/XR/RayNeoGeneralSettings.asset";
+    static void EnsureRayNeoSettingsPreloaded()
+    {
+        UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(RAYNEO_SETTINGS);
+        if (asset == null)
+        {
+            Debug.LogError($"[BuildSpatialAnchorTest] {RAYNEO_SETTINGS} 못 찾음 — RayNeo SDK 설정 누락, SLAM pose 안 뜸");
+            return;
+        }
+        var preloaded = PlayerSettings.GetPreloadedAssets().Where(a => a != null).ToList();
+        if (!preloaded.Contains(asset))
+        {
+            preloaded.Add(asset);
+            PlayerSettings.SetPreloadedAssets(preloaded.ToArray());
+            Debug.Log("[BuildSpatialAnchorTest] RayNeoXRGeneralSettings → PreloadedAssets 주입 완료");
+        }
+        else
+        {
+            Debug.Log("[BuildSpatialAnchorTest] RayNeoXRGeneralSettings 이미 PreloadedAssets 에 있음");
+        }
+    }
+
+    // OpenXR 로더가 IXRLoaderPreInit 구현체(UnityEngine.XR.OpenXR.OpenXRLoader)로 Android 에 등록됐는지 보장.
+    // 현재 로더 타입을 로그로 출력(NoPreInit/dangling 진단). 잘못됐으면 제거 후 OpenXRLoader 재할당 →
+    // OpenXR build hook 이 libUnityOpenXR.so + xrsdk-pre-init-library 를 자동 포함하게 됨.
+    static void EnsureOpenXRLoader()
+    {
+        try
+        {
+            XRGeneralSettingsPerBuildTarget bts;
+            if (!EditorBuildSettings.TryGetConfigObject(XRGeneralSettings.k_SettingsKey, out bts) || bts == null)
+            {
+                Debug.LogError("[EnsureOpenXRLoader] XRGeneralSettingsPerBuildTarget 없음");
+                return;
+            }
+            XRGeneralSettings settings = bts.SettingsForBuildTarget(BuildTargetGroup.Android);
+            if (settings == null || settings.Manager == null)
+            {
+                Debug.LogError("[EnsureOpenXRLoader] Android XRGeneralSettings/Manager 없음");
+                return;
+            }
+            XRManagerSettings mgr = settings.Manager;
+            foreach (var l in mgr.activeLoaders)
+                Debug.Log("[EnsureOpenXRLoader] BEFORE loader: " + (l == null ? "NULL(dangling)" : l.GetType().FullName));
+
+            const string OPENXR_LOADER = "UnityEngine.XR.OpenXR.OpenXRLoader";
+            bool hasPreInit = mgr.activeLoaders.Any(l => l != null && l.GetType().FullName == OPENXR_LOADER);
+            if (!hasPreInit)
+            {
+                // 기존(잘못된/dangling) 로더 모두 제거 후 OpenXRLoader 재할당
+                var existing = mgr.activeLoaders.Where(l => l != null).Select(l => l.GetType().FullName).ToList();
+                foreach (var tn in existing)
+                {
+                    bool rm = XRPackageMetadataStore.RemoveLoader(mgr, tn, BuildTargetGroup.Android);
+                    Debug.Log($"[EnsureOpenXRLoader] RemoveLoader {tn} => {rm}");
+                }
+                bool ok = XRPackageMetadataStore.AssignLoader(mgr, OPENXR_LOADER, BuildTargetGroup.Android);
+                Debug.Log("[EnsureOpenXRLoader] AssignLoader OpenXRLoader => " + ok);
+                EditorUtility.SetDirty(mgr);
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
+            }
+            else Debug.Log("[EnsureOpenXRLoader] OpenXRLoader 이미 등록됨");
+
+            foreach (var l in mgr.activeLoaders)
+                Debug.Log("[EnsureOpenXRLoader] AFTER loader: " + (l == null ? "NULL" : l.GetType().FullName));
+        }
+        catch (System.Exception e) { Debug.LogError("[EnsureOpenXRLoader] " + e.Message + "\n" + e.StackTrace); }
+    }
+
     static void ConfigureExternalTools()
     {
         // JDK 만 명시 set (Cycle 4 의 fail 원인). SDK/NDK/Gradle 의 setter 는
@@ -129,6 +212,10 @@ public static class BuildSpatialAnchorTest
         PlayerSettings.companyName = COMPANY_NAME;
         PlayerSettings.productName = PRODUCT_NAME;
         PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, PACKAGE_NAME);
+
+        // 버전 스탬프 (기기에서 어느 빌드 설치됐는지 dumpsys 검증용) + versionCode bump
+        PlayerSettings.bundleVersion = BUILD_TAG;
+        PlayerSettings.Android.bundleVersionCode = PlayerSettings.Android.bundleVersionCode + 1;
 
         PlayerSettings.colorSpace = ColorSpace.Linear;
 
@@ -157,5 +244,65 @@ public static class BuildSpatialAnchorTest
 
         EditorUserBuildSettings.buildAppBundle = false;
         EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+    }
+}
+
+// gradle 프로젝트 생성 직후(APK 패키징 전) boot.config 에 누락된 XR pre-init 키 주입.
+// 원인: 우리 빌드는 xrsdk-pre-init-library 를 안 내보내서(loader gate) splash 시점에 OpenXR 가
+// 제대로 init 안 됨 → view/head 트래킹 미수립 → centerEye=0 → head-locked. vendor APK 의 boot.config 와 일치시킴.
+public class RayNeoBootConfigPatcher : UnityEditor.Android.IPostGenerateGradleAndroidProject
+{
+    public int callbackOrder { get { return 999; } }
+    public void OnPostGenerateGradleAndroidProject(string path)
+    {
+        try
+        {
+            string bc = Path.Combine(path, "src/main/assets/bin/Data/boot.config");
+            if (!File.Exists(bc))
+            {
+                string[] hits = Directory.GetFiles(path, "boot.config", SearchOption.AllDirectories);
+                if (hits.Length > 0) bc = hits[0];
+            }
+            if (!File.Exists(bc))
+            {
+                Debug.LogError("[RayNeoBootConfigPatcher] boot.config 못 찾음 under " + path);
+                return;
+            }
+            string txt = File.ReadAllText(bc);
+            bool changed = false;
+            if (!txt.Contains("xrsdk-pre-init-library")) { txt += "\nxrsdk-pre-init-library=UnityOpenXR\n"; changed = true; }
+            if (!txt.Contains("gfx-disable-mt-rendering")) { txt += "gfx-disable-mt-rendering=1\n"; changed = true; }
+            if (changed)
+            {
+                File.WriteAllText(bc, txt);
+                Debug.Log("[RayNeoBootConfigPatcher] boot.config 에 xrsdk-pre-init-library 주입: " + bc);
+            }
+            else Debug.Log("[RayNeoBootConfigPatcher] boot.config 이미 pre-init 키 있음");
+
+            // ★ libUnityOpenXR.so 강제 포함. OpenXR build hook 이 우리 로더를 비활성으로 판단해
+            // 이 native 플러그인을 누락시킴(vendor 작동 APK 엔 있고 우리엔 없던 결정적 차이).
+            // pre-init 키(xrsdk-pre-init-library=UnityOpenXR)가 이 lib 를 로드하므로 반드시 있어야 함.
+            string projRoot = Path.GetDirectoryName(Application.dataPath);
+            string pkgCache = Path.Combine(projRoot, "Library", "PackageCache");
+            string libSrc = null;
+            if (Directory.Exists(pkgCache))
+            {
+                foreach (string d in Directory.GetDirectories(pkgCache, "com.unity.xr.openxr@*"))
+                {
+                    string cand = Path.Combine(d, "Runtime", "android", "arm64", "libUnityOpenXR.so");
+                    if (File.Exists(cand)) { libSrc = cand; break; }
+                }
+            }
+            if (libSrc != null)
+            {
+                string dstDir = Path.Combine(path, "src", "main", "jniLibs", "arm64-v8a");
+                Directory.CreateDirectory(dstDir);
+                string libDst = Path.Combine(dstDir, "libUnityOpenXR.so");
+                File.Copy(libSrc, libDst, true);
+                Debug.Log("[RayNeoBootConfigPatcher] libUnityOpenXR.so 복사 완료: " + libDst);
+            }
+            else Debug.LogError("[RayNeoBootConfigPatcher] libUnityOpenXR.so 소스 못 찾음 under " + pkgCache);
+        }
+        catch (System.Exception e) { Debug.LogError("[RayNeoBootConfigPatcher] " + e.Message); }
     }
 }
