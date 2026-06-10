@@ -261,7 +261,8 @@ public class SpatialAnchorTest : MonoBehaviour
         Vector3 camUp    = xrCam.transform.up;
         Vector3 camRight = xrCam.transform.right;
         Vector3 objectPos = camPos + camFwd * anchorDistanceM;             // 응시 물체
-        Vector3 adPos     = objectPos + camRight * (quadWidthM * 1.2f);    // 그 오른쪽 한 칸
+        // v1.3: 옆칸 배치가 헷갈려서 정면(응시 지점)에 띄움 — 경쟁사 광고를 시선 정중앙에 world-anchored.
+        Vector3 adPos     = objectPos;                                     // 정면 (응시 지점)
         Quaternion faceUser = Quaternion.LookRotation(-camFwd, camUp);     // spawn 시점 1회 (billboard X)
 
         // 앵커 마커(quad)를 응시 물체로 이동 (world 고정).
