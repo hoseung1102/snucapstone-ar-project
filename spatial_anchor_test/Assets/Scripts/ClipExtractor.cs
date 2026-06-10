@@ -38,6 +38,7 @@ public class ClipExtractor : MonoBehaviour
 
     [Header("상태")]
     public bool isReady;
+    public float compileSeconds;   // v1.6 HUD: HTP 컴파일 경과초 (ready 후엔 총 컴파일 시간으로 고정 → "READY (Ns)")
     public string statusMessage = "초기화 중...";
     public long lastEmbedMs;
     // v1.2: 마지막 PreprocessTexture 의 중앙 박스 색 통계 (HelloAR ResolveBrandByColor 가 읽음).
@@ -176,6 +177,7 @@ public class ClipExtractor : MonoBehaviour
             statusMessage = "CLIP 컴파일 중... (최초 1회 ~125초, 화면 정상)";
             yield return new WaitForSeconds(0.5f);
             compileElapsed += 0.5f;
+            compileSeconds = compileElapsed;   // v1.6 HUD: 진행초 노출
         }
 
         bool isMock = false;

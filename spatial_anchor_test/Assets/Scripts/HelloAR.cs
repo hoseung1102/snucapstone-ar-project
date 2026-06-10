@@ -44,9 +44,11 @@ public class HelloAR : MonoBehaviour
     // v1.4 HUD 카운터 — SpatialAnchorTest 가 읽어 HUD 최상단에 노출.
     //   triggerCount: 트리거 수신 횟수.
     //   colaCount: CLIP category=cola 검출 횟수.
+    //   matchCount: brand 확정 → 경쟁사 광고 spawn 까지 간 횟수 (funnel 최종 단).
     //   cokeCount/pepsiCount: brand 가 coca-cola/pepsi 로 "확정"된 횟수 (미확정이면 증가 안 함).
     public int triggerCount;
     public int colaCount;
+    public int matchCount;
     public int cokeCount;
     public int pepsiCount;
 
@@ -292,6 +294,7 @@ public class HelloAR : MonoBehaviour
         // ───── Stage 4: Ad rendering — brand 의 ad ─────
         if (result != null)
         {
+            matchCount++;   // v1.6 HUD: 매칭 확정(광고 spawn) 카운트
             // v1.0 conquest: 인식 brand → 경쟁사 광고 mp4. 매핑 없으면 brand 자체 ad_image 에서 파생.
             string vidPath;
             string bname = result.brand.name != null ? result.brand.name.ToLowerInvariant() : "";

@@ -18,6 +18,9 @@ public class SpatialAnchorTest : MonoBehaviour
     [Header("v1.5 광고 배치")]
     public float adDistanceM = 1.2f;     // 광고 거리 — 물체 0.5m 보다 멀게
     public float adQuadWidthM = 0.22f;   // 광고 quad 폭 — 0.30 보다 작게
+    // v1.6: 광고 텍스처 좌우 미러. 정면배치(LookRotation -camFwd)에선 거울상 아님 → 기본 false(미러 없음).
+    //   (이전 옆배치 땐 true 가 맞았으나 정면 전환으로 facing 손방향이 뒤집혀 과교정됐었음.)
+    public bool adMirrorX = false;
 
     [Header("HUD (head-locked 2D overlay)")]
     // v1.5: HUD 를 월드 고정 → 카메라 parent head-lock 으로 전환.
@@ -58,6 +61,9 @@ public class SpatialAnchorTest : MonoBehaviour
     GameObject hudCountersObj;
     TextMesh hudDiag;
     GameObject hudDiagObj;
+    ClipExtractor clipExt;                       // v1.6: CLIP 컴파일 완료 플래그용 (같은 GameObject, lazily)
+    public float monitorLogInterval = 0.5f;      // v1.6 MONITOR: [MONITOR] 로그 주기(초) — eagle-monitor 스킬이 파싱
+    float lastMonitorEmit = -1f;
 
     // v1.4: HUD 카운터 표시용 HelloAR 참조 (같은 GameObject). lazily 획득 + null-safe.
     HelloAR helloAr;
@@ -361,9 +367,9 @@ public class SpatialAnchorTest : MonoBehaviour
             var tex = new Texture2D(2, 2);
             tex.LoadImage(bytes);
             mr.material.mainTexture = tex;
-            // v1.4: quad 가 사용자 향해 180° 회전하면 텍스처가 거울상 → U축 미러로 좌우 반전 교정.
-            mr.material.mainTextureScale = new Vector2(-1f, 1f);
-            mr.material.mainTextureOffset = new Vector2(1f, 0f);
+            // v1.6: 정면배치에선 거울상 아님 → adMirrorX=false 기본(미러 없음). true 면 U축 미러.
+            mr.material.mainTextureScale  = adMirrorX ? new Vector2(-1f, 1f) : new Vector2(1f, 1f);
+            mr.material.mainTextureOffset = adMirrorX ? new Vector2( 1f, 0f) : new Vector2(0f, 0f);
             // 광고 가로세로비에 맞춰 quad 스케일 보정 (찌그러짐 방지).
             // v1.4: 전역 adQuad 대신 이 텍스처를 받은 quad(mr.transform) 기준으로 보정.
             if (tex.height > 0)
@@ -535,14 +541,21 @@ public class SpatialAnchorTest : MonoBehaviour
 
         // ── 상단 좌측: 카운터 4개 prominent. HelloAR(같은 GameObject) lazily 캐시. ──
         if (helloAr == null) helloAr = GetComponent<HelloAR>();
+        if (clipExt == null) clipExt = GetComponent<ClipExtractor>();
         if (hudCounters != null)
         {
+            // v1.6: 최상단 = CLIP 컴파일 완료 플래그("멈춤?" 헷갈림 해소), 그 아래 funnel 카운터 5개.
+            string clipFlag = clipExt == null ? "CLIP: --"
+                : (clipExt.isReady ? $"CLIP: READY ({clipExt.compileSeconds:F0}s)"
+                                   : $"CLIP: COMPILING {clipExt.compileSeconds:F0}s");
             if (helloAr != null)
                 hudCounters.text =
-                    $"TRIG: {helloAr.triggerCount}   COLA: {helloAr.colaCount}\n" +
+                    clipFlag + "\n" +
+                    $"TRIG: {helloAr.triggerCount}   MATCH: {helloAr.matchCount}\n" +
+                    $"COLA: {helloAr.colaCount}\n" +
                     $"COKE: {helloAr.cokeCount}   PEPSI: {helloAr.pepsiCount}";
             else
-                hudCounters.text = "";   // HelloAR 없으면 카운터 줄 생략
+                hudCounters.text = clipFlag;   // HelloAR 없어도 CLIP 플래그는 표시
         }
 
         // ── 상단 우측: SLAM 진단 ──
@@ -581,5 +594,49 @@ public class SpatialAnchorTest : MonoBehaviour
             $"world: {anchorWorldPos.x:F2}, {anchorWorldPos.y:F2}, {anchorWorldPos.z:F2}\n" +
             $"age: {age:F1}s  dist: {dist:F2}m\n" +
             $"drift: {driftMag:F2}m  fwd∠: {fwdAngleDeg:F0}°";
+
+        // v1.6: [MONITOR] 구조화 로그 — eagle-monitor 스킬이 logcat 에서 파싱해 터미널 대시보드로 렌더.
+        EmitMonitorLog(camPos, slamLabel, dist, driftMag, fwdAngleDeg);
+    }
+
+    // v1.6: 디버그 모니터링용 단일라인 JSON. monitorLogInterval 주기로만 emit.
+    //   필드: 카운터(트리거/매치/콜라/코크/펩시) + CLIP 컴파일 상태 + SLAM 센서(자세/속도/상태) + 소환 물체 위치(anchor + ads).
+    void EmitMonitorLog(Vector3 camPos, string slamLabel, float dist, float driftMag, float fwdAngleDeg)
+    {
+        if (Time.time - lastMonitorEmit < monitorLogInterval) return;
+        lastMonitorEmit = Time.time;
+
+        if (clipExt == null) clipExt = GetComponent<ClipExtractor>();
+        if (helloAr == null) helloAr = GetComponent<HelloAR>();
+        string clipState = clipExt == null ? "?" : (clipExt.isReady ? "READY" : "COMPILING");
+        float clipS = clipExt != null ? clipExt.compileSeconds : 0f;
+        int trig  = helloAr != null ? helloAr.triggerCount : 0;
+        int match = helloAr != null ? helloAr.matchCount   : 0;
+        int cola  = helloAr != null ? helloAr.colaCount    : 0;
+        int coke  = helloAr != null ? helloAr.cokeCount    : 0;
+        int pepsi = helloAr != null ? helloAr.pepsiCount   : 0;
+
+        var adsb = new System.Text.StringBuilder();
+        for (int i = 0; i < adQuads.Count; i++)
+        {
+            var q = adQuads[i];
+            if (q == null) continue;
+            if (adsb.Length > 0) adsb.Append(',');
+            var p = q.transform.position;
+            adsb.Append($"[{p.x:F2},{p.y:F2},{p.z:F2}]");
+        }
+        Vector3 rot = xrCam.transform.eulerAngles;
+        Debug.Log(
+            "[MONITOR] {" +
+            $"\"t\":{Time.time:F1},\"clip\":\"{clipState}\",\"clipS\":{clipS:F0}," +
+            $"\"trig\":{trig},\"match\":{match},\"cola\":{cola},\"coke\":{coke},\"pepsi\":{pepsi}," +
+            $"\"slam\":\"{slamLabel}\",\"raw\":{lastSlamStatus}," +
+            $"\"pos\":[{camPos.x:F2},{camPos.y:F2},{camPos.z:F2}]," +
+            $"\"rot\":[{rot.x:F0},{rot.y:F0},{rot.z:F0}]," +
+            $"\"v\":{linearVel.magnitude:F2},\"w\":{angularVelDps.magnitude:F0}," +
+            $"\"anchor\":[{anchorWorldPos.x:F2},{anchorWorldPos.y:F2},{anchorWorldPos.z:F2}]," +
+            $"\"dist\":{dist:F2},\"drift\":{driftMag:F2},\"fwdAng\":{fwdAngleDeg:F0}," +
+            $"\"nads\":{adQuads.Count},\"ads\":[{adsb}]" +
+            "}");
     }
 }
