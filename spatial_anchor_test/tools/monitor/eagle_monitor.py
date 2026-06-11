@@ -475,13 +475,76 @@ def run_live(adb, serial):
                 pass
 
 
-def run_demo():
-    """Read sample logcat lines from stdin and render once at the end.
+def run_sim():
+    """내장 시뮬레이터 — 파이프/외부 피더 없이 단일 프로세스로 더미 시나리오를 라이브 렌더.
+    (부팅→CLIP READY→SLAM 수렴→트리거→콜라 인식→MATCH/광고 spawn). 디바이스·촬영 미리보기용.
+    파이프(python|python)가 conda/VT 와 꼬여 빈 화면 나던 문제를 단일 프로세스로 회피."""
+    import math
+    state = MonitorState()
+    if not enable_vt():
+        Style.enabled = False
+    DT = 0.35
+    t = 0.0; step = 0
+    trig = cola = match = coke = pepsi = 0
+    clip = "COMPILING"; clip_s = 0.0
+    slam = "SEEKING"; raw = 0
+    ads = []
+    while True:
+        step += 1; t += DT
+        if clip == "COMPILING":
+            clip_s += DT
+            if clip_s >= 4: clip = "READY"; clip_s = 4
+        moving = step > 10
+        v = (0.12 + 0.06 * math.sin(step / 3.0)) if moving else 0.01
+        w = (22 + 15 * math.sin(step / 2.0)) if moving else 1
+        if moving and step > 16: slam, raw = "TRACKING", 1
+        elif moving: slam, raw = "SEEKING", 0
+        if clip == "READY" and raw == 1 and step % 3 == 0:
+            trig += 1
+            if step % 6 == 0:
+                cola += 1; match += 1
+                if (match % 2) == 1:
+                    pepsi += 1; ads = (ads + [[0.10, 0.00, 1.40]])[-2:]
+                else:
+                    coke += 1; ads = (ads + [[-0.05, 0.02, 1.38]])[-2:]
+        px = 0.02 * math.sin(step / 4.0); pz = 1.45 + 0.03 * math.cos(step / 5.0)
+        d = {"t": round(t, 1), "clip": clip, "clipS": round(clip_s),
+             "trig": trig, "match": match, "cola": cola, "coke": coke, "pepsi": pepsi,
+             "slam": slam, "raw": raw,
+             "pos": [round(px, 2), -0.03, round(pz, 2)], "rot": [5, 178, 1],
+             "v": round(v, 2), "w": round(w),
+             "anchor": [0.10, 0.00, 1.40], "dist": 1.20, "drift": round(abs(px), 2),
+             "fwdAng": 2, "nads": len(ads), "ads": ads}
+        route_line("[MONITOR] " + json.dumps(d), state)
+        clear_screen()
+        sys.stdout.write(render(state, "SIM") + "\n")
+        sys.stdout.flush()
+        time.sleep(DT)
 
-    Used for offline validation: pipe a few [MONITOR]/event lines in.
-    """
+
+def run_demo(live=False):
+    """Read sample lines from stdin. Default: render once at EOF (offline validation).
+    live=True: redraw on every heartbeat (use with a streaming feeder, e.g. demo_feed.py),
+    so gauges/LEDs/flash animate exactly like the on-device dashboard."""
     state = MonitorState()
     enable_vt()
+    if live:
+        last_t = None
+        # readline() 사용 — `for raw in sys.stdin` 은 파이프에서 블록버퍼링돼 라인이 한꺼번에 몰림.
+        while True:
+            raw = sys.stdin.readline()
+            if raw == "":      # EOF (피더 종료)
+                break
+            line = raw.rstrip("\n")
+            if not line:
+                continue
+            route_line(line, state)
+            if state.data is not None and state.last_update != last_t:
+                last_t = state.last_update
+                clear_screen()
+                sys.stdout.write(render(state, "DEMO") + "\n")
+                sys.stdout.flush()
+        return 0
     for raw in sys.stdin:
         line = raw.rstrip("\n")
         if line:
@@ -504,13 +567,21 @@ def main(argv=None):
     ap.add_argument("--adb", default=DEFAULT_ADB, help="path to adb executable")
     ap.add_argument("--serial", default=DEFAULT_SERIAL, help="device serial")
     ap.add_argument("--demo", action="store_true",
-                    help="read sample lines from stdin instead of a device")
+                    help="read sample lines from stdin; render once at EOF")
+    ap.add_argument("--demo-live", action="store_true",
+                    help="like --demo but redraw on every heartbeat (use with demo_feed.py)")
+    ap.add_argument("--sim", action="store_true",
+                    help="self-contained dummy simulator (no device, no pipe) — preview the dashboard")
     ap.add_argument("--no-color", action="store_true", help="disable ANSI color")
     args = ap.parse_args(argv)
 
     if args.no_color:
         Style.enabled = False
 
+    if args.sim:
+        return run_sim()
+    if args.demo_live:
+        return run_demo(live=True)
     if args.demo:
         return run_demo()
 

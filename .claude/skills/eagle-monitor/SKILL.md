@@ -65,6 +65,13 @@ python3 <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERI
 Run exactly ONE of the above (don't open multiple windows). Then tell the user
 the window is open and streaming.
 
+## 기기 없이 미리보기 (--sim)
+디바이스가 없을 때 대시보드 룩/시각화를 확인하려면 내장 시뮬레이터를 쓴다(파이프 불필요, 단일 프로세스):
+```
+python -u -W ignore <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --sim
+```
+부팅→CLIP READY→SLAM 수렴→트리거→콜라 인식→MATCH/광고 spawn 시나리오를 ~3Hz 로 라이브 렌더(게이지/LED/플래시 그대로). 촬영 미리보기·시각화 점검용. (`-W ignore` 는 conda python 경고 억제용 — 일반 python 이면 불필요.)
+
 ## Options the user may ask for
 - Different device: append `--serial <SERIAL>` to the python command.
 - Different adb: append `--adb "<path-to-adb.exe>"`.
