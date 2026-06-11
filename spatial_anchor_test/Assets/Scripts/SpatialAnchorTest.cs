@@ -53,9 +53,13 @@ public class SpatialAnchorTest : MonoBehaviour
     //   초과 시 가장 오래된 것부터 제거 → 동시에 여러 경쟁사 비교 표시 가능.
     List<GameObject> adQuads = new List<GameObject>();
     public int maxAds = 2;
-    // v1.0: world-anchored 광고 영상 (VideoPlayer→RenderTexture, AdRenderer 셋업 미러).
-    VideoPlayer adVp;
-    RenderTexture adRT;
+    // b25 color-video: 각 광고 quad 가 자기 RenderTexture 를 소유 (per-quad). max-2 FIFO 에서
+    //   동시 2개 영상이 가능하도록 adQuads 와 1:1 정렬된 RenderTexture 리스트로 관리.
+    //   VideoPlayer 는 해당 quad GameObject 에 직접 AddComponent → quad Destroy 시 함께 사라짐.
+    //   RenderTexture 는 GC 안 되므로 FIFO 제거/OnDestroy 에서 명시적으로 Release().
+    List<RenderTexture> adRTs = new List<RenderTexture>();
+    // 광고 영상 mp4 의 StreamingAssets→파일경로 복사 캐시 (한 번 복사하면 재사용).
+    Dictionary<string, string> _videoLocalPaths = new Dictionary<string, string>();
     // v1.5: HUD 를 카운터(상단 좌) + SLAM 진단(상단 우) 2개 TextMesh 로 분리, 둘 다 camera 에 parent (head-lock).
     TextMesh hudCounters;
     GameObject hudCountersObj;
@@ -198,11 +202,17 @@ public class SpatialAnchorTest : MonoBehaviour
 #if !UNITY_EDITOR
         try { RayNeo.HeadTrackedPoseDriver.OnPostUpdate -= OnHeadPose; } catch { }
 #endif
-        if (adVp != null) { adVp.prepareCompleted -= OnAdVideoPrepared; try { adVp.Stop(); } catch { } }
-        if (adRT != null) { adRT.Release(); adRT = null; }
-        // v1.4: 누적된 광고 quad 전부 정리.
-        foreach (var q in adQuads) if (q != null) Destroy(q);
+        // b25: per-quad VideoPlayer + RenderTexture 전부 정지/해제 (leak 방지).
+        foreach (var q in adQuads)
+        {
+            if (q == null) continue;
+            var vp = q.GetComponent<VideoPlayer>();
+            if (vp != null) { try { vp.Stop(); } catch { } }
+            Destroy(q);
+        }
         adQuads.Clear();
+        foreach (var rt in adRTs) if (rt != null) rt.Release();
+        adRTs.Clear();
     }
 
     void SpawnProvisional()
@@ -332,19 +342,139 @@ public class SpatialAnchorTest : MonoBehaviour
         if (sh != null) mr.material = new Material(sh);
 
         adQuads.Add(newQuad);
+        adRTs.Add(null);   // b25: adQuads 와 1:1 정렬 유지. 영상 prepare 완료 시 이 슬롯에 RT 할당.
         while (adQuads.Count > maxAds)
         {
-            if (adQuads[0] != null) Destroy(adQuads[0]);
-            adQuads.RemoveAt(0);
+            EvictAdQuad(0);
         }
 
-        // Candidate A: 영상(VideoPlayer→world quad) 경로가 spawn 직후 앱 크래시 → 정지 PNG 로 대체.
-        // vidPath(db/ads_video/x.mp4) → 이미지(db/ads/x.png). AdRenderer.LoadAndShow 의 UnityWebRequest 로딩 미러.
-        string imgPath = (vidPath ?? "").Replace("ads_video", "ads").Replace(".mp4", ".png");
-        StartCoroutine(LoadCompetitorImage(imgPath, mr));
+        // b25 color-video: 정지 PNG 대신 영상(VideoPlayer→RenderTexture→quad) 경로.
+        //   Android 에선 StreamingAssets mp4 가 APK 내부(jar:file://...!/assets/...)라 VideoPlayer 가
+        //   재생 불가(크래시/무재생) → persistentDataPath 로 실제 파일 복사 후 file:// 로 재생.
+        //   복사/재생 실패 시 정지 PNG 로 폴백 (크래시 금지).
+        string pngPath = (vidPath ?? "").Replace("ads_video", "ads").Replace(".mp4", ".png");
+        StartCoroutine(SetupAdVideo(vidPath, pngPath, newQuad, mr));
 
         string brandName = result != null && result.brand != null ? result.brand.name : "AD";
-        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} img='{imgPath}' obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
+        Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} vid='{vidPath}' png='{pngPath}' obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
+    }
+
+    // b25: FIFO 제거 helper — quad 의 VideoPlayer 정지 + 정렬된 RenderTexture 해제 후 둘 다 리스트에서 제거.
+    void EvictAdQuad(int idx)
+    {
+        if (idx < 0 || idx >= adQuads.Count) return;
+        var q = adQuads[idx];
+        if (q != null)
+        {
+            var vp = q.GetComponent<VideoPlayer>();
+            if (vp != null) { try { vp.Stop(); } catch { } }
+            Destroy(q);
+        }
+        if (idx < adRTs.Count)
+        {
+            if (adRTs[idx] != null) adRTs[idx].Release();
+            adRTs.RemoveAt(idx);
+        }
+        adQuads.RemoveAt(idx);
+    }
+
+    // b25: StreamingAssets 의 mp4 를 file:// 로 재생 가능한 실제 경로로 복사한 뒤 VideoPlayer 셋업.
+    //   - Android: UnityWebRequest.Get(jar URL) 로 바이트 읽어 persistentDataPath 로 write (ClipExtractor 패턴 미러).
+    //   - Editor: File.Copy.
+    //   복사 결과를 캐시 → 같은 mp4 두 번째부터는 즉시 재생.
+    //   실패 시 정지 PNG 로 폴백.
+    IEnumerator SetupAdVideo(string vidRelPath, string pngRelPath, GameObject quad, MeshRenderer mr)
+    {
+        if (string.IsNullOrEmpty(vidRelPath))
+        {
+            StartCoroutine(LoadCompetitorImage(pngRelPath, mr));
+            yield break;
+        }
+
+        string localPath;
+        if (!_videoLocalPaths.TryGetValue(vidRelPath, out localPath) || !System.IO.File.Exists(localPath))
+        {
+            string srcUrl = System.IO.Path.Combine(Application.streamingAssetsPath, vidRelPath);
+            string fileName = System.IO.Path.GetFileName(vidRelPath);
+            string dstPath = System.IO.Path.Combine(Application.persistentDataPath, fileName);
+            bool copyOk = false;
+#if UNITY_ANDROID && !UNITY_EDITOR
+            // StreamingAssets 는 APK 내부 jar → 직접 File API 불가. UnityWebRequest 로 바이트 추출.
+            var req = UnityEngine.Networking.UnityWebRequest.Get(srcUrl);
+            yield return req.SendWebRequest();
+            if (req.result == UnityEngine.Networking.UnityWebRequest.Result.Success
+                && req.downloadHandler.data != null && req.downloadHandler.data.Length > 0)
+            {
+                try
+                {
+                    System.IO.File.WriteAllBytes(dstPath, req.downloadHandler.data);
+                    copyOk = true;
+                    Debug.Log($"[SpatialAnchorTest] ad video 복사: {dstPath} ({req.downloadHandler.data.Length} bytes)");
+                }
+                catch (System.Exception e) { Debug.LogError($"[SpatialAnchorTest] ad video write 실패: {e.Message}"); }
+            }
+            else Debug.LogError($"[SpatialAnchorTest] ad video 로드 실패: {vidRelPath} — {req.error}");
+#else
+            try
+            {
+                if (System.IO.File.Exists(srcUrl))
+                {
+                    System.IO.File.Copy(srcUrl, dstPath, true);
+                    copyOk = true;
+                }
+                else Debug.LogError($"[SpatialAnchorTest] ad video 없음 (Editor): {srcUrl}");
+            }
+            catch (System.Exception e) { Debug.LogError($"[SpatialAnchorTest] ad video copy 실패: {e.Message}"); }
+            yield return null;
+#endif
+            if (!copyOk)
+            {
+                // 복사 실패 → 정지 PNG 폴백 (크래시 금지).
+                StartCoroutine(LoadCompetitorImage(pngRelPath, mr));
+                yield break;
+            }
+            localPath = dstPath;
+            _videoLocalPaths[vidRelPath] = localPath;
+        }
+
+        // quad 가 그새 FIFO 제거됐으면 중단.
+        if (quad == null || mr == null) yield break;
+
+        // VideoPlayer 셋업 + Prepare 를 try 로 감싸 native 호출 예외를 흡수.
+        //   주의: C# 에선 catch 있는 try 블록 안에서 yield 불가 → yield 없이 bool 플래그만 설정.
+        VideoPlayer vp = null;
+        bool ok = false;
+        try
+        {
+            // b25: per-quad VideoPlayer — 이 quad GameObject 에 직접 부착 (quad Destroy 시 함께 정리).
+            vp = quad.AddComponent<VideoPlayer>();
+            vp.source = VideoSource.Url;
+            vp.url = "file://" + localPath;
+            vp.renderMode = VideoRenderMode.RenderTexture;
+            vp.isLooping = true;
+            vp.playOnAwake = false;
+            vp.audioOutputMode = VideoAudioOutputMode.None;
+            vp.skipOnDrop = true;
+            vp.aspectRatio = VideoAspectRatio.FitInside;
+
+            // 영상 에러 시 정지 PNG 로 폴백 (재생 중 디코더 오류 포함).
+            vp.errorReceived += (v, msg) =>
+            {
+                Debug.LogError($"[SpatialAnchorTest] ad video error: {msg} → PNG 폴백");
+                try { v.Stop(); } catch { }
+                if (mr != null) StartCoroutine(LoadCompetitorImage(pngRelPath, mr));
+            };
+            vp.prepareCompleted += OnAdVideoPrepared;
+            vp.Prepare();
+            ok = true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[SpatialAnchorTest] VideoPlayer 셋업/Prepare 실패: {e.Message} → PNG 폴백");
+        }
+
+        if (!ok)
+            StartCoroutine(LoadCompetitorImage(pngRelPath, mr));
     }
 
     // Candidate A: 경쟁사 광고 정지 이미지를 StreamingAssets 에서 로드해 quad 에 적용 (Android jar → UnityWebRequest).
@@ -382,25 +512,39 @@ public class SpatialAnchorTest : MonoBehaviour
     }
 
     // VideoPlayer prepare 완료 → 영상 해상도 RenderTexture 할당 후 quad material 에 바인딩.
-    // v1.0: 영상 경로 — 현재 휴면(정지 PNG 로 대체, ShowAdBesideMatch 주석 참조). dead code.
+    // b25 color-video: per-quad — VideoPlayer 가 부착된 quad(=vp.gameObject)를 adQuads 에서 찾아
+    //   해당 슬롯(adRTs)에 RenderTexture 를 만들어 바인딩. 영상 좌우미러(adMirrorX)도 image 경로와 동일 처리.
     void OnAdVideoPrepared(VideoPlayer vp)
     {
-        // v1.4: 전역 adQuad 제거 → 가장 최근 광고 quad 에 바인딩.
-        GameObject target = adQuads.Count > 0 ? adQuads[adQuads.Count - 1] : null;
-        if (target == null) { try { vp.Stop(); } catch { } return; }
+        vp.prepareCompleted -= OnAdVideoPrepared;
+        int idx = adQuads.IndexOf(vp.gameObject);
+        if (idx < 0) { try { vp.Stop(); } catch { } return; }   // 이미 FIFO 제거됨
+        var target = adQuads[idx];
         int w = (int)vp.width, h = (int)vp.height;
         if (w <= 0 || h <= 0) { Debug.LogWarning("[SpatialAnchorTest] ad video 0 dim"); return; }
-        if (adRT == null || adRT.width != w || adRT.height != h)
+
+        var rt = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
+        rt.Create();
+        if (idx < adRTs.Count)
         {
-            if (adRT != null) adRT.Release();
-            adRT = new RenderTexture(w, h, 0, RenderTextureFormat.ARGB32);
-            adRT.Create();
+            if (adRTs[idx] != null) adRTs[idx].Release();
+            adRTs[idx] = rt;
         }
-        vp.targetTexture = adRT;
+        vp.targetTexture = rt;
+
         var mr = target.GetComponent<MeshRenderer>();
-        if (mr != null && mr.material != null) mr.material.mainTexture = adRT;
+        if (mr != null && mr.material != null)
+        {
+            mr.material.mainTexture = rt;
+            // 정면배치에선 거울상 아님 → adMirrorX=false 기본(미러 없음). image 경로와 동일.
+            mr.material.mainTextureScale  = adMirrorX ? new Vector2(-1f, 1f) : new Vector2(1f, 1f);
+            mr.material.mainTextureOffset = adMirrorX ? new Vector2( 1f, 0f) : new Vector2(0f, 0f);
+            // 영상 가로세로비에 맞춰 quad 스케일 보정 (찌그러짐 방지).
+            float a = (float)h / w;
+            target.transform.localScale = new Vector3(adQuadWidthM, adQuadWidthM * a, 1f);
+        }
         vp.Play();
-        Debug.Log($"[SpatialAnchorTest] ad video playing {w}x{h}");
+        Debug.Log($"[SpatialAnchorTest] ad video playing {w}x{h} (quad idx={idx})");
     }
 
     float _logNext = 0f;

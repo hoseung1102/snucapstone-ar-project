@@ -69,7 +69,7 @@ public class HelloAR : MonoBehaviour
     [Header("v1.1 OCR 데모 경로 제거")]
     [Tooltip("v1.1: OCR 메인스레드 블록(init+5s 추론) 데모 경로 제거.\n" +
              "CLIP brand fallback(enableClipBrandFallback=true)으로 brand 확정.")]
-    public bool skipOcr = false;   // b22 OCR 통합: NPU EasyOCR(word-box fix) 켜고 트리거→OCR 실호출
+    public bool skipOcr = true;    // b25 color-video: OCR 런타임 제거 — engine 자체를 init 안 함(159s HTP compile/CDSP 미발생). brand 는 color 경로로 확정.
 
     [Header("v1.1 핫패스 디스크 쓰기")]
     [Tooltip("true 면 매 trigger 시 frame jpg 저장 (ref 수집용). 데모에선 off — 핫패스 블로킹 제거.")]
@@ -83,7 +83,7 @@ public class HelloAR : MonoBehaviour
     [Header("v1.2 brand 판별기 선택")]
     [Tooltip("\"color\": cola category 는 색(코크 빨강/펩시 파랑)으로 brand 확정.\n" +
              "그 외 값: 기존 matcher.ResolveBrand(OCR + CLIP fallback) 경로 사용.")]
-    public string brandDisambiguator = "ocr";   // b22: 색이 아니라 OCR 키워드로 brand 확정 (matcher.ResolveBrand(ocrText))
+    public string brandDisambiguator = "color";   // b25: cola 는 평균색(코크 빨강/펩시 파랑)으로 brand 확정 — ResolveBrandByColor. OCR 미사용.
     // v1.3 deprecated — dominant 픽셀 count(ratio) 방식 미사용. 평균색 lean 으로 전환.
     //   펩시 파란 몸통이 strict count 임계 미달로 blue=0.00 → 빨간 뚜껑 때문에 coke 오판되던 문제.
     [Tooltip("[deprecated v1.3] 색 판별 최소 비율 — count 방식 시절 값. 미사용.")]
@@ -176,8 +176,16 @@ public class HelloAR : MonoBehaviour
     bool pendingInference;
     float lastTriggerTime;   // v0.3.6 진단: 트리거 발화 ~ 추론 사이 lag 측정
 
+    // b25 디버그: adb로 eyad_debug.txt 에 brand 쓰면 트리거/CLIP 우회하고 경쟁사 영상 spawn (착용 없이 테스트).
+    //   파일 경로(device) = /sdcard/Android/data/com.eagleeye.helloar/files/eyad_debug.txt
+    //   adb shell "echo coca-cola > <path>" → 펩시 영상, "echo pepsi > <path>" → 코크 영상.
+    float lastDebugPoll = -1f;
+    string DebugHookPath => System.IO.Path.Combine(Application.persistentDataPath, "eyad_debug.txt");
+
     void Update()
     {
+        PollDebugHook();
+
         if (!pendingInference) return;
         if (cam == null || !cam.isReady || cam.webCamTex == null) return;
         if (cam.webCamTex.width < 16) return;
@@ -409,6 +417,88 @@ public class HelloAR : MonoBehaviour
         pendingInference = true;
         lastTriggerTime = Time.time;
         Debug.Log("[HelloAR] Trigger received → NPU 추론 schedule");
+    }
+
+    // b25 디버그 훅: eyad_debug.txt 파일을 ~0.5s 마다 폴링. 파일이 있으면 brand 를 읽어
+    //   트리거/CLIP/색 판별을 전부 우회하고 경쟁사 영상을 바로 spawn (착용 없이 adb로 테스트).
+    //   재트리거 게이트(adShowingUntil)도 무시 — 테스트 편의. 처리 후 파일 삭제 → 1회만 발화.
+    void PollDebugHook()
+    {
+        if (Time.time - lastDebugPoll < 0.5f) return;
+        lastDebugPoll = Time.time;
+
+        try
+        {
+            string path = DebugHookPath;
+            if (!System.IO.File.Exists(path)) return;
+
+            string raw = System.IO.File.ReadAllText(path);   // mid-write 면 빈/부분 텍스트 가능 → 아래서 trim
+            System.IO.File.Delete(path);                     // 즉시 삭제 → 1회만 발화
+
+            string token = (raw ?? "").Trim().ToLowerInvariant();
+            if (token.Length == 0) return;
+
+            string brandName;
+            if (token == "coca-cola" || token == "coke" || token == "cola") brandName = "coca-cola";
+            else if (token == "pepsi") brandName = "pepsi";
+            else { Debug.LogWarning($"[DEBUG-HOOK] 미인식 brand token='{token}' (coca-cola/coke/cola/pepsi 만)"); return; }
+
+            SpawnCompetitorAdForBrand(brandName);
+        }
+        catch (System.Exception e)
+        {
+            // 파일 lock(mid-write) 등 → 다음 폴링에서 재시도.
+            Debug.LogWarning($"[DEBUG-HOOK] poll 실패: {e.Message}");
+        }
+    }
+
+    // b25 디버그: 주어진 brand(coca-cola/pepsi)에 대해 실제 MATCH 경로와 동일하게 경쟁사 영상 spawn.
+    //   합성 MatchResult 를 만들어 spatial.ShowAdBesideMatch 호출 → VIDEO 렌더 경로를 그대로 탐.
+    void SpawnCompetitorAdForBrand(string brandName)
+    {
+        if (matcher == null || !matcher.isReady || spatial == null)
+        {
+            Debug.LogWarning("[DEBUG-HOOK] matcher/spatial 미준비 → spawn 보류");
+            return;
+        }
+        var category = matcher.GetCategoryByName("cola");
+        if (category == null)
+        {
+            Debug.LogWarning("[DEBUG-HOOK] 'cola' category 없음 → spawn 불가");
+            return;
+        }
+        var brand = matcher.GetBrandByName(category, brandName);
+        if (brand == null)
+        {
+            Debug.LogWarning($"[DEBUG-HOOK] category=cola 에 brand='{brandName}' 없음 → spawn 불가");
+            return;
+        }
+
+        string vidPath;
+        if (!CompetitorAdVideo.TryGetValue(brandName, out vidPath))
+        {
+            vidPath = (brand.ad_image ?? "")
+                .Replace("db/ads/", "db/ads_video/")
+                .Replace("_ad.png", "_ad.mp4");
+        }
+
+        // HUD 카운터 반영 (실제 경로와 동일하게).
+        triggerCount++;
+        colaCount++;
+        matchCount++;
+        if (brandName == "coca-cola") cokeCount++;
+        else if (brandName == "pepsi") pepsiCount++;
+
+        var result = new ProductMatcher.MatchResult {
+            category = category, brand = brand, categoryScore = 1f,
+            brandSource = "debug", brandScore = 1f,
+        };
+
+        int W = (cam != null && cam.webCamTex != null) ? cam.webCamTex.width  : QnnYoloDetector.INPUT_SIZE;
+        int H = (cam != null && cam.webCamTex != null) ? cam.webCamTex.height : QnnYoloDetector.INPUT_SIZE;
+        spatial.ShowAdBesideMatch(vidPath, result, null, W, H);
+        adShowingUntil = Time.time + adShowSeconds;
+        Debug.Log($"[DEBUG-HOOK] spawn brand={brandName} → video={vidPath}");
     }
 
     // v0.5.16: trigger 마다 webCamTex 의 raw frame 을 persistentDataPath/captures/ 에 jpg 저장.

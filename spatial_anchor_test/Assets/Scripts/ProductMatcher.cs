@@ -334,6 +334,19 @@ public class ProductMatcher : MonoBehaviour
         return null;
     }
 
+    // b25 — 이름으로 category 조회 (read-only helper, 대소문자 무시). adb 디버그 훅이
+    //   트리거/CLIP 우회로 합성 MatchResult 를 만들 때 "cola" category 를 가져오는 데 사용.
+    public Category GetCategoryByName(string name)
+    {
+        if (_categories == null || string.IsNullOrEmpty(name)) return null;
+        foreach (var c in _categories)
+        {
+            if (c == null || c.name == null) continue;
+            if (string.Equals(c.name, name, StringComparison.OrdinalIgnoreCase)) return c;
+        }
+        return null;
+    }
+
     // ──────── metadata.json schema 어댑터 (Windows repo 전용) ────────
     // Mac 의 build_*_db.py 가 생성하는 unity_db.json 이 없으므로 metadata.json + .npy 파일을
     // 런타임에 평탄화한다. embedding 은 numpy V1.0 (.npy) — 10B magic + 2B header_len + ASCII header

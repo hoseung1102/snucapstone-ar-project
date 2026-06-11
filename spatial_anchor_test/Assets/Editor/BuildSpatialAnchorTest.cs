@@ -23,10 +23,10 @@ public static class BuildSpatialAnchorTest
     const string PRODUCT_NAME = "EagleEye OCR+SLAM";
     const string COMPANY_NAME = "Eagle Eye";
     // b24 integrated: b22 OCR+SLAM 라인에 slam-clip-worldanchor(b15-b17) 병합.
-    const string OUTPUT_APK   = "Build/EagleEye-b24-integrated.apk";
+    const string OUTPUT_APK   = "Build/EagleEye-b25-color-video.apk";
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
     // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "b24-integrated";
+    const string BUILD_TAG    = "b25-color-video";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()
