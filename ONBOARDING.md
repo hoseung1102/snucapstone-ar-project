@@ -42,7 +42,7 @@ adb -s $SER reboot   # ★ 테스트 전 리부트 = 클린 CDSP (안 하면 재
 adb -s $SER shell am start -n $PKG/com.rayneo.openxradapter.UnityOpenXrActivity
 ```
 - 착용 → **머리 잠깐 움직여 SLAM 수렴**(정지면 SEEKING) → 콜라/펩시병 시야 중앙 → 머리 1초 정지 = 트리거
-- 실시간 모니터: `python spatial_anchor_test/tools/monitor/eagle_monitor.py --serial $SER` (펀널 TRIGGER→COLA→MATCH→COKE/PEPSI + CLIP/SLAM/영상)
+- 실시간 모니터: `python spatial_anchor_test/tools/monitor/eagle_monitor.py --serial $SER` (펀널 TRIGGER→COLA→MATCH→COKE/PEPSI + CLIP/SLAM/영상). Claude Code 쓰면 `/eagle-monitor` 스킬로 새 창에 자동 — 레포의 `.claude/skills/eagle-monitor/` 에 포함됨(클론하면 바로 인식). 순수 stdlib python3, pip 불필요
 - 착용 없이 영상만 확인: `adb -s $SER shell "echo coca-cola > /sdcard/Android/data/$PKG/files/eyad_debug.txt"` (→펩시영상) / `echo pepsi`(→코크영상)
 
 ## 꼭 알 것 (함정)

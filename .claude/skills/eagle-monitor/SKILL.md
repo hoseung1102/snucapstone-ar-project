@@ -19,37 +19,45 @@ streams independently of this chat. The window keeps running until the user
 closes it (or presses Ctrl-C inside it).
 
 ## Prerequisites
-- Device connected (`A06B4A95B784973`) and the app **running the b16+ build**
-  (only b16+ emits the `[MONITOR]` heartbeat). If the app isn't running yet,
-  the dashboard will sit on "waiting for [MONITOR] heartbeat…" — that's fine,
-  it picks up automatically once the app starts.
+- Device connected (`adb devices` 로 시리얼 확인 — 머신마다 다름) and the app
+  **running the b16+ build** (b16+ / b24-integrated 이상만 `[MONITOR]` heartbeat 를
+  emit). 앱이 아직 안 떠 있으면 대시보드는 "waiting for [MONITOR] heartbeat…" 에서
+  대기하다가 앱이 뜨면 자동으로 잡는다.
 - Does NOT run `adb logcat -c`, does NOT install/push/force-stop. Read-only
   logcat stream.
 
 ## What to do when invoked
+
+먼저 **이 레포의 절대경로**를 구한다(= `spatial_anchor_test/` 를 담은 디렉토리).
+아래 명령의 `<REPO>` 를 그 경로로 치환하고, 디바이스 시리얼을 `--serial <SERIAL>`
+로 붙여라(여러 대면 필수, 한 대면 생략 가능). adb 가 PATH 에 없으면
+`--adb "<path-to-adb.exe>"` 도 붙인다.
+
+스크립트 경로: `<REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py`
 
 Spawn the dashboard in its own window. Try these in order, use the first that
 works on the host:
 
 **1. Windows Terminal (preferred, if `wt.exe` exists):**
 ```
-wt.exe -- powershell -NoExit -Command "python C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test/tools/monitor/eagle_monitor.py"
+wt.exe -- powershell -NoExit -Command "python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>"
 ```
 
 **2. Start-Process powershell (reliable fallback):**
 ```
-Start-Process powershell -ArgumentList '-NoExit','-Command','python C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test/tools/monitor/eagle_monitor.py'
+Start-Process powershell -ArgumentList '-NoExit','-Command','python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>'
 ```
 
 **3. cmd start (last resort):**
 ```
-cmd /c start "EagleMonitor" powershell -NoExit -Command "python C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test/tools/monitor/eagle_monitor.py"
+cmd /c start "EagleMonitor" powershell -NoExit -Command "python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>"
 ```
 
-Or, equivalently, call the wrapper which sets UTF-8 first:
+**macOS/Linux** (RayNeo SDK 머신이 Mac 인 경우):
 ```
-Start-Process powershell -ArgumentList '-NoExit','-File','C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test/tools/monitor/launch_monitor.ps1'
+python3 <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>
 ```
+(별도 터미널 탭에서 직접 실행. 순수 stdlib python3 라 pip 불필요.)
 
 Run exactly ONE of the above (don't open multiple windows). Then tell the user
 the window is open and streaming.

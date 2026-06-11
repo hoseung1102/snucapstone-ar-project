@@ -4,9 +4,11 @@
 #   powershell -NoExit -File launch_monitor.ps1 -Serial A06B4A95B784973
 # The skill normally calls this inside a freshly-spawned terminal window.
 
+# Serial 비우면 adb 의 첫 디바이스 사용. Adb 기본값은 PATH 의 'adb'.
+#   다른 머신: powershell -NoExit -File launch_monitor.ps1 -Serial <SER> [-Adb <path>]
 param(
-    [string]$Serial = "A06B4A95B784973",
-    [string]$Adb    = "C:/Users/yulee/AppData/Local/Android/Sdk/platform-tools/adb.exe"
+    [string]$Serial = "",
+    [string]$Adb    = "adb"
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,5 +18,8 @@ $script = Join-Path $PSScriptRoot "eagle_monitor.py"
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $env:PYTHONIOENCODING = "utf-8"
 
-Write-Host "Eagle Eye monitor -> $Serial (Ctrl-C to stop)" -ForegroundColor Cyan
-python $script --serial $Serial --adb $Adb
+$pyArgs = @($script, "--adb", $Adb)
+if ($Serial -ne "") { $pyArgs += @("--serial", $Serial) }
+
+Write-Host "Eagle Eye monitor -> $(if($Serial){$Serial}else{'(first device)'}) (Ctrl-C to stop)" -ForegroundColor Cyan
+python @pyArgs

@@ -23,8 +23,10 @@ import sys
 import time
 from collections import deque
 
-DEFAULT_ADB = "C:/Users/yulee/AppData/Local/Android/Sdk/platform-tools/adb.exe"
-DEFAULT_SERIAL = "A06B4A95B784973"
+# Portable defaults: adb on PATH, serial empty = use the first connected device.
+# Override with --adb <path> / --serial <SER> (e.g. on a different dev machine).
+DEFAULT_ADB = "adb"
+DEFAULT_SERIAL = ""
 
 MONITOR_MARKER = "[MONITOR] "
 # Substrings that mark an interesting EVENT line in the Unity tag stream.
@@ -359,7 +361,8 @@ def _render_events(lines, state, S, sep):
 # --------------------------------------------------------------------------- #
 
 def spawn_logcat(adb, serial):
-    cmd = [adb, "-s", serial, "logcat", "-v", "threadtime", "-s", "Unity:I"]
+    # serial 비면 -s 생략 → adb 의 첫(유일한) 디바이스 사용.
+    cmd = [adb] + (["-s", serial] if serial else []) + ["logcat", "-v", "threadtime", "-s", "Unity:I"]
     return subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,
