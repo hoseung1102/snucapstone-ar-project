@@ -77,7 +77,7 @@ GyroTrigger(머리 1초 정지)  →  카메라 프레임(ShareCamera RGB)
 
 ## 4. ★ 알려진 이슈 (이어받는 dev 이 볼 것)
 
-1. **한 물체에 광고가 여러 번 뜸 (중복 spawn)** — 같은 콜라병을 계속 응시하면 트리거가 반복 발화되고 매칭마다 새 영상 quad 가 spawn(최대 2개 FIFO 누적). `HelloAR.adShowingUntil`(=`adShowSeconds` 10s) 게이트가 그 동안의 재트리거를 막지만 **만료 후 같은 병에 재spawn**됨. **수정 방향**: (a) `maxAds=1` 로 단일 교체, 또는 (b) 같은 brand 가 최근 N초 내/근접 위치에 이미 떠 있으면 재spawn 스킵(dedup), 또는 (c) `adShowSeconds` 연장 + 같은 brand 재진입 무시. (`HelloAR.cs:56-57,319-320,406-411`, `SpatialAnchorTest.cs:55,330-348`)
+1. ~~**한 물체에 광고가 여러 번 뜸 (중복 spawn)**~~ → **✅ b26 해결.** 브랜드당 1개로 dedup: `adBrands` 키 리스트(`coke-ad`/`pepsi-ad`, adQuads 와 1:1)를 두고, spawn 전 같은 키가 있으면 `EvictAdQuad` 후 현재 응시 위치에 새로(재소환). 같은 병 반복 응시해도 누적 0, 코크-광고 1 + 펩시-광고 1 최대. 입력 의존 0(자동). (`SpatialAnchorTest.cs` adBrands 선언 + ShowAdBesideMatch dedup 블록 + EvictAdQuad). 향후 보너스: 터치패드/링 클릭으로 전체 앵커 리셋(입력 검증 후).
 2. **SLAM 은 움직여야 수렴** — 정지 시 SEEKING. 데모 시작 시 잠깐 머리 움직여 TRACKING 만든 뒤 사용.
 3. **버전 mismatch 경고** — `SDK 1.1.6 ↔ Runtime 1.1.7.9`(minor 불일치). 현재 비치명적(FFVINS 동작). 안정성 위해 ARDK ≥1.1.7 flash 고려(portal 계정 필요).
 4. **재실행 크래시(리부트 없이)** — §3.4 CDSP leak. crash-fix(동기 release) 적용 전까진 테스트 사이 리부트 권장.

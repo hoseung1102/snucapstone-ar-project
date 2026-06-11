@@ -58,6 +58,9 @@ public class SpatialAnchorTest : MonoBehaviour
     //   VideoPlayer 는 해당 quad GameObject 에 직접 AddComponent → quad Destroy 시 함께 사라짐.
     //   RenderTexture 는 GC 안 되므로 FIFO 제거/OnDestroy 에서 명시적으로 Release().
     List<RenderTexture> adRTs = new List<RenderTexture>();
+    // b26: adQuads 와 1:1 정렬된 광고 brand 키("coke-ad"/"pepsi-ad"). 브랜드당 1개만 유지 →
+    //   같은 경쟁사 광고 재트리거 시 헌 것 제거 후 현재 응시 위치에 새로(재소환). 중복 누적 방지.
+    List<string> adBrands = new List<string>();
     // 광고 영상 mp4 의 StreamingAssets→파일경로 복사 캐시 (한 번 복사하면 재사용).
     Dictionary<string, string> _videoLocalPaths = new Dictionary<string, string>();
     // v1.5: HUD 를 카운터(상단 좌) + SLAM 진단(상단 우) 2개 TextMesh 로 분리, 둘 다 camera 에 parent (head-lock).
@@ -326,6 +329,13 @@ public class SpatialAnchorTest : MonoBehaviour
             anchorWorldPos = objectPos;
         }
 
+        // b26: 브랜드당 1개 — 같은 경쟁사 광고가 이미 떠 있으면 제거 후 새로 spawn(재소환).
+        //   vidPath 가 경쟁사 광고 파일(코크인식→pepsi_ad / 펩시인식→coke_ad)이라 키로 1:1.
+        //   효과: 한 물체를 계속 봐도 누적 X, 재트리거 시 현재 응시 위치로 1개만 갱신.
+        string adKey = (vidPath ?? "").Contains("pepsi") ? "pepsi-ad" : "coke-ad";
+        int dupIdx = adBrands.IndexOf(adKey);
+        if (dupIdx >= 0) EvictAdQuad(dupIdx);
+
         // 광고 quad spawn (world 고정).
         // v1.4: 단일 교체 대신 누적 — adQuads 에 추가 후 maxAds 초과분(FIFO, 앞=오래된 것) 제거.
         GameObject newQuad = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -343,6 +353,7 @@ public class SpatialAnchorTest : MonoBehaviour
 
         adQuads.Add(newQuad);
         adRTs.Add(null);   // b25: adQuads 와 1:1 정렬 유지. 영상 prepare 완료 시 이 슬롯에 RT 할당.
+        adBrands.Add(adKey);  // b26: 브랜드 키도 1:1 정렬.
         while (adQuads.Count > maxAds)
         {
             EvictAdQuad(0);
@@ -354,6 +365,19 @@ public class SpatialAnchorTest : MonoBehaviour
         //   복사/재생 실패 시 정지 PNG 로 폴백 (크래시 금지).
         string pngPath = (vidPath ?? "").Replace("ads_video", "ads").Replace(".mp4", ".png");
         StartCoroutine(SetupAdVideo(vidPath, pngPath, newQuad, mr));
+
+        // b26 mock checkout: 광고 quad 에 AdCheckout 부착 — select → CHECKOUT → BUY → ✓ ORDER PLACED.
+        //   썸네일은 광고 quad 의 mainTexture (mr 로 lazily 읽음 — 영상/PNG 로드가 attach 후 완료되므로).
+        //   conquest: result.brand 는 "손에 든 것"(인식 brand). 광고/checkout 상품은 그 경쟁사(반대).
+        //   CompetitorAdVideo 매핑과 일치: 코크 인식 → 펩시 광고/구매, 펩시 인식 → 코크 광고/구매.
+        string handBrand = result != null && result.brand != null && result.brand.name != null
+            ? result.brand.name.ToLowerInvariant() : "";
+        string ckName = handBrand == "coca-cola" ? "PEPSI"
+                      : handBrand == "pepsi"     ? "COKE"
+                      : "AD-ITEM";
+        string ckPrice = (handBrand == "coca-cola" || handBrand == "pepsi") ? "$1.50" : "$0.00";
+        var ck = newQuad.AddComponent<AdCheckout>();
+        ck.Init(xrCam, newQuad, ckName, ckPrice, mr);
 
         string brandName = result != null && result.brand != null ? result.brand.name : "AD";
         Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} vid='{vidPath}' png='{pngPath}' obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");
@@ -375,6 +399,7 @@ public class SpatialAnchorTest : MonoBehaviour
             if (adRTs[idx] != null) adRTs[idx].Release();
             adRTs.RemoveAt(idx);
         }
+        if (idx < adBrands.Count) adBrands.RemoveAt(idx);  // b26: brand 키 1:1 정렬 유지.
         adQuads.RemoveAt(idx);
     }
 
