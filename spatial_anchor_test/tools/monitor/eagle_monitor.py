@@ -71,11 +71,29 @@ class Style:
     BG_YELLOW = "\x1b[43m"
     BLACK = "\x1b[30m"
 
+    BG_BLUE = "\x1b[44m"
+    BG_CYAN = "\x1b[46m"
+
     @classmethod
     def wrap(cls, text, *codes):
         if not cls.enabled or not codes:
             return text
         return "".join(codes) + text + cls.RESET
+
+
+# 촬영 친화: 비례 막대 게이지. filled=값(0~max), width=칸수. 멀리서도 진행이 보이게.
+def bar(value, max_value, width=12, color=Style.CYAN):
+    try:
+        v = max(0, int(value)); m = max(1, int(max_value))
+    except Exception:
+        v = 0; m = 1
+    filled = min(width, int(round(width * v / m)))
+    return Style.wrap("█" * filled, color) + Style.wrap("░" * (width - filled), Style.GREY)
+
+
+# 상태 LED 점 — 색 점등(●). 멀리서 상태 즉시 파악.
+def led(on_color):
+    return Style.wrap("●", on_color)
 
 
 def ensure_utf8_stdout():
@@ -282,45 +300,59 @@ def render(state, serial):
     clip = d.get("clip", "?")
     clip_s = _num(d.get("clipS"))
     if clip == "READY":
-        flag = S.wrap(" READY ", S.BOLD, S.BLACK, S.BG_GREEN)
+        dot = led(S.GREEN); flag = S.wrap(" READY ", S.BOLD, S.BLACK, S.BG_GREEN)
     elif clip == "COMPILING":
-        flag = S.wrap(" COMPILING ", S.BOLD, S.BLACK, S.BG_YELLOW)
+        dot = led(S.YELLOW); flag = S.wrap(" COMPILING ", S.BOLD, S.BLACK, S.BG_YELLOW)
     else:
-        flag = S.wrap(" %s " % clip, S.BOLD, S.BLACK, S.BG_RED)
-    lines.append("  CLIP   %s  (%ss)" % (flag, clip_s))
+        dot = led(S.RED); flag = S.wrap(" %s " % clip, S.BOLD, S.BLACK, S.BG_RED)
+    lines.append("  %s CLIP   %s  (%ss)" % (dot, flag, clip_s))
     lines.append("")
 
-    # --- 3. Funnel --------------------------------------------------------- #
+    # --- 3. Funnel (촬영 친화: 비례 막대 게이지 + 변화 플래시) -------------- #
     trig = d.get("trig", 0)
     cola = d.get("cola", 0)
     match = d.get("match", 0)
     coke = d.get("coke", 0)
     pepsi = d.get("pepsi", 0)
+    top = max(1, trig)   # 펀널 상단=TRIGGER 기준 비례
+    # 직전 대비 증가한 단계는 BG 플래시로 하이라이트 (영상에서 "지금 일어남"이 눈에 띔 + 싱크 기준점).
+    prev = getattr(state, "_prev_funnel", None)
+    cur = (trig, cola, match, coke, pepsi)
+    def hl(label, val, prev_val, color, bar_color):
+        flash = (prev_val is not None and val > prev_val)
+        num = S.wrap("%4d" % val, S.BOLD, S.BLACK, S.BG_GREEN) if flash else S.wrap("%4d" % val, color)
+        return "%s %s %s" % (label, bar(val, top, 14, bar_color), num)
+    pv = prev or (None,)*5
     lines.append(S.wrap("  FUNNEL", S.BOLD, S.WHITE))
-    lines.append("    TRIGGER ........ %s" % S.wrap("%4d" % trig, S.CYAN))
-    lines.append("     └ COLA ........ %s" % S.wrap("%4d" % cola, S.CYAN))
-    lines.append("        └ MATCH .... %s" % S.wrap("%4d" % match, S.GREEN))
-    lines.append("            ├ COKE  %s"
-                 % S.wrap("%4d" % coke, S.RED))
-    lines.append("            └ PEPSI %s"
-                 % S.wrap("%4d" % pepsi, S.BLUE))
+    lines.append("    " + hl("TRIGGER  ", trig,  pv[0], S.CYAN,  S.CYAN))
+    lines.append("    " + hl("└ COLA   ", cola,  pv[1], S.CYAN,  S.CYAN))
+    lines.append("    " + hl("  └ MATCH", match, pv[2], S.GREEN, S.GREEN))
+    lines.append("    " + hl("    COKE ", coke,  pv[3], S.RED,   S.RED))
+    lines.append("    " + hl("    PEPSI", pepsi, pv[4], S.BLUE,  S.BLUE))
+    state._prev_funnel = cur
     lines.append("")
 
     # --- 4. SLAM sensors --------------------------------------------------- #
     slam = str(d.get("slam", "?"))
     raw = d.get("raw", "?")
     if "TRACK" in slam or "CONVERG" in slam:
-        slam_c = S.wrap(slam, S.GREEN)
+        sdot = led(S.GREEN); slam_c = S.wrap(" %s " % slam, S.BOLD, S.BLACK, S.BG_GREEN)
     elif "SEEK" in slam:
-        slam_c = S.wrap(slam, S.YELLOW)
+        sdot = led(S.YELLOW); slam_c = S.wrap(" %s " % slam, S.BOLD, S.BLACK, S.BG_YELLOW)
     else:
-        slam_c = S.wrap(slam, S.RED)
+        sdot = led(S.RED); slam_c = S.wrap(" %s " % slam, S.BOLD, S.BLACK, S.BG_RED)
     lines.append(S.wrap("  SLAM SENSORS", S.BOLD, S.WHITE))
-    lines.append("    status .. %s (raw=%s)" % (slam_c, raw))
+    lines.append("    status .. %s %s (raw=%s)" % (sdot, slam_c, raw))
     lines.append("    pos ..... %s   rot %s deg"
                  % (_vec(d.get("pos")), _vec(d.get("rot"), 0)))
-    lines.append("    vel ..... %s m/s   ang %s dps"
-                 % (_num(d.get("v")), _num(d.get("w"))))
+    # 움직임 게이지 — SLAM 은 움직여야 수렴하므로 v(선속도)/w(각속도)를 막대로 시각화.
+    try: vv = float(d.get("v") or 0)
+    except Exception: vv = 0.0
+    try: ww = float(d.get("w") or 0)
+    except Exception: ww = 0.0
+    lines.append("    motion .. v %s %s m/s   w %s %s dps"
+                 % (bar(vv * 100, 50, 10, S.GREEN), _num(d.get("v")),
+                    bar(ww, 90, 10, S.YELLOW), _num(d.get("w"))))
     lines.append("    anchor .. %s" % _vec(d.get("anchor")))
     lines.append("    dist .... %s m   drift %s m   fwdAng %s deg"
                  % (_num(d.get("dist")), _num(d.get("drift")),
