@@ -18,6 +18,9 @@
 2) docs/findings-2026-06-11-crash-slam-openxr.md  ← 크래시/SLAM 8Hz/OpenXR 근본 진단
 3) AGENTS.md(루트, 자동 로드) + spatial_anchor_test/B22_TEST_RESULTS.md(OCR 실패 측정)
 파악 끝나면 알려진 이슈 §4-1(한 물체에 광고 여러 번 뜨는 중복 spawn)부터 고치자.
+그리고 기기에 앱을 launch 할 때마다 /eagle-monitor 스킬로 모니터 대시보드도 항상 같이 띄워줘
+(펀널 TRIGGER→COLA→MATCH→COKE/PEPSI + CLIP/SLAM/영상 실시간 관찰용). Mac 이면 별도 터미널에서
+python3 spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SER> 실행.
 ⚠️ 빌드는 반드시 Unity 2022.3.62f3 (Unity 6 쓰면 안경에서 검은화면). 브랜치 feature/b24-integrated.
 ```
 

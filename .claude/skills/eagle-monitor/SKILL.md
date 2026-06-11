@@ -18,6 +18,9 @@ Launch a **new terminal window** running the live AR debug dashboard so it
 streams independently of this chat. The window keeps running until the user
 closes it (or presses Ctrl-C inside it).
 
+> **앱을 기기에 launch 할 때 이 모니터도 같이 띄우는 것이 기본 동작이다** — 트리거/CLIP/색상/SLAM/영상 spawn 을 실시간으로 봐야 디버깅이 된다.
+> **OS 판별 먼저**: Windows → 아래 1~3 중 첫 성공하는 것. macOS/Linux(예: RayNeo SDK Mac 머신) → 맨 아래 python3 직접 실행. 한글/박스문자는 UTF-8 자동 처리(스크립트 내장).
+
 ## Prerequisites
 - Device connected (`adb devices` 로 시리얼 확인 — 머신마다 다름) and the app
   **running the b16+ build** (b16+ / b24-integrated 이상만 `[MONITOR]` heartbeat 를
