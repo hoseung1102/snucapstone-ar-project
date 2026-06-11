@@ -79,8 +79,18 @@ class Style:
 
 
 def ensure_utf8_stdout():
-    """Force stdout to UTF-8 so box-drawing/emoji glyphs don't crash on a
-    non-UTF8 Windows code page (e.g. cp949). Best-effort, never raises."""
+    """Make Korean/box-drawing glyphs render on Windows. Best-effort, never raises.
+    Two parts are BOTH required:
+      1) console output code page → 65001(UTF-8). 없으면 콘솔이 UTF-8 바이트를
+         cp949 로 해석해 한글이 깨진다(= chcp 65001 안 한 상태). ctypes 로 직접 설정.
+      2) python stdout 을 UTF-8 로 인코딩(reconfigure)."""
+    if os.name == "nt":
+        try:
+            import ctypes
+            ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+            ctypes.windll.kernel32.SetConsoleCP(65001)
+        except Exception:
+            pass
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # py3.7+
     except Exception:
