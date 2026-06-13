@@ -10,6 +10,7 @@
 |---|---|---|
 | [vision.md](vision.md) | **메인.** 시스템 비즈니스 정체성 + v1 PoC 사양 + 결정 로그. 맨 위 "현재 상태 스냅샷"만 읽어도 현황 파악 | 새 기술 결정 / 마일스톤 (끝의 결정 로그 패턴으로 추가) |
 | [EXPERIMENTS.md](EXPERIMENTS.md) | **실험 history 의 source of truth.** 빌드별 시도·결과(✅⚠️❌)·교훈의 평면 로그. git 대신 여기서 과거를 본다 | **실험/빌드 한 번 = 한 행** (실패·롤백도 ❌ 로 반드시) |
+| [platform-rayneo.md](platform-rayneo.md) | **플랫폼 사실·gotcha 의 주제별 living 레퍼런스** (RayNeo SDK API / NPU·QNN / OpenXR / 권한 / 빌드). EXPERIMENTS 가 "언제 뭘 시도"라면 이건 "지금 뭐가 진실". `🆕`=코드에서 처음 구조함 | 플랫폼 사실/제약을 새로 알 때 (해당 § 덮어쓰기) |
 | [client-spec.md](client-spec.md) | 클라이언트(RayNeo X3 Pro) **기술 스택 / 파이프라인**의 진실의 원천 (= 옛 기획안 v1.2) | 하드웨어 / 추론 스택 / 파이프라인 사양 변경 |
 | [dev-guide.md](dev-guide.md) | **구현/빌드/모델 레퍼런스.** 셋업·빌드·코드 아키텍처·모델 swap·NPU 현실·ONNX 분석·트러블슈팅 (옛 루트 README/INTEGRATION_GUIDE/MODELS/README_NPU/ONNX_ANALYSIS 통합) | 코드/빌드/모델 변경 시 |
 | [progress-log.md](progress-log.md) | 일자별 진행 로그 + APK 버전 history + 핵심 인사이트 dump | 일일 진행 (새 날짜는 새 섹션) |

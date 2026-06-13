@@ -46,6 +46,8 @@
 
 ## 살아있는 교훈 (다시 하지 말 것 / 확정된 제약)
 
+> **주제별 전체·근거·출처는 [platform-rayneo.md](platform-rayneo.md)** (플랫폼 사실의 권위 출처). 아래는 빌드 ID 에 묶인 cross-cut 요약일 뿐 — 상세는 거기서.
+
 미래의 나/팀원/Claude 가 같은 막다른 길을 다시 파지 않도록.
 
 - ❌ **CPU-CLIP 으로 빼기 (b17)** — CDSP crash 는 우회되지만 SLAM 이 8Hz 로 떨어짐. NPU CLIP 유지가 정답.
