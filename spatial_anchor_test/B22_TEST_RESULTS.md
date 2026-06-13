@@ -1,5 +1,7 @@
 # b22 (npu-ocr-slam) 온디바이스 테스트 결과 + 진단
 
+> ↩ 실험 history 인덱스: [../docs/EXPERIMENTS.md](../docs/EXPERIMENTS.md) — 이 문서는 빌드 **b22** 의 테스트 상세.
+
 > 작성: 2026-06-11, Windows + Unity 2022.3.62f3 재빌드, RayNeo X3 Pro 실기(A06B4A95B784973) 착용 트리거 테스트.
 > 대상: `feature/npu-ocr-slam-b22` 를 이어서 검증/개발할 팀원. (`BUILD_OCR_SLAM_HANDOFF.md` 의 후속 — 측정 포인트를 실제로 돌려본 결과.)
 > 모든 결론은 logcat 직접 증거(트리거 #33~#87 관측). 추정은 "추정" 표기.

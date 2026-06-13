@@ -1,5 +1,7 @@
 # b25 데모 핸드오프 — 구조 · 결정 · 근거 · 이어받기
 
+> ↩ 실험 history 인덱스: [../docs/EXPERIMENTS.md](../docs/EXPERIMENTS.md) — 이 문서는 빌드 **b25** 의 핸드오프 상세.
+
 > 작성: 2026-06-11. 대상: 이 conquest AR 데모를 **이어서 개발할 다른 개발자**.
 > 빌드: `b25-color-video` (branch `feature/b24-integrated`, commit `d36e813`). RayNeo X3 Pro / Unity 2022.3.62f3.
 > 상태: **온디바이스에서 동작 확인됨** — 콜라/펩시 페트병 응시 → 경쟁사 **영상**이 정면에 world-anchored 로 재생. 크래시 없음.

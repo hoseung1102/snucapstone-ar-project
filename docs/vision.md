@@ -9,7 +9,7 @@
 ---
 ## ⚡ 현재 상태 스냅샷 (2026-06-08 갱신, v0.7.2 기준)
 
-> 이 섹션만 읽으면 현 시점 상태 파악 가능. 상세 타임라인은 [진행 로그](progress-log.md), 결정 배경은 아래 결정 로그들 참조.
+> 이 섹션만 읽으면 현 시점 상태 파악 가능. 지금까지 뭘 시도했고 뭐가 실패했나(빌드별 history)는 [실험 로그](EXPERIMENTS.md), 일자별 상세는 [진행 로그](progress-log.md), 결정 배경은 아래 결정 로그들 참조.
 
 - **단계**: v1 PoC 시연 검증 단계 — **end-to-end 성공 확인됨** (v0.7.4, `aip.json` 에 OCR-driven `pepsi`/`coca-cola` 매칭 + conquest 광고 표시. brand fallback OFF 라 OCR 이 실제 라벨을 읽었다는 증거). 성공률은 **조준(병을 카메라 정중앙·라벨 정면)** 에 의존 — 그게 현재 실전 병목.
 - **최신 버전**: **v0.7.4** (CLIP 중앙 crop query+ref + threshold 0.45). v0.7.3 = OCR 전처리(회전+crop+upscale) + 매칭 구조 분리(CLIP category → category 매칭 시에만 OCR brand) + CLIP-only 시 YOLO 컴포넌트 skip(시작 시 QNN 그래프 컴파일 제거). 상세는 [progress-log](progress-log.md) 2026-06-08 오후 섹션.

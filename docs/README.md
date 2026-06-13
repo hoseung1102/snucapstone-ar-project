@@ -4,11 +4,12 @@
 > **모든 문서 갱신은 노션이 아니라 이 디렉토리의 `.md` 파일에 직접 한다.**
 > 읽는 순서·갱신 규칙은 루트 [`CLAUDE.md`](../CLAUDE.md) 참조.
 
-## 문서 구성 (6개)
+## 문서 구성
 
 | 파일 | 역할 | 갱신 시점 |
 |---|---|---|
 | [vision.md](vision.md) | **메인.** 시스템 비즈니스 정체성 + v1 PoC 사양 + 결정 로그. 맨 위 "현재 상태 스냅샷"만 읽어도 현황 파악 | 새 기술 결정 / 마일스톤 (끝의 결정 로그 패턴으로 추가) |
+| [EXPERIMENTS.md](EXPERIMENTS.md) | **실험 history 의 source of truth.** 빌드별 시도·결과(✅⚠️❌)·교훈의 평면 로그. git 대신 여기서 과거를 본다 | **실험/빌드 한 번 = 한 행** (실패·롤백도 ❌ 로 반드시) |
 | [client-spec.md](client-spec.md) | 클라이언트(RayNeo X3 Pro) **기술 스택 / 파이프라인**의 진실의 원천 (= 옛 기획안 v1.2) | 하드웨어 / 추론 스택 / 파이프라인 사양 변경 |
 | [dev-guide.md](dev-guide.md) | **구현/빌드/모델 레퍼런스.** 셋업·빌드·코드 아키텍처·모델 swap·NPU 현실·ONNX 분석·트러블슈팅 (옛 루트 README/INTEGRATION_GUIDE/MODELS/README_NPU/ONNX_ANALYSIS 통합) | 코드/빌드/모델 변경 시 |
 | [progress-log.md](progress-log.md) | 일자별 진행 로그 + APK 버전 history + 핵심 인사이트 dump | 일일 진행 (새 날짜는 새 섹션) |
@@ -25,12 +26,14 @@
 
 ## 빠른 현황 파악
 
-→ [vision.md](vision.md) 맨 위 **"⚡ 현재 상태 스냅샷"** 한 섹션 (현재 v0.7.2, hierarchical CLIP+OCR 매칭).
+→ [vision.md](vision.md) 맨 위 **"⚡ 현재 상태 스냅샷"** 한 섹션 (hierarchical CLIP category + OCR brand 매칭).
+→ 지금까지 뭘 시도했고 뭐가 실패했나는 [EXPERIMENTS.md](EXPERIMENTS.md).
 
 ## 운영 정책
 
-1. **새 기술 결정 / 마일스톤** → `vision.md` 끝의 "기술 결정 로그" 패턴으로 추가하고, 맨 위 스냅샷도 동기화.
-2. **일일 진행** → `progress-log.md` 에 날짜 섹션 추가.
-3. **노션은 더 이상 갱신하지 않음.**
+1. **실험/빌드 한 번 = `EXPERIMENTS.md` 한 행** (실패·롤백도 ❌ 로 반드시). 작업은 `main` 한 줄에서 — 장기 feature branch 금지 (CLAUDE.md "브랜치 / 작업 흐름").
+2. **새 기술 결정 / 마일스톤** → `vision.md` 끝의 "기술 결정 로그" 패턴으로 추가하고, 맨 위 스냅샷도 동기화.
+3. **일일 진행 상세** → `progress-log.md` 에 날짜 섹션 추가.
+4. **노션은 더 이상 갱신하지 않음.**
 4. 표기: 일반 GFM 으로 작성 (Notion 전용 `<table>`/`<page>` 문법 잔재가 일부 남아있으나 새 내용엔 쓰지 않음).
 5. 옛 export 트리 구조(`docs/notion/`, Team BETA / AR Application Ideation 컨테이너 등)는 2026-06-08 정리되어 위 5개로 통합됨.

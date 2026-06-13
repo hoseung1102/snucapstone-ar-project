@@ -1,5 +1,7 @@
 # 2026-06-11 조사 결과 — 디바이스 크래시 / SLAM 8Hz / RayNeo OpenXR 표면
 
+> ↩ 실험 history 인덱스: [EXPERIMENTS.md](EXPERIMENTS.md) — 이 문서는 빌드 **b17** 의 진단 상세.
+
 > 이 문서는 2026-06-11 세션의 심층 조사(서브에이전트 워크플로우 4건 + 온디바이스 logcat 포렌식)를 한 곳에 박제한다. **다른 개발자/Codex가 시간 손해 없이 이어가기 위한 단일 출처.**
 > 표기: **[확정]** = 코드/.so/로그 직접 증거로 결론남(디바이스 불필요). **[측정필요]** = 디바이스 1회 관측으로만 닫히는 미지수.
 > 관련: [`spatial-anchor-handoff.md`](spatial-anchor-handoff.md)(빌드 런북·changelog), 루트 [`../AGENTS.md`](../AGENTS.md).

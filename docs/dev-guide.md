@@ -39,27 +39,29 @@
 
 ## 2. 코드 / 자산 구조
 
-| 경로 | 내용 |
+**안경 앱 = `spatial_anchor_test/`** (자기완결 Unity 프로젝트). 아래 경로는 그 안의 상대경로.
+
+| 경로 (`spatial_anchor_test/` 기준) | 내용 |
 |---|---|
-| `EagleEye_Unity/` | Unity 프로젝트 (안경 앱 본체). `Library/Bee`·`Build/` 는 빌드 캐시 — 디스크 부족 시 `rm -rf` 가능 (재생성됨) |
-| `unity_assets_prep/Scripts/HelloAR.cs` | **메인 entry / 파이프라인 오케스트레이션.** `clipOnlyMode` 토글 (현재 true — YOLO 우회) |
-| `unity_assets_prep/Scripts/QnnYoloDetector.cs` | YOLO11l NPU 추론 + class whitelist + bbox area 필터 (`minAreaRatio`) |
-| `unity_assets_prep/Scripts/ClipExtractor.cs` | MobileCLIP-S2 임베딩 (512-d, L2-normalized) |
-| `unity_assets_prep/Scripts/ProductMatcher.cs` | hierarchical 매칭 (CLIP category + OCR brand). `strictBrandRequired`, `enableClipBrandFallback` (v0.7.3) |
-| `unity_assets_prep/Scripts/OCRExtractor.cs` | MLKit 텍스트 추출. v0.7.3: 회전 보정(`rotationOverride`) + 중앙 crop(`cropFraction`) + 업스케일(`upscaleFactor`) |
-| `unity_assets_prep/Scripts/AdRenderer.cs` | 2D HUD 비교 카드 + 영상 광고(VideoPlayer) + Sponsored + 라이프사이클 |
-| `unity_assets_prep/Scripts/AmbientInterestProfile.cs` | AIP 누적 로깅 (aip.json) |
-| `unity_assets_prep/Scripts/GyroTrigger.cs` | IMU 각속도 안정 트리거 |
-| `unity_assets_prep/Scripts/CameraPreview.cs` | WebCamTexture 프리뷰 |
-| `unity_assets_prep/Scripts/YoloDetector.cs` | Unity Sentis CPU fallback (NPU 미동작 시) |
-| `unity_assets_prep/Plugins/Android/QnnYoloEngine.java` | YOLO JNI (TFLite+QNN delegate) |
-| `unity_assets_prep/Plugins/Android/QnnClipEngine.java` | CLIP JNI |
-| `unity_assets_prep/Plugins/Android/MLKitOCR.java` | MLKit text-recognition v2 wrapper |
-| `db/metadata.json`, `db/unity_db.json` | 상품 메타 + hierarchical schema v0.7.1 (categories + brands, conquest 매핑) |
-| `db/embeddings/*.npy` | MobileCLIP-S2 임베딩 (Python 시뮬용) |
-| `db/ads/*.png`, `db/ads_video/*.mp4` | 광고 카드 이미지 / 영상 광고 |
-| `refs/` | CLIP reference 이미지 — `refs/cola`, `refs/cola_brands/{coke,pepsi}`, `refs/laptop` (구조는 progress-log "Refs 폴더 구조") |
-| `tools/recording/` | 1인칭 시야 녹화 시스템 (시연 영상 제작) |
+| `Assets/Scripts/SpatialAnchorTest.cs` | **SLAM/6DoF 앵커 + 콘텐츠 world-anchoring + 발산 복구.** 씬 루트 MonoBehaviour. `bisectionCase` B0~B8 (컴포넌트 점진 추가 토글) |
+| `Assets/Scripts/HelloAR.cs` | **파이프라인 오케스트레이션.** `clipOnlyMode` 토글 (현재 true — YOLO 우회) |
+| `Assets/Scripts/QnnYoloDetector.cs` | YOLO11l NPU 추론 + class whitelist + bbox area 필터 (`minAreaRatio`) |
+| `Assets/Scripts/ClipExtractor.cs` | MobileCLIP-S2 임베딩 (512-d, L2-normalized) + 중앙 crop 평균색 측정 |
+| `Assets/Scripts/ProductMatcher.cs` | hierarchical 매칭 (CLIP category + OCR brand). `strictBrandRequired`, `enableClipBrandFallback` |
+| `Assets/Scripts/OCRExtractor.cs` | OCR 텍스트 추출. 회전 보정(`rotationOverride`) + 중앙 crop(`cropFraction`) + 업스케일(`upscaleFactor`) |
+| `Assets/Scripts/AdRenderer.cs` | 2D HUD 비교 카드 + 영상 광고(VideoPlayer) + Sponsored |
+| `Assets/Scripts/AdCheckout.cs` | tap-to-checkout 인터랙션 (b26) |
+| `Assets/Scripts/AmbientInterestProfile.cs` | AIP 누적 로깅 (aip.json) |
+| `Assets/Scripts/GyroTrigger.cs` | IMU 각속도 안정 트리거 |
+| `Assets/Scripts/CameraPreview.cs` | **ShareCamera** RGB 프리뷰 (SLAM 6DoF 와 병행). WebCamTexture 는 SLAM 활성 시 black frame 이라 폐기 — 카메라 모델 상세는 [client-spec](client-spec.md)/EXPERIMENTS "살아있는 교훈" |
+| `Assets/Plugins/Android/QnnYoloEngine.java` | YOLO JNI (TFLite+QNN delegate) |
+| `Assets/Plugins/Android/QnnClipEngine.java` | CLIP JNI (async init) |
+| `Assets/Plugins/Android/EasyOCREngine.java` | EasyOCR JNI (CRAFT detector NPU + recognizer). recognizer NPU 비호환 → EXPERIMENTS b22 |
+| `Assets/StreamingAssets/*.tflite` | 런타임 모델 (`mobileclip_s2`, `easyocr_*`) |
+| `Assets/StreamingAssets/db/` | `metadata.json` + `embeddings/` + `ads/` + `ads_video/*.mp4` (런타임 번들) |
+| `tools/monitor/eagle_monitor.py` | eagle-monitor 온디바이스 텔레메트리 대시보드 |
+
+(루트 `db/`·`products/` 와 `refs/`·`simulate_*.py` 등은 Mac 측 임베딩/DB 빌드 재료·도구 — 안경 런타임 아님.)
 
 **Mac 시뮬레이터 / 스크립트** (안경 없이 검증):
 - `simulate_pipeline.py` — end-to-end Mac 시뮬 (YOLO+CLIP+비교카드 PNG 생성)
@@ -74,10 +76,17 @@
 
 ### 안경 (Unity → Android APK)
 
-```bash
-bash build_hello_ar.sh
+빌드는 **Windows + Unity 2022.3.62f3 전용**, `spatial_anchor_test/` 의 PowerShell 스크립트로 한다:
+
+```powershell
+# spatial_anchor_test/ 에서
+./setup_2022.ps1     # (최초 1회) Unity 2022 프로젝트 셋업
+./build_2022.ps1     # batch 빌드 → APK
 ```
-자동 수행: Unity 프로젝트 갱신 → .cs/.java 복사 → 모델(`yolo11l_640_w8a8.tflite`, `mobileclip_s2` int8 tflite) + DB(`unity_db.json`) + 광고(PNG/mp4) → StreamingAssets 복사 → APK 빌드 → `adb install` → 카메라 권한 자동 grant.
+모델·DB·광고는 `Assets/StreamingAssets/` 에 이미 번들돼 있어 별도 복사 불필요.
+설치/권한 grant/launch + logcat 태그 등 현재 빌드·실행 절차의 정확한 명령은 [`integration_log.md`](integration_log.md) §2 "Build / Install / Run" 참조.
+
+> (옛 `build_hello_ar.sh` + `unity_assets_prep/` → `EagleEye_Unity/` 계보는 2026-06-13 폐기. 현재는 위 `spatial_anchor_test/` 가 유일.)
 
 ```bash
 # 수동 install / 실행
@@ -111,9 +120,9 @@ python test_adversarial_match.py                       # 매칭 정확도
 
 ### 디스크 관리
 
-macOS root volume 여유가 빠듯 (1~6GB). 빌드 사이 캐시 정리:
+디스크 여유가 빠듯하면 빌드 캐시 정리 (재생성됨):
 ```bash
-rm -rf EagleEye_Unity/Library/Bee EagleEye_Unity/Build
+rm -rf spatial_anchor_test/Library spatial_anchor_test/Temp spatial_anchor_test/Build
 ```
 
 ---

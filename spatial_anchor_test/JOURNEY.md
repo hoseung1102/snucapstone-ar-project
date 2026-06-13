@@ -1,5 +1,7 @@
 # SpatialAnchorTest — v1 → v2 의 실패·성공 cycle 기록
 
+> ↩ 실험 history 인덱스: [../docs/EXPERIMENTS.md](../docs/EXPERIMENTS.md) — 이 문서는 빌드 **v0.3.0(Step D)** SLAM 첫 성공까지의 cycle 상세.
+
 2026-06-08 하루에 걸친 디버깅. Unity batch 빌드 → audit → 디바이스 logcat → 수정 → 빌드 …
 의 반복으로 결국 호랑이 quad + 6DoF HUD 가 안경에 보이는 첫 성공 빌드 (v2) 에 도달.
 
