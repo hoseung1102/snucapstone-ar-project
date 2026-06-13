@@ -22,8 +22,9 @@ obj/
 sysinfo.txt
 *.apk.idsig
 
-# release/ 의 APK 는 첫 성공 빌드 결과물로 commit 에 포함
-!release/*.apk
+# release/ APK 는 git 추적 제외 (2026-06-13). 로컬 파일은 유지하되 17MB 바이너리를 레포에서 뺌.
+# 마일스톤 코드 복원은 EXPERIMENTS.md 의 commit / `git tag exp/bNN` 으로.
+*.apk
 .vs/
 .vscode/
 .idea/
