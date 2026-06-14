@@ -38,7 +38,7 @@
 
 ### "안 쓰던 보석" → 어느 공식 문서를 볼지 (이 파일 인벤토리와 매핑)
 - 평면검출(`EnablePlaneDetection`/`GetPlaneInfo`) · SLAM · 카메라 → **OpenXR Unity ARDK** ⭐ + Developer Manual
-- 단발 캡처(`TakePicture`) · 카메라 intrinsics(`GetPhysicalCameraParams`) · 시선 pose(`/input/gaze_ext/pose`) · 프레임 타임스탬프 → **Developer Manual** ⭐
+- 단발 캡처(`TakePicture`) · 카메라 intrinsics(`GetPhysicalCameraParams`) · 프레임 타임스탬프 → **Developer Manual** ⭐ (⚠️ 시선 pose `gaze_ext` 는 제외 — X3 Pro 아이트래킹 하드웨어 없음 = 죽은 바인딩)
 - raw IMU(`RegisterIMUEventCallback`, C# 미바인딩) · SLAM on/off → Developer Manual + 디버깅 툴
 - ⚠️ 공식 문서와 코드가 어긋나면 **코드가 정답** (이 파일의 `🆕` 엔트리들이 그 차이의 증거).
 
@@ -166,7 +166,7 @@
 - **상태**: ⚠️ 주의
 
 ### RayNeo 카메라 intrinsics 하드코딩 노출 + 평면검출/시선 pose 제공하나 앱 미사용
-- **사실**: 하드코딩 intrinsics `fx=376.686 fy=376.1188 cx=319.3743 cy=241.355`(cam1 SLAM 스테레오 기준, `RayNeoInfo.GetPhysicalCameraParams()`). `EnablePlaneDetection`/`GetPlaneInfo`(폴리곤 메시+수평/수직 분류)와 `gaze_ext` 시선 pose, `NineAxisAzimuth`(yaw)도 제공되나 데모 파이프라인 미사용. → bbox+intrinsics 핀홀 역투영 거리추정, 표면 앵커(parallax↑로 8Hz judder 완화 시너지), 시선 트리거 업그레이드 여지.
+- **사실**: 하드코딩 intrinsics `fx=376.686 fy=376.1188 cx=319.3743 cy=241.355`(cam1 SLAM 스테레오 기준, `RayNeoInfo.GetPhysicalCameraParams()`). `EnablePlaneDetection`/`GetPlaneInfo`(폴리곤 메시+수평/수직 분류)와 `gaze_ext` 시선 pose, `NineAxisAzimuth`(yaw)도 제공되나 데모 파이프라인 미사용. → **실제 여지**: bbox+intrinsics 핀홀 역투영 거리추정 + 표면 앵커(parallax↑로 8Hz judder 완화 시너지). ⚠️ **단 `gaze_ext` 시선 pose 는 죽은 보석** — X3 Pro 는 아이트래킹 하드웨어가 없어(아래 "X3 Pro 하드웨어 capability" 엔트리) 바인딩만 있고 `RayNeoApi_GetHeadTrackerPose` 처럼 무효. 시선 트리거 업그레이드는 **불가**.
 - **근거**: ARDK 가 intrinsics/plane/gaze API 를 노출하나 데모 파이프라인이 IMU 트리거+정면 1.2m placement 만 씀.
 - **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:98,101,117-120`; `RayNeoInfo.cs:74-99`
 - **상태**: ✅ 확정
@@ -967,6 +967,12 @@
 ---
 
 ## 🧩 기타
+
+### X3 Pro 하드웨어 capability: 아이트래킹·핸드트래킹 **없음** → gaze_ext·HandInteraction 바인딩은 죽은 보석
+- **사실**: RayNeo 공식 스펙·리뷰 확인 — X3 Pro 센서 = 12MP main 카메라 + 전용 depth 카메라 + IMU(lsm6dsr) + GPS, 디스플레이 Micro-OLED FOV ~30°. **아이트래킹·핸드트래킹은 하드웨어 미지원**. 따라서 SDK 의 `gaze_ext` 시선 pose(`/user/eyes_ext`, `RayNeoEyeController`)와 OpenXR EyeGaze/HandInteraction feature(asset 에서 이미 `m_enabled:0`)는 **바인딩만 있고 하드웨어가 안 받치는 죽은 보석** — `RayNeoApi_GetHeadTrackerPose` 와 동급. 제스처는 hand-tracking 이 아니라 Ring/터치 입력.
+- **근거**: 같은 OpenXR SDK 가 RayNeo 전 기기 공용이라 상위 기기용 바인딩(eye/hand)이 노출되지만 X3 Pro 하드웨어엔 센서가 없음. (단 GPS·depth 카메라는 실재 → 폰 GPS IPC, 평면검출은 하드웨어 근거 있음.)
+- **출처**: RayNeo 공식 스펙(<https://www.rayneo.com/products/x3-pro-ai-display-glasses>) + 리뷰(skarredghost / tomsguide 2025); 코드측 `OpenXR Package Settings.asset` EyeGaze/HandInteraction `m_enabled:0`
+- **상태**: ✅ 확정 (하드웨어 미지원)
 
 ### new InputSystem-only 환경에서 legacy StandaloneInputModule 을 Awake 에서 비활성화 안 하면 매 프레임 throw → 렌더 정지
 - **사실**: ARDK 'XR Plugin' prefab 의 EventSystem 이 legacy `StandaloneInputModule` 을 쓰는데 PlayerSettings `activeInputHandler=1`(New Input System only)이면 `UpdateModule()` 이 매 frame `InvalidOperationException` → render pipeline 진행 안 됨(splash 만 보임). `activeInputHandler=2`(Both)는 Unity 가 'Android 에서 unsupported' 경고. 우회 = Awake 에서 `FindObjectsOfType<StandaloneInputModule>()` 모두 `.enabled=false`.
