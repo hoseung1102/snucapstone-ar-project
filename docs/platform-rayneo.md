@@ -12,6 +12,43 @@
 
 ---
 
+## 📚 공식 문서 / SDK 레퍼런스
+
+> 우리 SDK 패키지 = **`com.unity.xr.rayneo.openxr` v1.1.2** ("RayNeo OpenXR ARDK") — 공식 ARDK 다운로드의 "v1.1.2 권장 (Glass OS 23.8.29+)"와 일치.
+> 공식 문서는 **Feishu(飞书) 위키**에 있고 일부는 로그인/guest 가 필요하다. **로그인 없이 가장 빨리 보려면 Qualcomm 공식 미러**가 편하다. 문서가 모호하면 — 이 파일 각 엔트리의 `출처: file:line` 이 **실제 SDK 코드 = ground truth**.
+
+### 진입점
+- **개발자 포털**: <https://open.rayneo.com/> — 공식 RayNeo Open Platform (`rayneo.com/pages/developer` → 여기로 리다이렉트). ⚠️ JS SPA + 로그인.
+- **Qualcomm 공식 Get-Started (로그인 불필요 · 추천 시작점)**: <https://www.qualcomm.com/developer/project/get-started-with-rayneo-x3-pro-ar-development> — 아래 Feishu 문서 인덱스를 공개로 미러.
+- **다운로드 / 제품**: <https://www.rayneo.com/pages/download> · <https://www.rayneo.com/products/x3-pro-ai-display-glasses>
+
+### 공식 문서 (Feishu 위키 — 로그인/guest 필요할 수 있음. 출처 = 위 Qualcomm 페이지)
+| 문서 | URL | 다루는 것 |
+|---|---|---|
+| ARDK 다운로드 | <https://leiniao-ibg.feishu.cn/wiki/IDFfwLKR4iihBuknkVrcGiMUnic> | SDK 패키지(X3 Pro 등), **v1.1.2 = 우리 버전** |
+| **OpenXR Unity ARDK** ⭐ | <https://leiniao-ibg.feishu.cn/wiki/Fpyjw4VOAiRnW9kwZWycvLsJnFf> | Unity 통합, **3DoF/SLAM/평면검출** — 우리가 제일 볼 것 |
+| ARDK for Android | <https://leiniao-ibg.feishu.cn/wiki/FJ5ow2TCri336zkwLpuciIiJn5d> | 네이티브 Android SDK |
+| **Developer Manual (확장 API 레퍼런스)** ⭐ | <https://leiniao-ibg.feishu.cn/wiki/IwTRwecN0ikZcjkHAhicN5lWn0g> | SDK 함수·핵심 기능 전반 — **안 쓰던 API 찾을 때** |
+| Import / 프로젝트 설정 | <https://leiniao-ibg.feishu.cn/wiki/UVCvwhwroif13ikaD1ccLqponGd> | ARDK 통합·프로젝트 셋업 |
+| ADB 셋업 | <https://leiniao-ibg.feishu.cn/wiki/WzQ4w5SIuip8qMk3WddcHCvynZe> | ADB 권한/디바이스 연결 |
+| 디자인 스펙 | <https://leiniao-ibg.feishu.cn/wiki/TnHLw4vL4iZgFtkPiMZcxWl8nkb> | AR UI/UX·하드웨어 디자인 |
+| 디버깅 툴 | <https://leiniao-ibg.feishu.cn/wiki/I9AIwlDciiI5IIkJDvkcX8Lwn1f> | 개발/테스트 유틸 |
+| FAQ | <https://leiniao-ibg.feishu.cn/wiki/LG8JwMt3fiL1TIkjtkzcPHJJnFc> | 트러블슈팅 |
+| 디바이스 소개 | <https://leiniao-ibg.feishu.cn/wiki/X4nqwAsr6ioAEBklJZIcPfgyn9c> | X3 Pro 하드웨어 개요 |
+
+### "안 쓰던 보석" → 어느 공식 문서를 볼지 (이 파일 인벤토리와 매핑)
+- 평면검출(`EnablePlaneDetection`/`GetPlaneInfo`) · SLAM · 카메라 → **OpenXR Unity ARDK** ⭐ + Developer Manual
+- 단발 캡처(`TakePicture`) · 카메라 intrinsics(`GetPhysicalCameraParams`) · 시선 pose(`/input/gaze_ext/pose`) · 프레임 타임스탬프 → **Developer Manual** ⭐
+- raw IMU(`RegisterIMUEventCallback`, C# 미바인딩) · SLAM on/off → Developer Manual + 디버깅 툴
+- ⚠️ 공식 문서와 코드가 어긋나면 **코드가 정답** (이 파일의 `🆕` 엔트리들이 그 차이의 증거).
+
+### 기타
+- **NatCorder**: recorder 확장(`com.rayneo.ext.recorder` = 위 `RecordManager`)은 NatCorder 기반 — API 문서 <https://docs.natsuite.io/natcorder/>
+- **SDK 코드 내장 링크**: `GlassSystemAudioEffectManager.cs:15` → Feishu docx (<https://leiniao-ibg.feishu.cn/docx/CJfsdoI7FoGDVpx52tVcMaLqnRe>, 로그인 필요).
+- **커뮤니티(참고용, Air 시리즈 — X3 Pro AR 아님)**: <https://github.com/verncat/RayNeo-Air-3S-Pro-OpenVR>
+
+---
+
 ## 📷 카메라
 
 ### SLAM 6DoF 활성 시 표준 WebCamTexture 는 black frame 만 — ShareCamera RGB 로 우회
