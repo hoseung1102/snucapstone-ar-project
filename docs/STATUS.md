@@ -21,8 +21,8 @@
 
 | 항목 | 현재 값 | 출처 (file:line / 상수명) | 신뢰도 |
 |---|---|---|---|
-| **빌드 태그** | `b26-dedup-checkout` | `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:29` (`BUILD_TAG` 상수) · `:267` (`bundleVersion`) · `:26` (`OUTPUT_APK`) | 🟢 / 🟡 |
-| **최신 빌드 마일스톤** | b26 (실제 git HEAD 는 그 뒤 문서/monitor 커밋들 → "b26=최신 빌드, 이후는 문서/모니터") | [`EXPERIMENTS.md`](EXPERIMENTS.md) | 🟢 |
+| **빌드 태그** | `b28-mockup-clean` (데모 목업 모드; 실 파이프라인 복귀 = `mockupMode=false`) | `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:28` (`BUILD_TAG`) · `glasses-app/Assets/Scripts/HelloAR.cs` (`mockupMode`/`mockupAssets`) | 🟢 / 🟡 |
+| **최신 빌드 마일스톤** | b28-mockup-clean (컨셉 데모영상용 목업, commit `958f3ed`). 직전 앱 빌드 = b26 | [`EXPERIMENTS.md`](EXPERIMENTS.md) | 🟢 |
 | **패키지** | `com.eagleeye.helloar` | `BuildSpatialAnchorTest.cs:22` (`PACKAGE_NAME`) → `:264` `SetApplicationIdentifier` · `glasses-app/ProjectSettings/ProjectSettings.asset` `applicationIdentifier` | 🟡 |
 | **브랜치** | `main` (단일 main 원칙; 옛 `feature/*`·팀원별 브랜치는 통합 완료) | 레포 정책 (루트 `CLAUDE.md`) — 현재 이 작업은 `worktree-repo-restructure` 에서 진행 중이나 **정본은 main** | 🟢 |
 | **매칭 아키텍처** | **color-brand**: CLIP 으로 category 분류(콜라 vs 노트북) → cola 면 평균 RGB 통계로 brand 판별(코카콜라=red / 펩시=blue). `clipOnlyMode=true` 강제, `enableClipBrandFallback=false`, OCR 은 `skipOcr=true` 로 비활성(보조 경로로만 코드 잔존) | `glasses-app/Assets/Scripts/HelloAR.cs:135` (`clipOnlyMode=true` 강제) · `:149` (`enableClipBrandFallback=false`) · `:72` (`skipOcr=true`) · `:86` (`brandDisambiguator="color"`) · `:365`~`:392` `ResolveBrandByColor` | 🟡 |

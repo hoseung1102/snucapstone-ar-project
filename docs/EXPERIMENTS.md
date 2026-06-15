@@ -31,7 +31,8 @@
 
 | ID | 날짜 | 목적 / 변경 | 결과 | 교훈 · 결정 | commit |
 |----|------|-------------|------|-------------|--------|
-| **b26** 🟢 | 06-11 | 광고 브랜드당 1개 중복 spawn 수정 + tap-to-checkout 인터랙션(`AdCheckout`) | ✅ | 데모 인터랙션 추가. **최신 빌드** (이후 커밋은 문서/monitor 작업뿐 — b26 이 마지막 앱 빌드, 현 git head 아님) | `ffcfd28` |
+| **b28** 🟢 | 06-16 | 목업 데모모드: 인식 없이 adb 훅(`echo 1/2 > eyad_debug.txt`)으로 mockupAssets[0/1] 영상 정면 world-anchor. `mockupMode`(기본 ON)→CLIP/matcher init 스킵, `hideDemoUi`→HUD+AdCheckout 끔 | ✅ | **컨셉 데모영상용.** CLIP HTP 미로드 → CDSP 경쟁 0 → SLAM 안정·발산/GL_WAIT_FAILED 회피·화면 깔끔. (b27=첫 목업이나 HUD/구매박스 잡음 → b28 에서 `hideDemoUi` 로 제거). 실 파이프라인 복귀=`mockupMode=false`. **운영교훈**: 전경 XR 앱 `force-stop`→화면블랭크→sleep→무선adb drop / `install -r` over-running+즉시 relaunch→카메라HAL wedge(AImageReader SIGSEGV). → 앱전환은 `am start`만, `settings put system screen_off_timeout` 늘려 sleep 방지 | `958f3ed` |
+| **b26** 🟢 | 06-11 | 광고 브랜드당 1개 중복 spawn 수정 + tap-to-checkout 인터랙션(`AdCheckout`) | ✅ | 데모 인터랙션 추가. (b27/b28 목업의 베이스 앱 빌드) | `ffcfd28` |
 | **b25** 🟢 | 06-11 | color-video 빌드: OCR off + 색상 브랜드 + world-anchored 영상광고(mp4) + adb debug hook | ✅ | 데모 빌드. 상세: [B25_DEMO_HANDOFF](archive/B25_DEMO_HANDOFF.md) | `d36e813`·`8115909` |
 | **b24** 🟢 | 06-11 | 통합: worldanchor(b15–17) ⨉ npu-ocr(b22) 머지 → 단일 라인 | ✅ | 두 팀원 작업 합류 지점. **현 main 의 베이스** | `809a3ff` |
 | **b22** 🟢 | 06-11 | NPU EasyOCR(word-box)를 SLAM 파이프라인에 통합 | ⚠️ | EasyOCR **recognizer 가 NPU 비호환** (detector 만 위임). 상세: [B22_TEST_RESULTS](archive/B22_TEST_RESULTS.md), [integration_log §5](archive/integration_log.md) | `5bfc51e` |
