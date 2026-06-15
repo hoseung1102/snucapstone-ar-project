@@ -199,22 +199,105 @@ public static class BuildSpatialAnchorTest
         catch (System.Exception e) { Debug.LogError("[EnsureOpenXRLoader] " + e.Message + "\n" + e.StackTrace); }
     }
 
+    // 외부 도구(JDK/SDK/NDK/Gradle) 설정. 에디터에 번들(embedded)이 있으면 그걸, 없으면 머신에 설치된
+    // Android Studio SDK 등을 자동 탐색해 EditorPrefs 로 지정한다. 하드코딩 경로 없음(팀/머신 중립).
+    // ※ Unity 6 의 AndroidExternalToolsSettings API 는 2022.3 에 없어(CS0103) EditorPrefs 로만 처리 — 전 버전 호환.
+    //   (RayNeo 호환 위해 Unity 6 → 2022.3.62f3 다운그레이드한 잔재 코드였음.) 셋업: docs/dev-environment.md §1~2.
     static void ConfigureExternalTools()
     {
-        // 외부 도구(JDK/SDK/NDK/Gradle)를 이 에디터에 "Android Build Support" 모듈과 함께 설치된
-        // 번들(embedded) 도구로 쓰게 강제한다. (Unity 2022.3 호환 EditorPrefs 'UseEmbedded' 토글.)
-        //
-        // ※ 과거 이 메서드는 Unity 6(6000.0.76f1)용 `AndroidExternalToolsSettings.*` API 로 SDK/NDK 경로를
-        //   직접 박았으나, 그 타입은 2022.3 에 존재하지 않아 컴파일이 깨졌다(CS0103). RayNeo 호환을 위해
-        //   Unity 6 → 2022.3.62f3 다운그레이드하면서 남은 잔재였음. 2022.3 에선 Hub 가 설치한 번들 도구를
-        //   쓰는 게 정석이라 embedded 플래그만 세팅한다 (EditorPrefs 는 모든 버전에서 컴파일됨).
-        // ※ 전제: Hub 에서 2022.3.62f3 에 "Android Build Support" + "Android SDK & NDK Tools" + "OpenJDK"
-        //   모듈이 설치돼 있어야 한다 (없으면 빌드 시 SDK/NDK 없음으로 실패). 셋업: docs/dev-environment.md §1.
-        EditorPrefs.SetBool("JdkUseEmbedded", true);
-        EditorPrefs.SetBool("SdkUseEmbedded", true);
-        EditorPrefs.SetBool("NdkUseEmbedded", true);
+        string ap = Path.Combine(EditorApplication.applicationContentsPath, "PlaybackEngines", "AndroidPlayer");
+
+        // Gradle: 항상 에디터 번들(AndroidPlayer\Tools\gradle) 사용
         EditorPrefs.SetBool("GradleUseEmbedded", true);
-        Debug.Log("[BuildSpatialAnchorTest] External tools = embedded (JDK/SDK/NDK/Gradle, Hub Android 모듈 번들 사용)");
+
+        // JDK
+        if (Directory.Exists(Path.Combine(ap, "OpenJDK")))
+        {
+            EditorPrefs.SetBool("JdkUseEmbedded", true);
+            Debug.Log("[BuildSpatialAnchorTest] JDK = embedded");
+        }
+        else
+        {
+            string jdk = FindJdk();
+            EditorPrefs.SetBool("JdkUseEmbedded", false);
+            if (jdk != null) { EditorPrefs.SetString("JdkPath", jdk); Debug.Log("[BuildSpatialAnchorTest] JDK = " + jdk); }
+            else Debug.LogWarning("[BuildSpatialAnchorTest] JDK 못 찾음 — OpenJDK 모듈 설치 또는 JAVA_HOME 설정 필요");
+        }
+
+        // SDK
+        if (Directory.Exists(Path.Combine(ap, "SDK")))
+        {
+            EditorPrefs.SetBool("SdkUseEmbedded", true);
+            Debug.Log("[BuildSpatialAnchorTest] SDK = embedded");
+        }
+        else
+        {
+            string sdk = FindAndroidSdk();
+            EditorPrefs.SetBool("SdkUseEmbedded", false);
+            if (sdk != null) { EditorPrefs.SetString("AndroidSdkRoot", sdk); Debug.Log("[BuildSpatialAnchorTest] SDK = " + sdk); }
+            else Debug.LogError("[BuildSpatialAnchorTest] Android SDK 못 찾음 — ANDROID_SDK_ROOT 또는 %LOCALAPPDATA%\\Android\\Sdk");
+        }
+
+        // NDK (Unity 2022.3 = r23b / 23.1.7779620). EditorPrefs 키가 버전 접미사로 바뀌어서 변형을 모두 set.
+        if (Directory.Exists(Path.Combine(ap, "NDK")))
+        {
+            EditorPrefs.SetBool("NdkUseEmbedded", true);
+            Debug.Log("[BuildSpatialAnchorTest] NDK = embedded");
+        }
+        else
+        {
+            string ndk = FindNdk();
+            EditorPrefs.SetBool("NdkUseEmbedded", false);
+            if (ndk != null)
+            {
+                EditorPrefs.SetString("AndroidNdkRoot", ndk);
+                EditorPrefs.SetString("AndroidNdkRootR23B", ndk);
+                EditorPrefs.SetString("AndroidNdkRootR23b", ndk);
+                Debug.Log("[BuildSpatialAnchorTest] NDK = " + ndk);
+            }
+            else Debug.LogError("[BuildSpatialAnchorTest] NDK r23b(23.1.7779620) 못 찾음 — sdkmanager \"ndk;23.1.7779620\"");
+        }
+    }
+
+    static string FindJdk()
+    {
+        string jh = System.Environment.GetEnvironmentVariable("JAVA_HOME");
+        var cands = new[] { jh, @"C:\Program Files\Android\Android Studio\jbr" };
+        foreach (var c in cands)
+            if (!string.IsNullOrEmpty(c) && File.Exists(Path.Combine(c, "bin", "javac.exe"))) return c;
+        foreach (var root in new[] { @"C:\Program Files\Eclipse Adoptium", @"C:\Program Files\Java" })
+            if (Directory.Exists(root))
+                foreach (var d in Directory.GetDirectories(root, "jdk-17*"))
+                    if (File.Exists(Path.Combine(d, "bin", "javac.exe"))) return d;
+        return null;
+    }
+
+    static string FindAndroidSdk()
+    {
+        var cands = new[]
+        {
+            System.Environment.GetEnvironmentVariable("ANDROID_SDK_ROOT"),
+            System.Environment.GetEnvironmentVariable("ANDROID_HOME"),
+            Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData), "Android", "Sdk"),
+        };
+        foreach (var c in cands)
+            if (!string.IsNullOrEmpty(c) && Directory.Exists(Path.Combine(c, "platform-tools"))) return c;
+        return null;
+    }
+
+    static string FindNdk()
+    {
+        string sdk = FindAndroidSdk();
+        if (sdk == null) return null;
+        string exact = Path.Combine(sdk, "ndk", "23.1.7779620");   // Unity 2022.3 기대 버전
+        if (Directory.Exists(exact)) return exact;
+        string ndkRoot = Path.Combine(sdk, "ndk");
+        if (Directory.Exists(ndkRoot))
+        {
+            var dirs = Directory.GetDirectories(ndkRoot);
+            if (dirs.Length > 0) { System.Array.Sort(dirs); return dirs[0]; }   // r23b 없으면 가장 낮은 것(버전 경고 가능)
+        }
+        return null;
     }
 
     static void ConfigurePlayerSettings()
