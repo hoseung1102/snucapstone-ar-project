@@ -84,6 +84,16 @@ public class HelloAR : MonoBehaviour
     [Tooltip("\"color\": cola category 는 색(코크 빨강/펩시 파랑)으로 brand 확정.\n" +
              "그 외 값: 기존 matcher.ResolveBrand(OCR + CLIP fallback) 경로 사용.")]
     public string brandDisambiguator = "color";   // b25: cola 는 평균색(코크 빨강/펩시 파랑)으로 brand 확정 — ResolveBrandByColor. OCR 미사용.
+
+    [Header("b27 목업 데모 모드")]
+    // CLIP/인식 없이 adb 훅으로 anchor된 광고영상만 띄우는 컨셉 데모. 인식 파이프라인(CLIP HTP) 미init
+    //   → Hexagon CDSP 경쟁 없음 → SLAM 안정 → 앵커 깔끔. (제품에서 CLIP 끄기가 아니라 데모영상용 *목업*)
+    //   adb: echo 1 > eyad_debug.txt → mockupAssets[0], echo 2 → mockupAssets[1]. 정면 world-anchor spawn.
+    public bool mockupMode = true;
+    public string[] mockupAssets = {
+        "db/ads_video/coke_bottle_ad.mp4",   // 트리거1 → 에셋1 (placeholder — 실제 MP4로 교체)
+        "db/ads_video/pepsi_bottle_ad.mp4",  // 트리거2 → 에셋2 (placeholder)
+    };
     // v1.3 deprecated — dominant 픽셀 count(ratio) 방식 미사용. 평균색 lean 으로 전환.
     //   펩시 파란 몸통이 strict count 임계 미달로 blue=0.00 → 빨간 뚜껑 때문에 coke 오판되던 문제.
     [Tooltip("[deprecated v1.3] 색 판별 최소 비율 — count 방식 시절 값. 미사용.")]
@@ -141,20 +151,25 @@ public class HelloAR : MonoBehaviour
         //   YOLO+CLIP 모드로 되돌리면 (clipOnlyMode=false) 자동으로 다시 init.
         if (!clipOnlyMode)
             yolo = gameObject.AddComponent<QnnYoloDetector>();
-        clip = gameObject.AddComponent<ClipExtractor>();
-        matcher = gameObject.AddComponent<ProductMatcher>();
-        matcher.minSimilarity = clipMatchThreshold;
-        // b22 OCR 통합: brand 를 OCR 이 결정해야 함 → fallback OFF.
-        //   fallback 켜두면 광고가 OCR 없이 CLIP 환경편향 추정으로도 떠서 "광고뜸≠OCR동작" → goal①③ 해석 불가.
-        matcher.enableClipBrandFallback = false;
-        // v0.5.15: topK=1 (가장 가까운 ref 만 사용). environment-aligned + laptop fairness.
-        // top-3 평균이 broad-coverage refs 에 유리 → coke 시연 시 pepsi 잡는 문제 해결 시도.
-        matcher.topK = 1;
+        // b27 목업: mockupMode 면 CLIP/matcher init 자체를 스킵 → HTP 미로드 → CDSP 경쟁 없음(SLAM 안정).
+        if (!mockupMode)
+        {
+            clip = gameObject.AddComponent<ClipExtractor>();
+            matcher = gameObject.AddComponent<ProductMatcher>();
+            matcher.minSimilarity = clipMatchThreshold;
+            // b22 OCR 통합: brand 를 OCR 이 결정해야 함 → fallback OFF.
+            //   fallback 켜두면 광고가 OCR 없이 CLIP 환경편향 추정으로도 떠서 "광고뜸≠OCR동작" → goal①③ 해석 불가.
+            matcher.enableClipBrandFallback = false;
+            // v0.5.15: topK=1 (가장 가까운 ref 만 사용). environment-aligned + laptop fairness.
+            // top-3 평균이 broad-coverage refs 에 유리 → coke 시연 시 pepsi 잡는 문제 해결 시도.
+            matcher.topK = 1;
+        }
         ad = gameObject.AddComponent<AdRenderer>();
         // v1.0: B8 에선 scene 의 SpatialAnchorHost 가 이미 SpatialAnchorTest 를 갖고 HelloAR 를 AddComponent 함.
         //   기존 인스턴스 재사용 — 두 번째 AddComponent 면 SLAM 구독·anchor·HUD 가 이중 spawn 됨.
         spatial = GetComponent<SpatialAnchorTest>();
         if (spatial == null) spatial = gameObject.AddComponent<SpatialAnchorTest>();
+        spatial.hideDemoUi = mockupMode;   // b27 목업: HUD/구매박스 숨김 → 공간 광고영상만 깔끔
         aip = gameObject.AddComponent<AmbientInterestProfile>();
         // v1.1: skipOcr=true 면 OCR 엔진 init 자체를 안 함 — MLKit init JNI 가 메인스레드를
         //   블록해 시작 직후 렌더링 정지 유발. brand 확정은 CLIP fallback 경로로.
@@ -186,6 +201,7 @@ public class HelloAR : MonoBehaviour
     {
         PollDebugHook();
 
+        if (mockupMode) return;   // b27 목업: adb 훅("1"/"2")만으로 anchor 광고 spawn — CLIP 파이프라인 스킵
         if (!pendingInference) return;
         if (cam == null || !cam.isReady || cam.webCamTex == null) return;
         if (cam.webCamTex.width < 16) return;
@@ -438,6 +454,16 @@ public class HelloAR : MonoBehaviour
             string token = (raw ?? "").Trim().ToLowerInvariant();
             if (token.Length == 0) return;
 
+            // b27 목업: 토큰 "1"/"2" → mockupAssets[0]/[1] 영상을 정면 anchor spawn (인식 우회).
+            if (mockupMode)
+            {
+                int midx = (token == "1" || token == "asset1") ? 0
+                         : (token == "2" || token == "asset2") ? 1 : -1;
+                if (midx < 0) { Debug.LogWarning($"[MOCKUP] 미인식 token='{token}' (1/2 만)"); return; }
+                SpawnMockupAsset(midx);
+                return;
+            }
+
             string brandName;
             if (token == "coca-cola" || token == "coke" || token == "cola") brandName = "coca-cola";
             else if (token == "pepsi") brandName = "pepsi";
@@ -450,6 +476,20 @@ public class HelloAR : MonoBehaviour
             // 파일 lock(mid-write) 등 → 다음 폴링에서 재시도.
             Debug.LogWarning($"[DEBUG-HOOK] poll 실패: {e.Message}");
         }
+    }
+
+    // b27 목업: matcher 없이 mockupAssets[idx] 영상을 정면 anchor spawn (CLIP/인식 우회).
+    void SpawnMockupAsset(int idx)
+    {
+        if (spatial == null) { Debug.LogWarning("[MOCKUP] spatial 미준비"); return; }
+        if (mockupAssets == null || idx < 0 || idx >= mockupAssets.Length)
+        { Debug.LogWarning($"[MOCKUP] asset idx 범위 밖: {idx}"); return; }
+        string vidPath = mockupAssets[idx];
+        int W = (cam != null && cam.webCamTex != null) ? cam.webCamTex.width  : 1280;
+        int H = (cam != null && cam.webCamTex != null) ? cam.webCamTex.height : 480;
+        spatial.ShowAdBesideMatch(vidPath, null, null, W, H);
+        adShowingUntil = Time.time + adShowSeconds;
+        Debug.Log($"[MOCKUP] spawn asset{idx + 1} → {vidPath}");
     }
 
     // b25 디버그: 주어진 brand(coca-cola/pepsi)에 대해 실제 MATCH 경로와 동일하게 경쟁사 영상 spawn.

@@ -41,6 +41,9 @@ public class SpatialAnchorTest : MonoBehaviour
     public string textureResourceName = "cola_anchor";
     [Tooltip("v1.2: conquest 데모는 provisional 마커(cola_anchor) 숨김 — 경쟁사 광고 1개만 표시. true 면 SLAM 디버그 마커 표시.")]
     public bool showAnchorMarker = false;
+    // b27 목업: true 면 데모용 UI(상단 HUD 카운터/진단 + 광고당 AdCheckout 구매박스) 전부 숨김 → 공간 광고영상만 깔끔.
+    //   기본 true(이 빌드는 목업). HelloAR.mockupMode 가 이 값을 set. 실제 파이프라인이면 false 로(HUD/checkout 표시).
+    public bool hideDemoUi = true;
 
     // bisection: helloar component 추가 case. B0=baseline only, B1=+Gyro, B2=+Camera (ShareCamera),
     // B3=+Clip, B4=+OCR, B5=+Gyro+Camera, B6=+Gyro+Clip, B7=+Camera+Clip, B8=full helloar.
@@ -239,8 +242,12 @@ public class SpatialAnchorTest : MonoBehaviour
 
         // v1.5: HUD — 카메라에 parent 한 head-locked 2D 오버레이 2개.
         //   카운터=상단 좌측, SLAM 진단=상단 우측. parent 가 head-lock 담당 → UpdateHud 는 텍스트만 갱신.
-        hudCountersObj = BuildHudOverlay("HudCounters", hudCountersLocalPos, TextAnchor.UpperLeft, out hudCounters);
-        hudDiagObj     = BuildHudOverlay("HudDiag",     hudDiagLocalPos,     TextAnchor.UpperLeft, out hudDiag);
+        // b27 목업: hideDemoUi 면 HUD 오버레이 미생성 (UpdateHud 는 null-safe 라 그대로 둬도 무해).
+        if (!hideDemoUi)
+        {
+            hudCountersObj = BuildHudOverlay("HudCounters", hudCountersLocalPos, TextAnchor.UpperLeft, out hudCounters);
+            hudDiagObj     = BuildHudOverlay("HudDiag",     hudDiagLocalPos,     TextAnchor.UpperLeft, out hudDiag);
+        }
 
         Debug.Log($"[SpatialAnchorTest] Provisional anchor spawned + head-locked HUD parented to {xrCam.gameObject.name}");
     }
@@ -370,14 +377,18 @@ public class SpatialAnchorTest : MonoBehaviour
         //   썸네일은 광고 quad 의 mainTexture (mr 로 lazily 읽음 — 영상/PNG 로드가 attach 후 완료되므로).
         //   conquest: result.brand 는 "손에 든 것"(인식 brand). 광고/checkout 상품은 그 경쟁사(반대).
         //   CompetitorAdVideo 매핑과 일치: 코크 인식 → 펩시 광고/구매, 펩시 인식 → 코크 광고/구매.
-        string handBrand = result != null && result.brand != null && result.brand.name != null
-            ? result.brand.name.ToLowerInvariant() : "";
-        string ckName = handBrand == "coca-cola" ? "PEPSI"
-                      : handBrand == "pepsi"     ? "COKE"
-                      : "AD-ITEM";
-        string ckPrice = (handBrand == "coca-cola" || handBrand == "pepsi") ? "$1.50" : "$0.00";
-        var ck = newQuad.AddComponent<AdCheckout>();
-        ck.Init(xrCam, newQuad, ckName, ckPrice, mr);
+        // b27 목업: hideDemoUi 면 구매박스 미부착 (공간 광고영상만 깔끔하게).
+        if (!hideDemoUi)
+        {
+            string handBrand = result != null && result.brand != null && result.brand.name != null
+                ? result.brand.name.ToLowerInvariant() : "";
+            string ckName = handBrand == "coca-cola" ? "PEPSI"
+                          : handBrand == "pepsi"     ? "COKE"
+                          : "AD-ITEM";
+            string ckPrice = (handBrand == "coca-cola" || handBrand == "pepsi") ? "$1.50" : "$0.00";
+            var ck = newQuad.AddComponent<AdCheckout>();
+            ck.Init(xrCam, newQuad, ckName, ckPrice, mr);
+        }
 
         string brandName = result != null && result.brand != null ? result.brand.name : "AD";
         Debug.Log($"[SpatialAnchorTest] ShowAdBesideMatch brand={brandName} vid='{vidPath}' png='{pngPath}' obj={objectPos} ad={adPos} (dets={(detections != null ? detections.Count : 0)})");

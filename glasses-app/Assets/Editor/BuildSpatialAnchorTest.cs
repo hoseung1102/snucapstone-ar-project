@@ -25,7 +25,7 @@ public static class BuildSpatialAnchorTest
     // ★ 새 빌드/시도마다 이 BUILD_TAG 한 줄만 bump 한다 (예: "b27-<한줄설명>").
     //   APK 파일명(OUTPUT_APK)·기기 dumpsys 식별이 여기서 파생됨. (CLAUDE.md "새 빌드/시도" 참조)
     //   빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
-    const string BUILD_TAG    = "b26-dedup-checkout";
+    const string BUILD_TAG    = "b28-mockup-clean";
     const string OUTPUT_APK   = "Build/EagleEye-" + BUILD_TAG + ".apk";  // BUILD_TAG 에서 파생 — 따로 안 고침
     const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
 
