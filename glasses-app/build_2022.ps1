@@ -7,7 +7,20 @@
 $ErrorActionPreference = "Stop"
 
 $UNITY_VERSION = "2022.3.62f3"
-$UNITY_BIN     = "C:\Program Files\Unity\Hub\Editor\$UNITY_VERSION\Editor\Unity.exe"
+# Unity 실행 파일 자동 탐색: $env:UNITY_BIN override → Hub 설치 → 단독 설치 → 흔한 경로.
+# (팀원마다 설치 위치가 달라서 하드코딩하지 않는다 — Windows/Mac 혼합 팀)
+function Find-UnityBin($ver) {
+    if ($env:UNITY_BIN -and (Test-Path $env:UNITY_BIN)) { return $env:UNITY_BIN }
+    foreach ($c in @(
+        "C:\Program Files\Unity\Hub\Editor\$ver\Editor\Unity.exe",   # Hub 기본
+        "C:\Program Files\Unity $ver\Editor\Unity.exe",              # 단독 설치
+        "$env:LOCALAPPDATA\Programs\Unity\Hub\Editor\$ver\Editor\Unity.exe",
+        "D:\Unity\Hub\Editor\$ver\Editor\Unity.exe",
+        "D:\Program Files\Unity\Hub\Editor\$ver\Editor\Unity.exe"
+    )) { if (Test-Path $c) { return $c } }
+    return $null
+}
+$UNITY_BIN = Find-UnityBin $UNITY_VERSION
 
 # 스크립트가 들어있는 폴더 = Unity 프로젝트 루트 (glasses-app)
 $PROJECT_DIR  = $PSScriptRoot
@@ -20,9 +33,10 @@ if (-not (Test-Path "$PROJECT_DIR\Assets")) {
     exit 1
 }
 
-if (-not (Test-Path $UNITY_BIN)) {
-    Write-Host "  Unity 2022 실행 파일 못 찾음: $UNITY_BIN"
-    Write-Host "  설치된 Unity 2022.3.x patch version 을 `$UNITY_VERSION 에 수정 필요"
+if (-not $UNITY_BIN) {
+    Write-Host "  Unity $UNITY_VERSION 실행 파일을 못 찾음 (Hub/단독 설치 경로 탐색 실패)."
+    Write-Host "  경로 직접 지정:  `$env:UNITY_BIN = 'D:\path\to\Unity.exe'; .\build_2022.ps1"
+    Write-Host "  (Unity 라이선스 활성화도 필요 — docs/dev-environment.md)"
     exit 1
 }
 

@@ -22,11 +22,12 @@ public static class BuildSpatialAnchorTest
     const string PACKAGE_NAME = "com.eagleeye.helloar";
     const string PRODUCT_NAME = "EagleEye OCR+SLAM";
     const string COMPANY_NAME = "Eagle Eye";
-    // b24 integrated: b22 OCR+SLAM 라인에 slam-clip-worldanchor(b15-b17) 병합.
-    const string OUTPUT_APK   = "Build/EagleEye-b26-dedup-checkout.apk";
-    const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
-    // 빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
+    // ★ 새 빌드/시도마다 이 BUILD_TAG 한 줄만 bump 한다 (예: "b27-<한줄설명>").
+    //   APK 파일명(OUTPUT_APK)·기기 dumpsys 식별이 여기서 파생됨. (CLAUDE.md "새 빌드/시도" 참조)
+    //   빌드 식별용 버전 스탬프 — 기기에서 dumpsys 로 어느 빌드가 설치됐는지 검증.
     const string BUILD_TAG    = "b26-dedup-checkout";
+    const string OUTPUT_APK   = "Build/EagleEye-" + BUILD_TAG + ".apk";  // BUILD_TAG 에서 파생 — 따로 안 고침
+    const string SCENE_PATH   = "Assets/Scenes/SpatialAnchorScene.unity";
 
     [MenuItem("Build/SpatialAnchor APK")]
     public static void PerformBuild()
