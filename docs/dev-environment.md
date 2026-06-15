@@ -91,7 +91,7 @@ scrcpy -s A06B4A95B784973
 
 **전제**: 안경이 PC 와 **같은 공유기 WiFi**(같은 서브넷, 예: `192.168.219.x`)에 접속. 폰 테더링으로 인터넷만 쓰면 PC LAN 과 달라서 안 됨.
 
-> 💡 **편의 스크립트**: [`glasses-app/tools/connect-glasses.ps1`](../glasses-app/tools/connect-glasses.ps1) — adb/scrcpy 경로 자동탐색 + 안경 IP 자동검출 + 무선연결 + 미러를 한 번에. **첫 사용 / 다른 네트워크 / 재부팅 후**엔 USB 꽂고 `.\connect-glasses.ps1 -ReinitUsb`, 그 뒤엔 그냥 `.\connect-glasses.ps1`.
+> 💡 **편의 스크립트**: Windows = [`glasses-app/tools/connect-glasses.ps1`](../glasses-app/tools/connect-glasses.ps1) · Mac/Linux = [`glasses-app/tools/connect-glasses.sh`](../glasses-app/tools/connect-glasses.sh) (동일 기능). adb/scrcpy 자동탐색 + 안경 IP 자동검출 + 무선연결 + 미러 + 지속성설정을 한 번에. **첫 사용 / 다른 네트워크 / 재부팅 후**엔 USB 꽂고 `-ReinitUsb`(ps1) / `--reinit-usb`(sh), 그 뒤엔 인자 없이. (Mac 사전: `brew install scrcpy android-platform-tools`. macOS 는 Win11 의 USB 드라이버 함정 없음.)
 
 USB 로 연결된 상태에서:
 ```
