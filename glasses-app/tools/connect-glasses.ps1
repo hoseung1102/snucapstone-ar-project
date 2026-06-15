@@ -60,6 +60,15 @@ if ($ReinitUsb) {
   } else {
     throw "안경 wlan0 IP 없음 — 안경을 PC 와 같은 WiFi(공유기)에 연결하세요 (폰 테더링 불가)."
   }
+  # 지속성 설정: sleep/절전으로 무선이 끊기는 것 방지.
+  #   stay_on=7: 충전 중 화면 유지(안 잠듦) / deviceidle disable: Doze off(재부팅 전까지) / wifi_sleep_policy=2: WiFi 절전 off / adb_wifi: Android12 무선디버깅 플래그
+  #   ※ stay_on 은 "충전 중"에만 적용 — 무선으로 쓸 땐 안경을 충전기/보조배터리에 연결해두면 안 끊긴다(배터리만이면 Doze/착용센서로 잠들 수 있음).
+  & $adb -s $Serial shell "settings put global stay_on_while_plugged_in 7" 2>$null
+  & $adb -s $Serial shell "settings put global wifi_sleep_policy 2" 2>$null
+  & $adb -s $Serial shell "dumpsys deviceidle disable" 2>$null
+  & $adb -s $Serial shell "settings put global adb_wifi_enabled 1" 2>$null
+  Write-Host "[persist] 충전 중 안 잠듦 + Doze off + WiFi 절전 off 적용 (안 끊기려면 안경을 충전 연결 권장)"
+
   & $adb -s $Serial tcpip $Port | Out-Host   # adbd TCP 모드 재시작 (진행 중 USB scrcpy 는 한 번 끊김)
   Start-Sleep -Seconds 2
 }
