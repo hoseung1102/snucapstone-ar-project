@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(adb devices)",
+      "Bash(adb -s *:* logcat *)",
+      "Bash(adb logcat *)",
+      "Bash(adb -s * shell dumpsys *)",
+      "Bash(adb shell pm list packages*)",
+      "Bash(adb -s * shell pm *)",
+      "Bash(adb -s * shell ip *)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git ls-files*)",
+      "Bash(git grep*)",
+      "Bash(aapt dump*)",
+      "Bash(python *eagle_monitor.py*)"
+    ]
+  }
+}

@@ -21,26 +21,30 @@
 
 `결과` 기호: ✅ 채택/성공 · ⚠️ 부분 성공/제약 발견 · ❌ 실패/롤백 · 🔬 진단/측정
 
+**신뢰도 배지** (2026-06-15 도입): 🟢=git검증(인용 해시가 이 레포 git 에 실재·일치, `git cat-file` 통과) · 🟠=재구성(해시 부재·코드 복원 불가, APK 타임스탬프/progress-log 서사 기반) · 🟡=코드검증(`file:line` 으로 확인) · 🔴=stale·모순.
+
+> **이 표의 검증 상태**: b11~b26 + v0.2.x + v0.3.0 행의 commit 해시는 **모두 이 레포 git 에 실재** (🟢, 2026-06-15 `git cat-file -e` 전수 통과 — `ffcfd28`·`d36e813`·`8115909`·`809a3ff`·`5bfc51e`·`d5e5431`·`1e44756`·`80f2d52`·`e3f24ef`·`feb64f0`·`ed4037f`·`de0be34`·`10fdbdc`·`055e5bd`·`fff106f`). 반면 **v0.5–0.7 행(commit="다수")의 인용 해시는 이 레포에 부재** (🟠 — 아래 행 주석 참조).
+
 ---
 
 ## 빌드 타임라인 (최신 → 과거)
 
 | ID | 날짜 | 목적 / 변경 | 결과 | 교훈 · 결정 | commit |
 |----|------|-------------|------|-------------|--------|
-| **b26** | 06-11 | 광고 브랜드당 1개 중복 spawn 수정 + tap-to-checkout 인터랙션(`AdCheckout`) | ✅ | 데모 인터랙션 추가. 현 head | `ffcfd28` |
-| **b25** | 06-11 | color-video 빌드: OCR off + 색상 브랜드 + world-anchored 영상광고(mp4) + adb debug hook | ✅ | 데모 빌드. 상세: [B25_DEMO_HANDOFF](../glasses-app/B25_DEMO_HANDOFF.md) | `d36e813`·`8115909` |
-| **b24** | 06-11 | 통합: worldanchor(b15–17) ⨉ npu-ocr(b22) 머지 → 단일 라인 | ✅ | 두 팀원 작업 합류 지점. **현 main 의 베이스** | `809a3ff` |
-| **b22** | 06-11 | NPU EasyOCR(word-box)를 SLAM 파이프라인에 통합 | ⚠️ | EasyOCR **recognizer 가 NPU 비호환** (detector 만 위임). 상세: [B22_TEST_RESULTS](../glasses-app/B22_TEST_RESULTS.md), [integration_log §5](integration_log.md) | `5bfc51e` |
-| **b17** | 06-11 | CDSP crash 우회 위해 CLIP 을 CPU 로 빼는 fix 준비 | 🔬❌ | CDSP crash / **SLAM 8Hz 저하** / OpenXR surface 문제 진단. CPU-CLIP 경로는 SLAM 을 죽임 → NPU 경로 유지. 상세: [findings-2026-06-11](findings-2026-06-11-crash-slam-openxr.md) | `d5e5431` |
-| **b16** | 06-11 | CLIP-ready 플래그 + HUD 카운터 5개 + `[MONITOR]` 로그 + eagle-monitor 대시보드 + ad mirror fix | ✅ | 온디바이스 가시성 확보(모니터링). | `1e44756` |
-| **b15** | 06-11 | 광고 축소/원거리 + SLAM ATW + 저해상도 preview + head-locked 2D HUD 카운터 | ✅ | 상시-open RGB preview 가 SLAM 지연 유발 → 저해상도로 완화 | `80f2d52` |
-| **b13+b14** | 06-11 | max-2 FIFO 광고 + 수평 flip + mean-color 브랜드 분류 | ✅ | count 방식 실패 → **평균색(mean RGB)** 으로 brand 판별 전환 | `e3f24ef` |
-| **b12** | 06-11 | 광고 위치 beside → front(gaze center), world-anchored | ✅ | 시선 정면 배치가 자연스러움 | `feb64f0` |
-| **b11** | 06-11 | 단일 경쟁사 광고 + color-brand conquest **온디바이스 검증** | ✅ | **conquest 첫 온디바이스 성공** | `ed4037f` |
-| v0.5–0.7 | 06-07~08 | 매칭 아키텍처 진화 (아래 "v0.x 매칭 진화" 참조) | ✅ | CLIP zero-shot brand 분별 불가 → **CLIP category + OCR brand 계층화** | 다수 |
-| **v0.3.0**<br>(Step D) | 06-08 | RayNeo 6DoF SLAM — 호랑이 quad 공간 고정 **첫 성공** | ✅ | SLAM 첫 성공. 하루치 디버깅 cycle 상세: [JOURNEY](../glasses-app/JOURNEY.md) | `de0be34` |
-| v0.2.1 | 06-06 | Sentis YOLO11n 정적 추론 + bbox 표시 | ✅ | — | `10fdbdc` |
-| v0.2.0 | 06-06 | 카메라 라이브 프리뷰 + 자이로 표시 + 90° 회전 보정 | ✅ | — | `055e5bd`·`fff106f` |
+| **b26** 🟢 | 06-11 | 광고 브랜드당 1개 중복 spawn 수정 + tap-to-checkout 인터랙션(`AdCheckout`) | ✅ | 데모 인터랙션 추가. **최신 빌드** (이후 커밋은 문서/monitor 작업뿐 — b26 이 마지막 앱 빌드, 현 git head 아님) | `ffcfd28` |
+| **b25** 🟢 | 06-11 | color-video 빌드: OCR off + 색상 브랜드 + world-anchored 영상광고(mp4) + adb debug hook | ✅ | 데모 빌드. 상세: [B25_DEMO_HANDOFF](archive/B25_DEMO_HANDOFF.md) | `d36e813`·`8115909` |
+| **b24** 🟢 | 06-11 | 통합: worldanchor(b15–17) ⨉ npu-ocr(b22) 머지 → 단일 라인 | ✅ | 두 팀원 작업 합류 지점. **현 main 의 베이스** | `809a3ff` |
+| **b22** 🟢 | 06-11 | NPU EasyOCR(word-box)를 SLAM 파이프라인에 통합 | ⚠️ | EasyOCR **recognizer 가 NPU 비호환** (detector 만 위임). 상세: [B22_TEST_RESULTS](archive/B22_TEST_RESULTS.md), [integration_log §5](archive/integration_log.md) | `5bfc51e` |
+| **b17** 🟢 | 06-11 | CDSP crash 우회 위해 CLIP 을 CPU 로 빼는 fix 준비 | 🔬❌ | CDSP crash / **SLAM 8Hz 저하** / OpenXR surface 문제 진단. CPU-CLIP 경로는 SLAM 을 죽임 → NPU 경로 유지. 상세: [findings-2026-06-11](archive/findings-2026-06-11-crash-slam-openxr.md) | `d5e5431` |
+| **b16** 🟢 | 06-11 | CLIP-ready 플래그 + HUD 카운터 5개 + `[MONITOR]` 로그 + eagle-monitor 대시보드 + ad mirror fix | ✅ | 온디바이스 가시성 확보(모니터링). | `1e44756` |
+| **b15** 🟢 | 06-11 | 광고 축소/원거리 + SLAM ATW + 저해상도 preview + head-locked 2D HUD 카운터 | ✅ | 상시-open RGB preview 가 SLAM 지연 유발 → 저해상도로 완화 | `80f2d52` |
+| **b13+b14** 🟢 | 06-11 | max-2 FIFO 광고 + 수평 flip + mean-color 브랜드 분류 | ✅ | count 방식 실패 → **평균색(mean RGB)** 으로 brand 판별 전환 | `e3f24ef` |
+| **b12** 🟢 | 06-11 | 광고 위치 beside → front(gaze center), world-anchored | ✅ | 시선 정면 배치가 자연스러움 | `feb64f0` |
+| **b11** 🟢 | 06-11 | 단일 경쟁사 광고 + color-brand conquest **온디바이스 검증** | ✅ | **conquest 첫 온디바이스 성공** | `ed4037f` |
+| v0.5–0.7 🟠 | 06-07~08 | 매칭 아키텍처 진화 (아래 "v0.x 매칭 진화" 참조) | ✅ | CLIP zero-shot brand 분별 불가 → **CLIP category + OCR brand 계층화**. ⚠️ **인용 해시가 이 레포에 부재**(`318695f`·`2740509`·`6452d2a`·`af3b413`·`e99ecef`·`7795330` 등 `git cat-file` 실패 — 다른 머신/미푸시 브랜치) → **코드 복원 불가, progress-log 서사 재구성분**. 상세·경고: [progress-log §v0.5/v0.7](progress-log.md) | 다수 (부재) |
+| **v0.3.0**<br>(Step D) 🟢 | 06-08 | RayNeo 6DoF SLAM — 호랑이 quad 공간 고정 **첫 성공** | ✅ | SLAM 첫 성공. 하루치 디버깅 cycle 상세: [JOURNEY](archive/JOURNEY.md) | `de0be34` |
+| v0.2.1 🟢 | 06-06 | Sentis YOLO11n 정적 추론 + bbox 표시 | ✅ | — | `10fdbdc` |
+| v0.2.0 🟢 | 06-06 | 카메라 라이브 프리뷰 + 자이로 표시 + 90° 회전 보정 | ✅ | — | `055e5bd`·`fff106f` |
 
 ---
 

@@ -1,3 +1,5 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (브랜치 `feature/integrate-spatial-side`·v0.9.x·SDK 1.1.6↔1.1.7.9 BLOCKER 등 2026-06-09 시점 stale 현황)
+
 # Integration Log — HelloAR (CLIP/OCR) + SpatialAnchor 통합
 
 > 2026-06-09. branch `feature/integrate-spatial-side`. base commit `9acd75f` (Step E v0.8.0).
@@ -201,7 +203,7 @@ Task #27 의 `QnnDelegate.setCacheDir` 가 사실 disk cache write 안 함 (logc
 
 진짜 first-launch instant 위해 prebuild `.qnn_context.bin`:
 - AI Hub `submit_compile_job(tflite)` 거부 (input type 으로 tflite 안 받음)
-- ONNX export → AI Hub compile 권장 (`docs/dev-guide.md` §5 의 pipeline). 시간 30-60분
+- ONNX export → AI Hub compile 권장 (`../dev-guide.md` §5 의 pipeline). 시간 30-60분
 - PyTorch checkpoint `C:/claude/staging/clip-separation-test/ml-mobileclip/checkpoints/mobileclip_s2.pt` 활용
 
 deferred — SLAM 정상화가 우선.

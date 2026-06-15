@@ -4,6 +4,9 @@
 
 > **요약 인덱스는 [EXPERIMENTS.md](EXPERIMENTS.md)** (빌드별 시도·결과·교훈의 평면 로그). 이 파일은 그 각 행의 일자별 상세.
 
+> 🟠 **재구성됨 (이 문서 전체 v0.5/v0.7 구간) — 인용 커밋 해시는 이 레포에 존재하지 않음.**
+> 아래 v0.5.x / v0.7.x 서사에 인용된 커밋 해시(`e401310`·`318695f`·`2740509`·`6452d2a`·`af3b413`·`e99ecef`·`7795330` 등)는 **이 레포 git 에 없다**(다른 머신/미푸시 브랜치, 2026-06-15 `git cat-file -e` 전수 실패). 따라서 **이 구간 코드는 git 으로 복원 불가** — APK 타임스탬프 + 코드 주석 + 노션 export 에서 재구성한 **서사적 맥락**으로만 읽을 것. (git 으로 실재 검증되는 빌드는 b11~b26 — [EXPERIMENTS.md](EXPERIMENTS.md) 🟢 행 참조.)
+
 # ⚙️ 진행 로그 2026-06-07 (loop 모드)
 
 ## 현재 상태 (Claude 자동 진행)
@@ -403,15 +406,15 @@ v1 PoC 는 현재 schema 정의로 충분. 빌드 추가 안 함. v2+ 도전 시
 
 | APK | 시각 | 변경 |
 |---|---|---|
-| v0.5.7-rotlock-sbs | 22:27 | 화면 회전잠금 landscape (안경 기울임 회전 방지, commit `318695f`) + SBS |
-| v0.5.8-perm-fix | 22:41 | 카메라 Permission API 변경 + install 시 자동 grant (commit `2740509`) |
+| v0.5.7-rotlock-sbs | 22:27 | 화면 회전잠금 landscape (안경 기울임 회전 방지, commit `318695f` — 해시 부재) + SBS |
+| v0.5.8-perm-fix | 22:41 | 카메라 Permission API 변경 + install 시 자동 grant (commit `2740509` — 해시 부재) |
 | (v0.5.9) | — | YOLO detection class+conf 로깅 (false positive 진단용, APK 백업 없음) |
 | v0.5.10-thr055 | 23:05 | clipMatchThreshold **0.20 → 0.55** Awake hardcode (v0.5.6 분포: laptop 0.60~0.75 vs coke 오탐 0.57~0.70 — 0.55 가 차단 적정선) |
 | v0.5.11-clip-only | 23:20 | **clipOnlyMode=true 강제** — YOLO 우회. 안경 시점 bottle/book class 분류 신뢰성 낮음. 매 트리거마다 frame 통째 → CLIP → best-match |
 | v0.5.12-gyro-fast | 23:23 | gyro 트리거 완화 (stableThreshold 0.3→**0.5 rad/s**, duration 2.0→**1.0s**) — startup sensor calibration 노이즈로 첫 트리거 2분+ 지연 fix |
 | v0.5.13-pet-refs | 23:41 | reference 임베딩 다양화 — `refs/coke`, `refs/pepsi` 각 4장 (multi-ref) |
 
-### 06-08 — 1인칭 시야 녹화 시스템 (commit `6452d2a`, `af3b413`)
+### 06-08 — 1인칭 시야 녹화 시스템 (commit `6452d2a`, `af3b413` — 둘 다 해시 부재)
 - 카메라 dump (FirstPersonRecorder.cs, adb broadcast 토글) + 디스플레이 녹화 + screen-blend 합성 → 착용자 시야 근사 영상
 - `tools/recording/` — record.sh / merge.py / calib.json / README.md
 - merge 파이프라인은 합성 데이터 검증 완료. 기기 쪽 코드는 다음 빌드에서 첫 실행 (README 체크리스트 참조)
@@ -583,27 +586,22 @@ adb shell am start -n com.eagleeye.helloar/com.unity3d.player.UnityPlayerGameAct
 
 **별도 아카이빙 폴더/브랜치 없음.** YOLO+CLIP 코드는 main tree 에 그대로 keep, mode toggle 만 hardcode.
 
-**YOLO+CLIP 활성화**:
-```csharp
-// unity_assets_prep/Scripts/HelloAR.cs Awake() 안
-clipOnlyMode = true;   // ← false 로 변경 또는 이 줄 주석 처리
-```
-public field 라 Unity Inspector 에서도 toggle 가능 (다만 hardcode 가 override).
+> 🟡 **현 코드 기준으로 정정** (2026-06-15, `glasses-app/Assets/Scripts/HelloAR.cs` 확인): 옛 안내 "`git checkout 2740509 -- ...HelloAR.cs`" 는 **무효** — 해당 해시(`2740509`)가 이 레포에 없다(부재). 또 경로도 `unity_assets_prep/` 이 아니라 **`glasses-app/Assets/Scripts/`** 로 이동됨. 아래는 현 코드에 맞춘 복원법이다.
 
-**관련 파일 (전부 keep 됨)**:
-- `unity_assets_prep/Scripts/QnnYoloDetector.cs` — YOLO11l NPU 추론
-- `unity_assets_prep/Scripts/HelloAR.cs` line 47 의 `public bool clipOnlyMode`
-- `unity_assets_prep/Plugins/Android/QnnYoloEngine.java` — YOLO Java native
-- `yolo11l_640_w8a8.tflite` (model file)
+**YOLO+CLIP 활성화 (현 코드)**:
+- `glasses-app/Assets/Scripts/HelloAR.cs` 의 선언: `public bool clipOnlyMode = false;` (HelloAR.cs:62)
+- 하지만 `Init()`/`Awake()` 흐름에서 **`clipOnlyMode = true;` 로 hardcode override** (HelloAR.cs:135) 됨 → 이 줄이 Inspector 값까지 덮어쓴다.
+- **복원: HelloAR.cs:135 의 `clipOnlyMode = true;` 줄을 주석 처리** (또는 삭제) → rebuild. 그러면 선언의 `= false` 가 살아 YOLO+CLIP 모드로 동작.
 
-**YOLO+CLIP 동작하는 마지막 빌드**:
-- v0.5.10 (CLIP threshold 0.55 hardcode) — APK 백업은 cleanup 으로 삭제됨 (디스크 부족)
-- 복원 시: HelloAR.cs 의 `clipOnlyMode = true` 제거 → rebuild
+**관련 파일 (전부 keep 됨, 현 경로)**:
+- `glasses-app/Assets/Scripts/QnnYoloDetector.cs` — YOLO11l NPU 추론
+- `glasses-app/Assets/Scripts/HelloAR.cs` — `clipOnlyMode` 선언(L62) + hardcode override(L135)
+- `glasses-app/Assets/Plugins/Android/QnnYoloEngine.java` — YOLO Java native
+- `yolo11l_640_w8a8.tflite` (model file, StreamingAssets)
 
-**git 에 commit 된 YOLO+CLIP 마지막 commit**:
-- `2740509 fix(camera): Permission API 변경 + install 시 자동 grant` (v0.5.8 시점, clipOnlyMode default = false)
-- 즉 `git checkout 2740509 -- unity_assets_prep/Scripts/HelloAR.cs` 로 그 시점 HelloAR 복원 가능 (YOLO+CLIP 모드 default).
-- 단 그 시점은 v0.5.14 의 top-k, v0.7.x 의 hierarchical 매칭 없음.
+**YOLO+CLIP 동작하던 마지막 빌드**:
+- v0.5.10 (CLIP threshold 0.55 hardcode) — APK 백업은 cleanup 으로 삭제됨 (디스크 부족), 인용 해시도 부재.
+- 복원은 위 "현 코드" 절차(HelloAR.cs:135 주석 처리)로 — git 시점 복원이 아니라 현 tree 토글로 한다. 단 그 옛 빌드의 v0.5.14 top-k / v0.7.x hierarchical 매칭은 현 tree 기준으로 이미 반영/변형돼 있을 수 있음.
 
 **현재 HelloAR.cs 흐름** (v0.7.2, CLIP-only):
 ```
@@ -632,6 +630,8 @@ v0.5.11~v0.7.2 변경사항 모두 **uncommitted**. 다음 세션 commit 분할 
 ---
 
 ## 2026-06-08 (오후 세션) — v0.7.3 / v0.7.4 + 안경 시연 검증
+
+> 🟠 **재구성됨 — 인용 커밋 해시 부재.** 이 v0.7 구간에 적힌 "분할 커밋"·해시들은 이 레포 git 에 없다(다른 머신/미푸시, `git cat-file` 실패). 코드 복원 불가, 서사적 맥락으로만. (git 검증 빌드는 b11~b26.)
 
 > v0.5.11~v0.7.2 미커밋분은 이 세션 초반에 4개 chunk(docs / db / unity / sim)로 분할 커밋함.
 > 이어서 안경 실기기 시연하며 v0.7.3·v0.7.4 를 만들고, OCR·CLIP·조준 문제를 차례로 진단.

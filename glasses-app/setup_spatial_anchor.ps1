@@ -1,3 +1,18 @@
+# ============================================================
+# [DEPRECATED] 이 스크립트는 폐기되었습니다 — 실행하지 마세요.
+# ------------------------------------------------------------
+# 이 스크립트는 Unity 6000.0.76f1 로 새 프로젝트를 생성하고 옛 staging 경로
+# (C:\claude\staging\spatial_anchor_unity, .../repo/glasses-app)로 자산을 복사합니다.
+# 그러나 RayNeo ARDK 는 Unity 6 와 비호환이라 안경에서 검은화면이 되고, 현재 앱은
+# 이미 glasses-app/ 자체가 자기완결적 Unity 2022.3.62f3 프로젝트이므로 생성/복사가 불필요합니다.
+#
+#   → 대신 setup_2022.ps1 (Unity 2022.3.62f3 + 자기탐색 $PSScriptRoot) 을 쓰세요.
+#
+# 아래 내용은 history 보존용으로만 남겨둡니다. 가드가 즉시 exit 1 합니다.
+# ============================================================
+Write-Host "[DEPRECATED] build_2022.ps1/setup_2022.ps1 을 쓰세요"
+exit 1
+
 # SpatialAnchorTest — 1단계: Unity 프로젝트 생성 + 의존성 import
 # 빌드는 별도 (build_spatial_anchor.ps1).
 # 이 스크립트 끝나면 사용자가 Unity Editor 에서 XR Plug-in Management 수동 셋업해야 함.

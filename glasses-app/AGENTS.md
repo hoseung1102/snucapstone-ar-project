@@ -11,18 +11,20 @@
 
 ## batchmode 빌드 명령
 
+canonical 빌드 = 동봉 `build_2022.ps1` (`$PSScriptRoot` 로 자기탐색하므로 레포 내 위치에서 그대로 실행). 동등한 직접 호출(레포 루트에서, 경로는 레포 상대):
+
 ```bash
 "C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe" \
   -batchmode -nographics -quit -silent-crashes \
-  -projectPath C:/claude/staging/snucapstone-ar/repo/glasses-app \
+  -projectPath glasses-app \
   -buildTarget Android \
   -executeMethod BuildSpatialAnchorTest.PerformBuild \
-  -logFile C:/claude/staging/snucapstone-ar/repo/glasses-app/Build/build.log
+  -logFile glasses-app/Build/build.log
 ```
 
 - 진입점·버전 상수: `Assets/Editor/BuildSpatialAnchorTest.cs` 의 `BUILD_TAG` + `OUTPUT_APK` (새 버전 시 **둘 다** bump).
 - 빌드 hook(OpenXR 로더 fix / 도구 경로 폴백 / RayNeo settings preload / boot.config 패처)은 자동 — 손대지 말 것.
-- 동봉 `build_2022.ps1` 의 `PROJECT_DIR` 는 옛 경로를 가리키니, 이 레포 경로로 빌드하려면 위 명령을 직접 쓸 것.
+- 설치/실행: `adb -s <SER> install -r glasses-app/Build/*.apk` → `adb -s <SER> shell pm grant com.eagleeye.helloar android.permission.CAMERA` → `adb -s <SER> shell am start -n com.eagleeye.helloar/com.rayneo.openxradapter.UnityOpenXrActivity` (★표준 `UnityPlayerActivity` 아님 — OpenXR init 위해 `UnityOpenXrActivity`, AndroidManifest LAUNCHER). 정확한 activity 는 빌드 후 `dumpsys` 로 확인 권장.
 
 ## 빌드 후 검증
 

@@ -19,7 +19,7 @@ __pycache__/
 venv/
 
 # ============================================================
-# 모델 가중치 / 컴파일 산출물
+# 모델 가중치 / 컴파일 산출물 (오프라인 도구 산출물)
 # (다운로드/생성 방법은 README.md 참고)
 # ============================================================
 *.pt
@@ -32,20 +32,34 @@ venv/
 *.tflite
 
 # ============================================================
-# Apple ml-mobileclip 레포 (별도로 clone — README.md 참고)
+# ★ StreamingAssets 모델은 런타임 번들이므로 반드시 추적한다.
+#   위 *.tflite / *.onnx ignore 와의 모순을 negation 으로 못박는다.
+#   (negation 은 ignore 규칙들 뒤에 와야 효력 발생)
 # ============================================================
-ml-mobileclip/
+!glasses-app/Assets/StreamingAssets/**
+!glasses-app/Assets/StreamingAssets/**/*.tflite
 
 # ============================================================
-# 샘플 비디오 / 출력 결과 (대용량, 결정적이지 않은 산출물)
+# 오프라인 도구 — 대용량 샘플 비디오 / 출력 결과 (비결정적 산출물)
+# 입출력은 offline/ 프리픽스 아래에 있다.
 # ============================================================
-input/*.MOV
-input/*.mp4
-input/*.mkv
-output/*.MOV
-output/*.mp4
-output/*.mkv
-output/*.avi
+offline/input/*.MOV
+offline/input/*.mp4
+offline/input/*.mkv
+offline/output/*.MOV
+offline/output/*.mp4
+offline/output/*.mkv
+offline/output/*.avi
+# 단, 작은 추적용 자산(통계/결과 JSON)은 유지한다.
+!offline/output/stats.json
+!offline/output/stats2.json
+!offline/qai_hub_results.json
+
+# Apple ml-mobileclip 레포 (별도로 clone — README.md 참고)
+offline/ml-mobileclip/
+
+# 로컬 비밀 / 사용자 설정 (오프라인 QNN 컴파일)
+offline/.qai_hub/
 
 # ============================================================
 # Step B 작업 로그
@@ -56,11 +70,16 @@ retry_job_ids.txt
 # ============================================================
 # Unity 빌드 산출물
 # ============================================================
-# 전체 디렉토리 — build_hello_ar.sh가 unity_assets_prep/ 에서 매번 재생성
-EagleEye_Unity/
 unity_logs/
 *.apk
 *.aab
+
+# glasses-app Unity 캐시 / 빌드 산출물 (자기완결적 프로젝트)
+glasses-app/Library/
+glasses-app/Temp/
+glasses-app/Logs/
+glasses-app/Build/
+glasses-app/obj/
 
 # ============================================================
 # 로컬 비밀 / 사용자 설정
@@ -69,3 +88,8 @@ unity_logs/
 client.ini
 .env
 secrets.json
+
+# ============================================================
+# 에이전트 워크트리 (추적 제외)
+# ============================================================
+.claude/worktrees/

@@ -1,11 +1,13 @@
 <!-- 아카이브: 이미 superseded 된 옛 문서들. 역사적 맥락 보존용. 현재 사양 아님. -->
 
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (RayNeo X2 / XR2 Gen1 / confidence 0.7 / Snapdragon Spaces 등 전부 superseded)
+
 # 📦 아카이브 (옛 문서 — 역사적 맥락용)
 
 > ⚠️ **이 문서의 내용은 모두 superseded 되었다.** 현재 사양이 아니라 프로젝트 초기 결정의 변천사를 보여주는 기록이다.
 >
-> - 클라이언트 기술 스택의 현재 진실의 원천 → [client-spec.md](client-spec.md)
-> - 시스템 비전 / v1 사양 / 결정 로그 → [vision.md](vision.md)
+> - 클라이언트 기술 스택의 현재 진실의 원천 → [client-spec.md](../client-spec.md)
+> - 시스템 비전 / v1 사양 / 결정 로그 → [vision.md](../vision.md)
 >
 > 아래 내용을 현재 사양으로 인용하지 말 것. (예: RayNeo X2 / XR2 Gen 1 / confidence 0.7 / Snapdragon Spaces 등은 전부 바뀜)
 
@@ -15,7 +17,7 @@
 
 # 1. Tech Tree (초기 디바이스 후보 / 인사이트)
 
-> 원본: 노션 `Tech Tree` 페이지. **대부분 outdated** — 최종 기기는 RayNeo X3 Pro (Snapdragon AR1 Gen 1) 로 확정됨 ([client-spec.md](client-spec.md) §1 참조).
+> 원본: 노션 `Tech Tree` 페이지. **대부분 outdated** — 최종 기기는 RayNeo X3 Pro (Snapdragon AR1 Gen 1) 로 확정됨 ([client-spec.md](../client-spec.md) §1 참조).
 
 ## 공유 정보
 
@@ -32,13 +34,13 @@
 
 ### YOLO 상시 추론은 전력상 불가 → 시선 고정 시에만 추론
 - YOLO 작은 모델도 연산량이 많아 AR 기기에서 상시 구동 시 ~1시간 30분이면 배터리 방전
-- → **가속도/자이로 센서로 시야가 2초 이상 고정된 경우에만 YOLO 실행** (이 IMU 트리거 전략은 현재 사양에도 계승됨, [client-spec.md](client-spec.md) §3 Step 1)
+- → **가속도/자이로 센서로 시야가 2초 이상 고정된 경우에만 YOLO 실행** (이 IMU 트리거 전략은 현재 사양에도 계승됨, [client-spec.md](../client-spec.md) §3 Step 1)
 
 ---
 
 # 2. 기획안 v1 (옛 버전 — v1.2 가 대체)
 
-> 원본: 노션 `기획안` 페이지. **[client-spec.md](client-spec.md) (= 기획안 v1.2) 가 완전히 대체함.** 아래는 v1 → v1.2 변경 전 스냅샷.
+> 원본: 노션 `기획안` 페이지. **[client-spec.md](../client-spec.md) (= 기획안 v1.2) 가 완전히 대체함.** 아래는 v1 → v1.2 변경 전 스냅샷.
 
 ## [Internal Tech Spec] On-Device AR Recommendation System — Project "Eagle Eye"
 
@@ -55,7 +57,7 @@
   > 변경: v1.2 에서 confidence 임계값 **0.7 → 0.45** 로 하향 (false negative 방지).
 - **Step 3 — MobileCLIP 정밀 식별:** YOLO BB Crop → Letterboxing → MobileCLIP Image Encoder. 텍스트 인코더는 미실행, 사전 임베딩 Vector DB 와 코사인 유사도만 비교.
 - **Step 4 — SLAM 시공간 정합:** T=0 Pose 저장 → 0.2초 뒤 Spatial Anchor 생성 → 현재 포즈와 동기화하여 3D 배치. 10초 뒤 자동 소멸.
-  > 변경: v1 PoC 는 Spatial Anchor 대신 **2D HUD** 채택 ([vision.md](vision.md) 2D HUD 결정 로그).
+  > 변경: v1 PoC 는 Spatial Anchor 대신 **2D HUD** 채택 ([vision.md](../vision.md) 2D HUD 결정 로그).
 
 ### 3. 엔지니어링 선택 이유 (옛)
 1. **YOLO + CLIP 하이브리드:** YOLO 단독은 '의미'를, CLIP 단독은 '위치'를 모름. 조합이 모바일 NPU 에서 최적.

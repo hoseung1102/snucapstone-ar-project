@@ -1,3 +1,5 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (빌드 `b16`·패키지 `com.eagleeye.spatialanchor.bisection`·b9~b17 등 2026-06-11 시점 stale 현황)
+
 # Spatial Anchor 통합 빌드 — 개발자 핸드오프 + 빌드 런북
 
 > 작성: 2026-06-11. 대상: `glasses-app` 통합 빌드를 **지금 당장 이어서 개발할** 카메라/파이프라인 담당 개발자.
@@ -206,8 +208,8 @@ const string BUILD_TAG  = "b14";                         // line 27  ← version
 | `glasses-app/Assets/Scripts/ProductMatcher.cs` | category 매칭(`MatchCategory :185`), `GetBrandByName`(`:326`), CLIP brand fallback(`:266`, 데모 경로에선 우회) |
 | `glasses-app/Assets/Scripts/GyroTrigger.cs` | gaze-dwell 트리거 |
 | `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs` | batchmode 빌드 진입점 + OpenXR 로더 fix + 빌드환경 폴백 + boot.config 패처 |
-| `docs/freeze-accuracy-diagnosis.md` | freeze/정확도 근본원인 정량 진단(자매 문서) |
-| `docs/integration_log.md` | 통합 timeline + SDK mismatch BLOCKER |
+| `freeze-accuracy-diagnosis.md` | freeze/정확도 근본원인 정량 진단(자매 문서, 같은 docs/archive/) |
+| `integration_log.md` | 통합 timeline + SDK mismatch BLOCKER (같은 docs/archive/) |
 
 ### 6.2 다음 작업 우선순위
 

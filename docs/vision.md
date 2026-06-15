@@ -7,35 +7,13 @@
 상태: Living document (대화 라운드마다 갱신)
 작성 맥락: Claude 대화 세션 6라운드 합의 결과. 미래 세션 / 협업자 핸드오프용.
 ---
-## ⚡ 현재 상태 스냅샷 (2026-06-08 갱신, v0.7.2 기준)
+## ⚡ 현재 상태 스냅샷
 
-> 이 섹션만 읽으면 현 시점 상태 파악 가능. 지금까지 뭘 시도했고 뭐가 실패했나(빌드별 history)는 [실험 로그](EXPERIMENTS.md), 일자별 상세는 [진행 로그](progress-log.md), 결정 배경은 아래 결정 로그들 참조.
-
-- **단계**: v1 PoC 시연 검증 단계 — **end-to-end 성공 확인됨** (v0.7.4, `aip.json` 에 OCR-driven `pepsi`/`coca-cola` 매칭 + conquest 광고 표시. brand fallback OFF 라 OCR 이 실제 라벨을 읽었다는 증거). 성공률은 **조준(병을 카메라 정중앙·라벨 정면)** 에 의존 — 그게 현재 실전 병목.
-- **최신 버전**: **v0.7.4** (CLIP 중앙 crop query+ref + threshold 0.45). v0.7.3 = OCR 전처리(회전+crop+upscale) + 매칭 구조 분리(CLIP category → category 매칭 시에만 OCR brand) + CLIP-only 시 YOLO 컴포넌트 skip(시작 시 QNN 그래프 컴파일 제거). 상세는 [progress-log](progress-log.md) 2026-06-08 오후 섹션.
-- **v0.7.x 시연으로 확인된 핵심 3가지** (반드시 인지):
-  1. **온디바이스 CLIP sim 이 Mac 오프라인 대비 ~0.3 낮음** (전처리/양자화 차이). 오프라인 ref 검증 숫자로 실기기 예측 불가 → threshold 0.45 + 중앙 crop 으로 우회 중, 근본 규명 미완.
-  2. **카메라 FOV ≠ 사용자 시선** — 콜라를 눈높이 정면에 들면 카메라(아래·팔 방향) 시야 밖이라 프레임에 안 잡힘. **팔 뻗어 몸 앞 아래(노트북 높이)** 에 둬야 잡힘 (calib 으로 확인).
-  3. **CLIP category 변별력 약함** (cola·laptop 둘 다 0.5~0.6) — 단 brand=OCR 전용 + strict 라 오탐이 잘못된 광고로 안 이어짐.
-- **(이전) v0.7.2 (hierarchical strict)** — git 커밋됨 (commit `e401310`). v0.5.6 이후 주요 변경:
-  - v0.5.7 회전잠금 landscape + SBS / v0.5.8 카메라 Permission fix / v0.5.9 YOLO class+conf 로깅
-  - v0.5.10 CLIP threshold **0.55** hardcode (false positive 차단) / v0.5.11 **CLIP-only 모드** (YOLO 우회)
-  - v0.5.12 gyro 트리거 완화 (0.5 rad/s · 1.0s — 첫 트리거 2분+ 지연 fix) / v0.5.13 multi-ref (coke/pepsi 각 4장)
-  - v0.5.14 top-3 매칭 + 영상 광고(mp4) / v0.5.15 topK=1 / v0.5.16 frame capture (ref 제작용)
-  - v0.6.0 **MLKit OCR** 통합 / **v0.7.0 hierarchical** (CLIP category + OCR brand) 큰 refactor
-  - v0.7.1 brand fallback chain (OCR → CLIP brand → default) / **v0.7.2 default fallback 제거** (strict — brand 1개여도 OCR 매칭 없으면 광고 X, false positive 방지)
-- **매칭 아키텍처 (v0.7.x, 본질적 전환)**: CLIP zero-shot 만으로 coke vs pepsi 같은 fine-grained brand 분별이 본질적으로 불가능 (환경 신호가 brand 신호보다 dominant) → **계층화**: ① CLIP(중앙 crop) → category(콜라 vs 노트북) coarse ② category 매칭된 것만 OCR(MLKit) 로 라벨 글자 읽어 brand 확정 (deterministic, **유일 경로**) ③ ~~CLIP brand-specific fallback~~ **v0.7.3 기본 OFF** (`enableClipBrandFallback=false` — 환경 bias 로 펩시를 코크로 오판해서 차단; 데모 escape hatch 로만 ON)
-- **추론 스택**: TFLite Interpreter + Qualcomm QNN delegate (Maven 2.47.0), Hexagon v73 NPU 100% 위임 + MLKit text-recognition v2 (~50ms)
-  - YOLO11l w8a8 **640²** (`yolo11l_640_w8a8.tflite`, `INPUT_SIZE=640`) / MobileCLIP-S2 INT8 ~3ms / OCR ~50ms. ⚠️ AR1 은 cost-reduced 라 **FP16 unit 없음** → float 모델은 NPU 5.5% 위임뿐, w8a8 필수 (conf 10~50% 손실). YOLO 단일 ~15-30ms 는 320² proxy 추정값 (640 실측 아님); end-to-end 실측은 progress-log §6
-  - latency: CLIP-only 35ms / YOLO+CLIP top-3 150ms / +OCR ~100ms — 전부 200ms 목표 내
-- **시연 시나리오**: 콜라/펩시 페트병 conquest + 노트북 (라면+마트는 원 기획 — §4 주석 참조)
-- **UI**: 진짜 AR 모드 (검은 배경 + overlay) 토글, 2D HUD 비교 카드 + 영상 광고(mp4) + Sponsored + 5s dismiss
-- **알려진 이슈**: YOLO 가 안경 시점 bottle/book conf 매우 낮음 → CLIP-only 우회. w8a16 ORT path 는 보류. **온디바이스 CLIP ~0.3 격차 + 카메라 FOV 오프셋**(위 핵심 3가지) 미해결.
-- **OCR 전처리 (v0.7.3, 커밋됨)**: 회전 보정(`videoRotationAngle` 자동, `rotationOverride` 강제) + 중앙 crop(`cropFraction` 0.55) + 업스케일(`upscaleFactor` 2.0) → MLKit. 디버그용 `ocr_crops/` 저장. 파일: `OCRExtractor.cs`, `MLKitOCR.java`(rotationDegrees 인자).
-- **CLIP 중앙 crop (v0.7.4, 커밋됨)**: `ClipExtractor.cropFraction`(0.5) + `build_adversarial_db.py` `CLIP_CROP`(0.5) **반드시 일치**. ref 는 glob(`refs/<category>/*`) 자동 수집. environment-aligned ref(`refs/cola/dev_*`, `refs/laptop/dev_*`)는 환경 의존이라 중앙 crop 으로 대체된 보조 수단.
-- **v0.7.5 계획 (brand 식별 하이브리드, 프로토타입 한정)**: Coca-Cola 필기체는 OCR·CLIP-brand 둘 다 못 읽음(시연 확인) → **brand = OCR("pepsi") OR 색(red→coca-cola / blue→pepsi)**, 단 **조준 가이드(중앙 박스) + 타이트 crop 으로 병 isolation** 전제(배경 혼입 시 색 무너짐). ⚠️ **색 휴리스틱은 일반해 아님**(coke/pepsi 색이 우연히 달라서 됨, 30 SKU·동색 브랜드엔 실패) — v1.5+ fine-tuned CLIP/로고 detector 로 대체. 상세 = 끝의 "색 휴리스틱" 결정 로그.
-- **다음 작업**: ① v0.7.5 구현(위) + 조준 맞춰 재시연 ② **온디바이스↔Mac 0.3 격차 근본 규명**(`ClipExtractor.PreprocessTexture` 의 Y-flip/정규화/리사이즈를 `build_adversarial_db.py` 와 일치) ③ 카메라-시선 오프셋 보정/프리뷰 ④ fine-tuned CLIP(v1.5+) / 한글 OCR
-- **도구**: 1인칭 시야 녹화 시스템 (`tools/recording/`, 맨 아래 결정 로그) / Mac 시뮬레이터 (`simulate_*.py`)
+> **현황은 [`docs/STATUS.md`](STATUS.md) — 현황 정본.** (빌드 태그·매칭 아키텍처·카메라·SLAM·다음 작업이 file:line 출처와 함께 거기 있다. 이 스냅샷은 더 이상 본문을 복제하지 않는다.)
+>
+> 지금까지 뭘 시도했고 뭐가 실패했나(빌드별 history)는 [실험 로그](EXPERIMENTS.md), 일자별 상세는 [진행 로그](progress-log.md), **왜 이렇게 결정됐나**는 아래 본문(§1~)과 끝의 결정 로그들 참조.
+>
+> <!-- 🔴 (2026-06-16) 옛 스냅샷은 v0.7.x "OCR-driven brand" 라고 단언했으나 그건 stale 이었다 — 실제 코드는 b26 + color-brand(`HelloAR.cs:86 brandDisambiguator="color"`, `:72 skipOcr=true`). 그래서 본문을 STATUS.md 포인터로 대체. -->
 ---
 ## 0. 이 문서의 목적
 미래의 Claude 세션 또는 협업자가 프로젝트에 합류할 때, **기획안 v1.2(클라이언트 기술 스택)** 만으로는 얻을 수 없는 두 가지 맥락을 전달한다:

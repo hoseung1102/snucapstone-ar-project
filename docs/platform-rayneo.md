@@ -9,20 +9,36 @@
 > **상태 기호**: ✅ 확정(confirmed) · 🔬 추정(inferred) · ⚠️ 주의(gotcha)
 > **🆕 (코드에서 구조)**: 그 사실이 산문 문서엔 없고 코드/asset 에만 있던 것 — 처음으로 문서화됨.
 > 각 엔트리는 **사실 / 근거(왜) / 출처 / 상태**. 근거가 없으면 생략.
+>
+> **신뢰도 배지(2026-06 도입)**: 🟢=git/공식검증(인용 해시·공식 gitbook 출처가 실재·일치) · 🟡=코드검증(코드 `file:line` 으로 확인됨 — 줄번호 유효) · 🟠=재구성(원본 해시/공식문서 부재, APK 타임스탬프·현장절차·핸드오프 기반) · 🔴=stale·모순. 섹션 헤더의 배지는 그 섹션 기본 신뢰도를 뜻하고, 개별 주장이 다르면 그 줄 끝에 배지를 따로 붙인다. (이 파일의 코드 `출처` 80여 곳은 코드 미수정이라 줄번호가 유효 = 🟡.)
 
 ---
 
-## 📚 공식 문서 / SDK 레퍼런스
+## 📚 공식 문서 / SDK 레퍼런스 🟢 (gitbook 공식 출처 확인)
 
 > 우리 SDK 패키지 = **`com.unity.xr.rayneo.openxr` v1.1.2** ("RayNeo OpenXR ARDK") — 공식 ARDK 다운로드의 "v1.1.2 권장 (Glass OS 23.8.29+)"와 일치.
-> 공식 문서는 **Feishu(飞书) 위키**에 있고 일부는 로그인/guest 가 필요하다. **로그인 없이 가장 빨리 보려면 Qualcomm 공식 미러**가 편하다. 문서가 모호하면 — 이 파일 각 엔트리의 `출처: file:line` 이 **실제 SDK 코드 = ground truth**.
+> 공식 문서 진입점은 **영문 gitbook(아래)이 1순위** — 로그인 불필요 + 페이지 끝에 `.md` 를 붙이면 순수 마크다운, `/llms.txt` 에 전체 색인이라 기계가독. 그다음이 Qualcomm 미러(로그인 불필요)와 Feishu 위키(로그인/guest 필요). 문서가 모호하면 — 이 파일 각 엔트리의 `출처: file:line` 이 **실제 SDK 코드 = ground truth**.
 
-### 진입점
+### ⭐ 영문 gitbook (로그인 불필요 · `.md`/`llms.txt` 기계가독 — 1순위 진입점) 🟢
+루트: <https://rayneo-en.gitbook.io/rayneo-devdoc> (전체 색인 = `/llms.txt`). 어느 페이지든 URL 끝에 `.md` 를 붙이면 순수 마크다운으로 받는다.
+
+| 주제 (이 파일의 매핑 섹션) | gitbook 페이지 (= 출처) |
+|---|---|
+| **카메라** (ShareCamera RGB/VGA, 위 📷 카메라 §) | [ShareCamera](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/basic-capabilities-and-api/sharecamera) |
+| **SLAM 6DoF** (위 🧭 SLAM·6DoF §) | [6DOF SLAM](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/6dof-slam) |
+| **3DoF** (rotation-only / `CameraAttitudeType=4097`) | [3DOF](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/3dof) |
+| **Gaze**(공식 = head-ray dwell 포인터, 위 🎯/🧩 Gaze 정정 §) | [Gaze Interaction](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/gaze-interaction) |
+| **device-access**(`TakePicture`/intrinsics/IMU/시스템) | [Device System Access](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/basic-capabilities-and-api/device-system-access) |
+| **import / config**(ARDK 통합·프로젝트 설정, 위 🏗️ 빌드 §) | [Importing ARDK & Configuration](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/quick-start/importing-ardk-and-configuration) |
+| **architecture**(SDK 구성·시스템 아키텍처) | [SDK Architecture](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/sdk-constitutes-system-architecture) |
+| **ADB 연결·미러링**(아래 🔌 ADB §) | [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring) |
+
+### 진입점 (gitbook 다음 순위)
 - **개발자 포털**: <https://open.rayneo.com/> — 공식 RayNeo Open Platform (`rayneo.com/pages/developer` → 여기로 리다이렉트). ⚠️ JS SPA + 로그인.
-- **Qualcomm 공식 Get-Started (로그인 불필요 · 추천 시작점)**: <https://www.qualcomm.com/developer/project/get-started-with-rayneo-x3-pro-ar-development> — 아래 Feishu 문서 인덱스를 공개로 미러.
+- **Qualcomm 공식 Get-Started (로그인 불필요 · 2순위)**: <https://www.qualcomm.com/developer/project/get-started-with-rayneo-x3-pro-ar-development> — 아래 Feishu 문서 인덱스를 공개로 미러.
 - **다운로드 / 제품**: <https://www.rayneo.com/pages/download> · <https://www.rayneo.com/products/x3-pro-ai-display-glasses>
 
-### 공식 문서 (Feishu 위키 — 로그인/guest 필요할 수 있음. 출처 = 위 Qualcomm 페이지)
+### 공식 문서 (Feishu 위키 — 로그인/guest 필요할 수 있음. 가급적 위 gitbook 우선. 출처 = 위 Qualcomm 페이지)
 | 문서 | URL | 다루는 것 |
 |---|---|---|
 | ARDK 다운로드 | <https://leiniao-ibg.feishu.cn/wiki/IDFfwLKR4iihBuknkVrcGiMUnic> | SDK 패키지(X3 Pro 등), **v1.1.2 = 우리 버전** |
@@ -38,7 +54,7 @@
 
 ### "안 쓰던 보석" → 어느 공식 문서를 볼지 (이 파일 인벤토리와 매핑)
 - 평면검출(`EnablePlaneDetection`/`GetPlaneInfo`) · SLAM · 카메라 → **OpenXR Unity ARDK** ⭐ + Developer Manual
-- 단발 캡처(`TakePicture`) · 카메라 intrinsics(`GetPhysicalCameraParams`) · 프레임 타임스탬프 → **Developer Manual** ⭐ (⚠️ 시선 pose `gaze_ext` 는 제외 — X3 Pro 아이트래킹 하드웨어 없음 = 죽은 바인딩)
+- 단발 캡처(`TakePicture`) · 카메라 intrinsics(`GetPhysicalCameraParams`) · 프레임 타임스탬프 → **Developer Manual** ⭐ + gitbook [Device System Access](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/basic-capabilities-and-api/device-system-access) (⚠️ **eye** pose `gaze_ext` 는 제외 — X3 Pro 아이트래킹 하드웨어 없음 = 죽은 바인딩. **단 공식 'Gaze Interaction' = head-ray dwell 은 동작** → gitbook [Gaze Interaction](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/gaze-interaction))
 - raw IMU(`RegisterIMUEventCallback`, C# 미바인딩) · SLAM on/off → Developer Manual + 디버깅 툴
 - ⚠️ 공식 문서와 코드가 어긋나면 **코드가 정답** (이 파일의 `🆕` 엔트리들이 그 차이의 증거).
 
@@ -49,24 +65,24 @@
 
 ---
 
-## 📷 카메라
+## 📷 카메라 🟡 (기본 = 코드검증 `CameraPreview.cs`/`ShareCamera.cs` file:line; 공식 출처는 gitbook ShareCamera)
 
-### SLAM 6DoF 활성 시 표준 WebCamTexture 는 black frame 만 — ShareCamera RGB 로 우회
+### SLAM 6DoF 활성 시 표준 WebCamTexture 는 black frame 만 — ShareCamera RGB 로 우회 🟡 (코드검증 `CameraPreview.cs`; 공식 ShareCamera = gitbook 🟢)
 - **사실**: OpenXR `CameraAttitudeType=8193`(SLAM 6DOF) 활성 시 표준 Android Camera2(`WebCamTexture`)는 black frame 만 반환한다. RayNeo SDK 의 ShareCamera(병렬 RGB 채널, `OpenCamera(XRCameraType.RGB,...)`)는 SLAM 과 동시 사용 가능해 이 문제를 우회한다. ShareCamera RGB 관측 해상도: 1280×720@30(b22) 또는 640×480@10(저부하).
 - **근거**: Android 카메라는 single-owner — 상시 동작하는 SLAM 스택이 센서를 점유해 앱 레벨 `WebCamTexture` 는 실제 프레임을 못 받는다. ShareCamera 는 별도 병렬 RGB 채널.
-- **출처**: `glasses-app/Assets/Scripts/CameraPreview.cs:9-13`; `docs/dev-guide.md:56`; `docs/integration_log.md:127`; `docs/spatial-anchor-handoff.md:36,188`
+- **출처**: `glasses-app/Assets/Scripts/CameraPreview.cs:9-13`; `docs/dev-guide.md:56`; `docs/archive/integration_log.md:127`; `docs/archive/spatial-anchor-handoff.md:36,188`
 - **상태**: ✅ 확정
 
 ### 카메라 FOV ≠ 사용자 시선 — 병을 눈높이 정면으로 들면 프레임 밖
 - **사실**: 글라스 카메라는 시선이 아니라 아래·팔 방향을 본다. "눈높이 정면"으로 든 콜라병은 카메라 프레임 완전 밖이라 절대 검출 안 됨. 캘리브레이션 결과 물체를 **팔 뻗어 몸 앞 무릎/노트북 높이**로 둬야 잡힌다. 실세계 최대 실패 모드로 명시됨. (ShareCamera FOV 도 눈 시선과 정확히 일치 안 함.)
 - **근거**: 광각 world 카메라가 gaze 가 아니라 SLAM 커버리지용으로 장착·조준돼 광축이 시선축에서 크게 아래로 벌어짐.
-- **출처**: `docs/vision.md:18,33`; `docs/progress-log.md:658`; `docs/spatial-anchor-handoff.md:36`
+- **출처**: `docs/vision.md:18,33`; `docs/progress-log.md:658`; `docs/archive/spatial-anchor-handoff.md:36`
 - **상태**: ⚠️ 주의
 
 ### Qualcomm 카메라 HAL 이 앱 클라이언트 없어도 SIGPIPE crash loop (firmware 레벨)
 - **사실**: `vendor.camera-provider-2-7` 가 매 10~90초 `signal 13(SIGPIPE)` 를 spam 하고 Camera 0(RGB)+Camera 1(SLAM stereo) 모두 cycling. 앱 클라이언트가 없어도 cycling → system/firmware 레벨(ShareCamera 무관). provider 는 자가 재기동하나 `com.rayneo.xr.runtime` 이 카메라 재연결을 안 함(retry 로그 0건) → SLAM 이 vision 없이 IMU 단독 적분 → 발산. device reboot 권장.
 - **근거**: 펌웨어 레벨 provider 불안정 + xr.runtime 의 카메라 reconnect 로직 부재.
-- **출처**: `docs/integration_log.md:144`; `docs/freeze-accuracy-diagnosis.md:32-33,117`
+- **출처**: `docs/archive/integration_log.md:144`; `docs/archive/freeze-accuracy-diagnosis.md:32-33,117`
 - **상태**: ✅ 확정
 
 ### 앱 pause 중 preview 채널을 열어두면 SIGPIPE → SLAM 595m 발산
@@ -165,10 +181,10 @@
 - **출처**: `.../ShareCamera/ShareCamera.cs:181-192`
 - **상태**: ⚠️ 주의
 
-### RayNeo 카메라 intrinsics 하드코딩 노출 + 평면검출/시선 pose 제공하나 앱 미사용
-- **사실**: 하드코딩 intrinsics `fx=376.686 fy=376.1188 cx=319.3743 cy=241.355`(cam1 SLAM 스테레오 기준, `RayNeoInfo.GetPhysicalCameraParams()`). `EnablePlaneDetection`/`GetPlaneInfo`(폴리곤 메시+수평/수직 분류)와 `gaze_ext` 시선 pose, `NineAxisAzimuth`(yaw)도 제공되나 데모 파이프라인 미사용. → **실제 여지**: bbox+intrinsics 핀홀 역투영 거리추정 + 표면 앵커(parallax↑로 8Hz judder 완화 시너지). ⚠️ **단 `gaze_ext` 시선 pose 는 죽은 보석** — X3 Pro 는 아이트래킹 하드웨어가 없어(아래 "X3 Pro 하드웨어 capability" 엔트리) 바인딩만 있고 `RayNeoApi_GetHeadTrackerPose` 처럼 무효. 시선 트리거 업그레이드는 **불가**.
-- **근거**: ARDK 가 intrinsics/plane/gaze API 를 노출하나 데모 파이프라인이 IMU 트리거+정면 1.2m placement 만 씀.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:98,101,117-120`; `RayNeoInfo.cs:74-99`
+### RayNeo 카메라 intrinsics 하드코딩 노출 + 평면검출/eye-pose 제공하나 앱 미사용 🟡 (코드검증)
+- **사실**: 하드코딩 intrinsics `fx=376.686 fy=376.1188 cx=319.3743 cy=241.355`(cam1 SLAM 스테레오 기준, `RayNeoInfo.GetPhysicalCameraParams()`). `EnablePlaneDetection`/`GetPlaneInfo`(폴리곤 메시+수평/수직 분류)와 `gaze_ext` **eye** pose, `NineAxisAzimuth`(yaw)도 제공되나 데모 파이프라인 미사용. → **실제 여지**: bbox+intrinsics 핀홀 역투영 거리추정 + 표면 앵커(parallax↑로 8Hz judder 완화 시너지). ⚠️ **단 `gaze_ext` *eye* pose 는 죽은 보석** — X3 Pro 는 **아이트래킹** 하드웨어가 없어(아래 "X3 Pro 하드웨어 capability" 엔트리) 바인딩만 있고 `RayNeoApi_GetHeadTrackerPose` 처럼 무효. **eye-gaze 기반 트리거 업그레이드는 불가**. (혼동 금지: 공식 'Gaze Interaction' = head-ray dwell 은 아이트래킹이 아니라 동작함 — 아래 🧩 § 별도 엔트리. 즉 *eye*-pose 만 막힌 것.)
+- **근거**: ARDK 가 intrinsics/plane/eye-gaze API 를 노출하나 데모 파이프라인이 IMU 트리거+정면 1.2m placement 만 씀. eye-gaze 만 하드웨어 부재.
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:98,101,117-120`; `RayNeoInfo.cs:74-99` 🟡
 - **상태**: ✅ 확정
 
 ### YUV420SP_RGB 헬퍼는 Color32 alpha 를 1 로 채우는 버그성 코드 🆕 (코드에서 구조)
@@ -179,12 +195,12 @@
 
 ---
 
-## 🧭 SLAM · 6DoF
+## 🧭 SLAM · 6DoF 🟡 (기본 = 코드검증 `SpatialAnchorTest.cs`/`Algorithm.cs`/`OpenXR Package Settings.asset` file:line; 공식 출처는 gitbook 6DOF SLAM)
 
-### SLAM 6DoF on/off 는 yaml 매직 상수 하나로 — 4097=DOF3(3DoF), 8193=SLAM(6DoF)
+### SLAM 6DoF on/off 는 yaml 매직 상수 하나로 — 4097=DOF3(3DoF), 8193=SLAM(6DoF) 🟡 (코드검증 `OpenXR Package Settings.asset:671`/`RayNeoSupportFeature.cs`; 공식 6DOF SLAM·3DoF = gitbook 🟢)
 - **사실**: `RayNeoSupportFeature.CameraAttitudeType`(OpenXR Package Settings.asset) 값이 `4097`(0x1001=DOF3, rotation-only)이면 `EnableSlamHeadTracker()` 를 불러도 6DoF 진입 못 함. `8193`(0x2001=SLAM)이어야 6DoF. `OnInstanceCreate` 가 `settings["trackerAlgorithm"]=(int)CameraAttitudeType` 으로 native 에 fixed 전달 → 런타임 API 가 못 덮음. DOF3 로 두면 translation 을 잃어 world-anchored 콘텐츠가 파괴된다. **함정**: enum `X3_Normal=0x1001` 이 `DOF3=0x1001` 과 우연히 겹쳐 audit 함정이었음.
 - **근거**: `trackerAlgorithm` 이 트래킹 솔버 모드를 선택하며 네이티브에 고정값으로 전달됨. SLAM 만 6DoF translation 제공.
-- **출처**: `glasses-app/Assets/XR/Settings/OpenXR Package Settings.asset:671`; `RayNeoSupportFeature.cs:33,61,192-198`; `XRInterfaces.cs:41-48`; `glasses-app/JOURNEY.md:27-38`
+- **출처**: `glasses-app/Assets/XR/Settings/OpenXR Package Settings.asset:671`; `RayNeoSupportFeature.cs:33,61,192-198`; `XRInterfaces.cs:41-48`; `docs/archive/JOURNEY.md:27-38`
 - **상태**: ✅ 확정
 
 ### Spatial Anchor: in-session 6DoF 는 지원, cross-session persistence 는 미지원 — SLAM 은 always-on/끌 수 없음
@@ -196,13 +212,13 @@
 ### 6DoF 는 펌웨어 게이팅 의심 — X3 Pro 가 다수 앱에서 '현재 3DOF만'
 - **사실**: 독립 리뷰(skarredghost 2025-12)에 X3 Pro 가 다수 앱에서 '현재 3DOF만'. 6DoF 가 펌웨어 버전 게이팅일 수 있음(1.1.6↔1.1.7.9 mismatch + 0Hz 블로커와 연결). 우리 기기의 6DoF 안정 surfacing 여부는 `raw==1` 실측으로만 확인 가능.
 - **근거**: RayNeo 펌웨어 버전이 6DoF surfacing 을 조건부로 막을 가능성.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:122-123,82`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:122-123,82`
 - **상태**: 🔬 추정
 
 ### GetHeadTrackerStatus 는 pose 신뢰도 지표가 아님 (0/1/2 3-state) — 발산해도 0
 - **사실**: `Algorithm.GetSlamStatus()` 가 `GetHeadTrackerStatus()` int 를 캐스트: `FFVINS_INITIALIZING=0`, `TRACKING_SUCCESS=1`, `TRACKING_FAIL=2`. 앱은 status==1 을 '수렴'으로 쓴다. **SLAM 이 595m 로 발산해도 status 는 계속 0** 으로만 보고 — pose quality 미반영이라 신뢰 지표로 못 씀. FFVINS 는 정지 시 INITIALIZING/SEEKING(0)에 멈추고 카메라 움직임+특징점이 있어야 TRACKING 수렴(정지 status=0 은 정상).
 - **근거**: FFVINS 가 init/성공/실패 3상태만 노출하고 드리프트/발산은 별도 신호 없음. SDK 에 SLAM 리셋 API 없음.
-- **출처**: `.../SDK/Runtime/Scripts/APIs/Algorithm.cs:42-62`; `SpatialAnchorTest.cs:600,744-747`; `docs/freeze-accuracy-diagnosis.md:34`; `B25_DEMO_HANDOFF.md:72`; `B22_TEST_RESULTS.md:27`
+- **출처**: `.../SDK/Runtime/Scripts/APIs/Algorithm.cs:42-62`; `SpatialAnchorTest.cs:600,744-747`; `docs/archive/freeze-accuracy-diagnosis.md:34`; `docs/archive/B25_DEMO_HANDOFF.md:72`; `docs/archive/B22_TEST_RESULTS.md:27`
 - **상태**: ✅ 확정
 
 ### SLAM 발산 자체 감지: |camPos|>30m 2초 연속 → 콘텐츠 재앵커만(재토글 금지)
@@ -232,13 +248,13 @@
 ### RayNeoApi_GetHeadTrackerPose 는 .so 에 미export 된 죽은 심볼 (EntryPointNotFound)
 - **사실**: 직접 포즈 폴링용 `RayNeoApi_GetHeadTrackerPose(float[] position, float[] rotation)` 는 C# `DllImport` 선언만 있고 `libRayNeoXRUnityInterfaces.so` 에 export 안 됨 → 호출 시 `EntryPointNotFound`. `SpatialAnchorTest` 의 `htPos/htRot/htRet` centerEye 라우팅 우회나 LateUpdate native polling(통합 v0.9.0)은 effect 0. Unity 가 head pose 받는 **유일 경로** = OpenXR centerEye → TrackedPoseDriver → `RayNeo.HeadTrackedPoseDriver.OnPostUpdate`. (IMU 콜백 `RayNeoApi_RegisterIMUEventCallback` 은 .so export 되나 C# 미바인딩.)
 - **근거**: ARDK C# 바인딩이 네이티브에 없는 심볼을 선언해 놓아 컴파일은 되나 런타임에 무효.
-- **출처**: `.../public/core/XRInterfaces.cs:246-247`; `SpatialAnchorTest.cs:103-112`; `docs/findings-2026-06-11-crash-slam-openxr.md:67,108,111`
+- **출처**: `.../public/core/XRInterfaces.cs:246-247`; `SpatialAnchorTest.cs:103-112`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:67,108,111`
 - **상태**: ✅ 확정
 
 ### world-anchor 콘텐츠 8Hz judder 는 RayNeo 런타임 고정 FFVINS 맵 pose 케이던스 (고칠 노브 없음)
 - **사실**: base driver 가 `UpdateAndBeforeRender` 로 매 렌더 프레임 centerEye 를 재read 해도 pose 변화율이 ~8Hz(`headPoseCallCount` 측정). 8Hz = FFVINS 맵 pose 전달 케이던스이며 Unity throttle 아님, 설정 노브 없음(.so 어디에도 rate/Hz 키 0건). 솔버 틱 사이엔 같은 latched pose 반환.
 - **근거**: FFVINS 솔버가 8Hz 로만 새 맵 pose 를 push 하고 그 사이엔 동일 pose 유지.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:64-68`; `B25_DEMO_HANDOFF.md:71`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:64-68`; `docs/archive/B25_DEMO_HANDOFF.md:71`
 - **상태**: ✅ 확정
 
 ### provisional anchor 패턴: SLAM 미수렴에도 즉시 spawn, status==1 도달 시 1회만 reposition
@@ -273,9 +289,9 @@
 
 ---
 
-## ⚙️ NPU · QNN
+## ⚙️ NPU · QNN 🟡 (기본 = 코드검증 `QnnClipEngine.java`/`QnnYoloEngine.java`/`EasyOCREngine.java` file:line; 일부 진단은 archive 핸드오프 🟠)
 
-### Hexagon v73 이지만 FP16 벡터 유닛 없음 (cost-reduced AR1) → w8a8 양자화 필수
+### Hexagon v73 이지만 FP16 벡터 유닛 없음 (cost-reduced AR1) → w8a8 양자화 필수 🟠 (재구성: vision/dev-guide 분석, logcat `libQnnHtpV73Stub.so` 식별)
 - **사실**: RayNeo X3 Pro / Snapdragon AR1 Gen 1 NPU 는 Hexagon v73 인데, AR1 은 cost-reduced SoC 라 **FP16 벡터 유닛이 없다**(INT8/INT16 만). float 모델은 ~5.5% 만 NPU 위임 → w8a8(full INT8) 양자화 필수. 양자화는 detection confidence 를 10~50% 깎는다.
 - **근거**: FP16 유닛이 없으면 QNN delegate 가 float op 를 NPU 에 못 올려 float 그래프가 CPU 폴백(~5.5% NPU). INT8 하드웨어 가속만이 NPU 경로.
 - **출처**: `docs/vision.md:28-29,310`; `docs/dev-guide.md:11,136,143`
@@ -302,7 +318,7 @@
 ### 기기 꺼짐(crash) 근본원인 = 공유 Hexagon CDSP(domain 3) 세션 leak/오염, 리부트로만 복구
 - **사실**: 우리 CLIP(QNN HTP)이 RayNeo SLAM(FFVINS)과 같은 CDSP 를 써서, 종료 시 release 미동기로 CDSP user-PD 를 오염(SSR). `com.rayneo.xr.runtime` 이 `remote_handle64_invoke failed method 12 on domain 3` 를 ~30회/초 폭주 → `DeadSystemException`(system_server 사망) → 프레임워크 재시작. '리부트 후 첫 launch OK, 이후 launch 부터 crash' 시그니처. domain 3 = Compute DSP. 프로세스/앱 재시작 무효, `adb reboot` 만 복구.
 - **근거**: HTP 세션이 종료 시 CDSP 를 깨끗이 release 안 해 다음 실행이 오염된 user-PD 를 만나 SSR → FastRPC stale → system_server 사망. 동시경쟁이 아니라 사후오염.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:13,17-39`; `B22_TEST_RESULTS.md:80`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:13,17-39`; `docs/archive/B22_TEST_RESULTS.md:80`
 - **상태**: ✅ 확정
 
 ### CLIP 을 CPU(XNNPACK)로 돌리면 CDSP SSR cascade 를 구조적으로 차단 (+125초 컴파일 소멸)
@@ -314,7 +330,7 @@
 ### QNN HTP 첫 cold launch 그래프 컴파일이 메인스레드를 ~152초 동결 (CLIP ~125초 + OCR detector 27초)
 - **사실**: TFLite Interpreter 생성(=HTP 그래프 컴파일)이 Unity 메인스레드 동기로 일어남. 캐시 없으면 CLIP HTP 125.2초(logcat: `Interpreter init: 125228.6 ms`) + EasyOCR detector 27.1초 = ~152초 동결. recognizer unroll 까지 켜면 첫 launch ~159초. 동결이 카메라 provider 를 기아시켜 SIGPIPE → SLAM 발산(595m)까지 유발. `skipOcr=true` 로 OCR init 자체 제거가 159초 컴파일 소멸.
 - **근거**: HTP 컴파일이 동기 JNI 이고 DSP/스케줄러 점유로 실시간 카메라 스레드를 기아.
-- **출처**: `docs/freeze-accuracy-diagnosis.md:21-33`; `B22_TEST_RESULTS.md:68`; `BUILD_OCR_SLAM_HANDOFF.md:169`
+- **출처**: `docs/archive/freeze-accuracy-diagnosis.md:21-33`; `docs/archive/B22_TEST_RESULTS.md:68`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:169`
 - **상태**: ✅ 확정
 
 ### QnnClipEngine.initialize 는 worker 에 submit 만 하고 즉시 true 반환 — isReady 폴링 필수
@@ -356,12 +372,12 @@
 
 - **사실**: qnn-litert-delegate 2.47.0 의 `setCacheDir`+`setModelToken` 조합은 디스크에 컴파일된 `.bin` 을 안 쓴다(파일은 20B/1.6KB stub 뿐, logcat `exists=false`). **device-level 휘발성 DSP 커널 캐시만** 생겨 같은 `model_token` 두 번째 launch 부터 instant 이나, process death/DSP 전원off/모델 swap/reboot 시 evict → 매 cold start 125초 재컴파일. 정정: delegate(`libQnnTFLiteDelegate.so`)는 SAVE/RESTORE MODE 직렬화를 실제로 구현하나 'Failed to create folder'/권한 또는 'Context blob too large to serialize safely' 로 SAVE MODE 실패해 stub 만 남는 것. **hit/miss 는 파일명 아닌 init latency 로만 추정**(Interpreter ctor <1s 면 hit, 실제 파일명 `qnn_binary_*` prefix) — 정확한 hit/miss API 미노출.
 - **근거**: delegate SAVE MODE 가 폴더 생성 실패 또는 blob 과대로 직렬화를 포기하고 휘발성 커널 캐시로만 동작.
-- **출처**: `glasses-app/Assets/Plugins/Android/QnnClipEngine.java:171-218`; `docs/freeze-accuracy-diagnosis.md:36-40`; `docs/spatial-anchor-handoff.md:167-169`; `docs/integration_log.md:198-200`
+- **출처**: `glasses-app/Assets/Plugins/Android/QnnClipEngine.java:171-218`; `docs/archive/freeze-accuracy-diagnosis.md:36-40`; `docs/archive/spatial-anchor-handoff.md:167-169`; `docs/archive/integration_log.md:198-200`
 - **상태**: ✅ 확정
 
 - **사실**: 사전 빌드 바이너리를 cacheDir 안에 정확히 `CACHE_MODEL_TOKEN+".bin"`(=`mobileclip_s2_v73_int8_v1.bin`) 이름으로 복사해야 delegate 가 발견·deserialize 한다. cache_dir 와 model_token 둘 다 set 필요. tflite 도 여전히 필요(graph topology+tensor shape 메타데이터). 단 AI Hub `qnn_context_binary` 포맷 ≠ TFLite delegate cacheDir 포맷이라 단순 복사로는 deserialize 안 돼 `initializeFromContextBin` 경로는 **사실상 dead**. AI Hub `submit_compile_job` 은 input type 으로 tflite 를 안 받음(ONNX 경유 필요). 유일 변종 = device 가 생성한 캐시를 adb pull 해 동일 v73 기종 한정 번들. root 없이 `libQnnHtp` 직접 호출 불가.
 - **근거**: AI Hub context-binary 와 LiteRT delegate cacheDir 이 별개 직렬화 포맷. delegate 가 `<cache_dir>/<model_token>.bin` 이름으로 캐시를 찾음.
-- **출처**: `glasses-app/Assets/Plugins/Android/QnnClipEngine.java:44-47,148-160`; `docs/spatial-anchor-handoff.md:169`; `docs/integration_log.md:202-204`; `docs/freeze-accuracy-diagnosis.md:37`
+- **출처**: `glasses-app/Assets/Plugins/Android/QnnClipEngine.java:44-47,148-160`; `docs/archive/spatial-anchor-handoff.md:169`; `docs/archive/integration_log.md:202-204`; `docs/archive/freeze-accuracy-diagnosis.md:37`
 - **상태**: ✅ 확정
 
 - **사실**: `CACHE_MODEL_TOKEN`(`mobileclip_s2_v73_int8_v1`)은 tflite 모델 graph hash 와 1:1 대응. 모델 파일이 바뀌면 토큰도 같이 바꿔야 stale cache 를 안 쓴다.
@@ -372,7 +388,7 @@
 ### QNN GPU 백엔드는 INT8 미지원 → INT8 CLIP GPU 폴백 불가; Adreno 는 NPU 대비 7~20배 느림
 - **사실**: `libQnnGpu.so` 동봉+`QnnDelegate` 에 `GPU_BACKEND` 있으나 QNN GPU 백엔드는 INT8 미지원(FP32/FP16 전용, `GpuPrecision` enum 에 INT8 없음). 우리 INT8 모델 GPU 전환은 FP16 재export+재번들+3-way enum 필요. git 이력상 GPU 에서 돈 건 초기 YOLO 뿐이고 ~200ms 대(NPU YOLO11l ~15-30ms 대비 7-20배 느림). → crash 회피책은 GPU 아닌 CPU(XNNPACK).
 - **근거**: Qualcomm QNN GPU 백엔드 enum 에 INT8 정밀도 자체가 없음.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:50-52`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:50-52`
 - **상태**: ✅ 확정
 
 ### MobileCLIP-S2 INT8 on v73 = 2.12ms (XR2/v69 FP16 16ms 대비 8배); 이미지 인코더 ~35.7M params
@@ -390,7 +406,7 @@
 ### EasyOCR recognizer(CRNN/BiLSTM)는 QNN HTP delegate 위임 거부 — detector(CRAFT)만 NPU
 - **사실**: EasyOCR detector(CRAFT, conv-only)는 NPU 정상 위임되나 recognizer(CRNN)는 2단 BiLSTM 이 TFLite WHILE control-flow op(82개 LSTM 토큰)로 구현돼 QNN HTP delegate 가 거부(`Error applying delegate`). 우회 = Qualcomm 명시('Unrolled LSTM is required to run on NPU via LiteRT')대로 qai_hub export 에 `--unroll-lstm` 붙여 unroll recognizer 생성하면 NPU-only(19902/19902 layers, CPU 0). unroll 된 recognizer 는 grayscale input + CTC greedy decoder 와 호환 유지해야 함(sanity check).
 - **근거**: HTP backend 가 동적 control-flow(WHILE) op 를 위임 못 하고, unroll 하면 정적 conv/matmul 로 펴짐.
-- **출처**: `.../EasyOCREngine.java:143-144,183-195`; `docs/freeze-accuracy-diagnosis.md:63-65`; `docs/integration_log.md:182-189`; `BUILD_OCR_SLAM_HANDOFF.md:92-93`
+- **출처**: `.../EasyOCREngine.java:143-144,183-195`; `docs/archive/freeze-accuracy-diagnosis.md:63-65`; `docs/archive/integration_log.md:182-189`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:92-93`
 - **상태**: ✅ 확정
 
 ### YOLO 엔진 헤더 주석(320/2100)과 실제 상수(640/8400) 불일치 🆕 (코드에서 구조)
@@ -443,7 +459,7 @@
 
 ---
 
-## 🖥️ OpenXR · 렌더
+## 🖥️ OpenXR · 렌더 🟡 (기본 = 코드검증 `BuildSpatialAnchorTest.cs`/`OpenXR Package Settings.asset`/`SpatialAnchorTest.cs` file:line; 일부 ATW/판단은 archive 핸드오프 🟠)
 
 ### Additive MicroLED see-through: BLACK = TRANSPARENT, 밝은(emissive) 픽셀만 렌더
 - **사실**: RayNeo X3 Pro MicroLED 웨이브가이드는 additive 라 검은 픽셀 = 투명 = 현실 비침, 밝은(emissive) 픽셀만 보임. 어두운 패널/텍스트는 안 보임 → checkout 패널은 dark fill 금지, 밝은 frame 라인·글자·BUY fill 만. PBR/Standard 셰이더는 검게 나오므로 Unlit/Texture·TextMesh(GUI/Text)만. 그림자 없음, GLES3, Single Pass Instanced. 페이드아웃도 alpha 가 아니라 색을 black 으로 lerp(밝기가 곧 가시성). 'true AR' 모드 = 검은 배경에 오버레이 UI 만 합성(카메라 pass-through 는 투명성 낭비+레이턴시).
@@ -454,31 +470,31 @@
 ### 그래픽 API 는 OpenGLES3 단독 강제 (Vulkan 금지)
 - **사실**: `SetGraphicsAPIs(Android, {OpenGLES3})`, `SetUseDefaultGraphicsAPIs=false`. `RayNeoSupportFeature` validation 이 `graphics[0]==OpenGLES3` 를 error 룰로 강제(주석:'opengl 3 限制. 今后有vulkan 再取消'), Vulkan first 면 RayNeo runtime 이 surface 를 못 잡아 fail(Discord 보고 일치). minSdk/targetSdk≥30 강제, defaultInterfaceOrientation=LandscapeLeft 권장(warning). ProjectSettings 도 `m_APIs=11(OpenGLES3)` 단일 + `m_Automatic=0`(수동 고정). 최신 AR 칩인데 Vulkan 불가.
 - **근거**: RayNeo OpenXR 런타임이 OpenGL ES 컨텍스트만 지원, Vulkan surface 미지원.
-- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:272-281`; `RayNeoSupportFeature.cs:105-187`; `ProjectSettings/ProjectSettings.asset:389-392`; `docs/findings-2026-06-11-crash-slam-openxr.md:103`
+- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:272-281`; `RayNeoSupportFeature.cs:105-187`; `ProjectSettings/ProjectSettings.asset:389-392`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:103`
 - **상태**: ✅ 확정
 
 ### 진짜 고정 HUD 불가 — RayNeo 런타임에 VIEW-space composition layer 경로 없음 + ATW 가 흉내 HUD 까지 워프(swimming)
 - **사실**: VIEW-space 컴포지션 레이어 미제공이라 진짜 head-fixed HUD 불가. TextMesh 를 카메라 parent 해 head-lock 흉내내도 ATW(reprojection)가 그 HUD 까지 SLAM pose 로 워프해 흔들림(swimming). composition layers 는 Unity 6 전용 패키지인데 RayNeo 런타임이 앱 제출 secondary layer 자체를 안 받음. 유일 진짜 경로 = Unity 2022 커스텀 OpenXRFeature(`xrEndFrame` VIEW-space quad)지만 런타임 secondary layer 미지원으로 사실상 막힘.
 - **근거**: RayNeo 컴포지터가 앱 제출 composition layer 미지원 + ATW 가 모든 콘텐츠를 head pose 로 reproject.
-- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:25-28`; `docs/findings-2026-06-11-crash-slam-openxr.md:106,113-115`; `docs/spatial-anchor-handoff.md:232-233`
+- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:25-28`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:106,113-115`; `docs/archive/spatial-anchor-handoff.md:232-233`
 - **상태**: ✅ 확정
 
 ### RayNeo 컴포지터 ATW 는 회전 전용 (depth 미제출, spacewarp 경로 없음) → translation judder
 - **사실**: `depthSubmissionMode:0` 이고 RayNeo 컴포지터 .so 5개+classes.jar 에 spacewarp/motionvector/reproject/depth 토큰 0건. 따라서 ATW 는 회전만 리워프하고 translation(병진)은 8Hz 그대로 끊김. depth 제출 시도는 무효 + fps 손실 + 컴포지터 죽을 위험이라 **금지**. 0.5~1.2m 코앞 quad 는 parallax 최대라 judder 최대 가시.
 - **근거**: 컴포지터에 positional spacewarp 코드 경로가 없어 depth 를 줘도 재투영 불가.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:69-73,81`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:69-73,81`
 - **상태**: ✅ 확정
 
 ### ATWSupport=1 이 b15 에서 CDSP crash 를 '가끔'→'거의 매번'으로 증폭
 - **사실**: b14→b16 에서 바뀐 유일한 XR 런타임 변수 = b15 의 `ATWSupport 0→1`(OpenXR Package Settings.asset:670-671). ATW=1 은 컴포지터가 매 스캔아웃마다 SLAM pose 로 reproject → 같은 CDSP FastRPC 를 상시 실시간-마감으로 올림 → 예전엔 흡수되던 CDSP hiccup 이 dead-handle 로 직결. 또 ATW(회전전용)는 head-locked HUD 까지 워프(swimming). CPU 전환으로 CDSP 가 비면 ATW=1 유지해도 안전. (단일 boolean 토글이 crash 인과·HUD swimming·8Hz judder 보간을 동시 좌우.)
 - **근거**: ATW 의 상시 실시간 reproject 가 SLAM 과 공유하는 CDSP FastRPC 를 상시 마감압박 상태로 만들어 hiccup 이 치명화. `depthSubmissionMode:0` + spacewarp/positional 경로 없음 → translation 8Hz, 회전만 워프.
-- **출처**: `glasses-app/Assets/XR/Settings/OpenXR Package Settings.asset:670-671`; `docs/findings-2026-06-11-crash-slam-openxr.md:43-44,48`
+- **출처**: `glasses-app/Assets/XR/Settings/OpenXR Package Settings.asset:670-671`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:43-44,48`
 - **상태**: 🔬 추정 (b15 단일 변수 추적 기반)
 
 ### Unity 6 빌드는 검은화면 — RayNeo ARDK 가 GameActivity 의 setFrameLayout(UnityPlayer) 계약 의존
 - **사실**: Unity 6(6000.x)로 빌드하면 안경에서 Unity 로고도 안 뜨는 검은화면. RayNeo ARDK 1.1.2 가 Unity 6 비호환(GameActivity 기본이 `setFrameLayout(UnityPlayer)` 계약 제거) → 'Need to set FrameLayout in advance!' → shutdown 으로 SLAM/렌더 부팅 실패. Unity 6 로 열면 ProjectVersion.txt+일부 settings 도 6000 으로 오염(git checkout 복구). **반드시 2022.3.62f3.**
 - **근거**: Unity 6 가 GameActivity 로 전환하며 ARDK 가 의존하던 `UnityPlayer.setFrameLayout` 진입점을 제거.
-- **출처**: `docs/findings-2026-06-11-crash-slam-openxr.md:127-129`; `B25_DEMO_HANDOFF.md:63-64`; `B22_TEST_RESULTS.md:77`; `BUILD_OCR_SLAM_HANDOFF.md:26,170`; `docs/spatial-anchor-handoff.md:59-66`
+- **출처**: `docs/archive/findings-2026-06-11-crash-slam-openxr.md:127-129`; `docs/archive/B25_DEMO_HANDOFF.md:63-64`; `docs/archive/B22_TEST_RESULTS.md:77`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:26,170`; `docs/archive/spatial-anchor-handoff.md:59-66`
 - **상태**: ✅ 확정
 
 ### 런처 액티비티는 RayNeo UnityOpenXrActivity 여야 — super.onCreate 체인이 OpenXR init 🆕 (코드에서 구조)
@@ -490,13 +506,13 @@
 ### boot.config 에 xrsdk-pre-init-library + gfx-disable-mt-rendering=1 + libUnityOpenXR.so 강제 주입
 - **사실**: 빌드 hook `RayNeoBootConfigPatcher`(`IPostGenerateGradleAndroidProject`, callbackOrder=999)가 gradle 생성 후 boot.config 에 `xrsdk-pre-init-library=UnityOpenXR` + `gfx-disable-mt-rendering=1` 를 없으면 추가하고, PackageCache 의 `com.unity.xr.openxr@*/Runtime/android/arm64/libUnityOpenXR.so` 를 `jniLibs/arm64-v8a` 로 강제 복사. 우리 빌드는 loader gate 때문에 `xrsdk-pre-init-library` 를 안 내보내 splash 시점 OpenXR init 실패 → view/head 트래킹 미수립 → centerEye=0 → head-locked. vendor 작동 APK 와 일치시킴.
 - **근거**: OpenXR build hook 이 우리 로더를 비활성으로 오판해 native lib 와 pre-init 키 누락 → 부팅 시 OpenXR pre-init 안 됨. boot.config 의 pre-init 키가 이 .so 를 로드. single-thread 렌더(`gfx-disable-mt-rendering=1`)도 요구.
-- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:300-357`; `docs/spatial-anchor-handoff.md:82-85`
+- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:300-357`; `docs/archive/spatial-anchor-handoff.md:82-85`
 - **상태**: ✅ 확정
 
 ### Android XR 로더가 진짜 OpenXRLoader 여야 — dangling/wrong 로더면 pre-init lib 누락→6DoF 죽음
 - **사실**: `EnsureOpenXRLoader` 가 `activeLoaders` 에 `UnityEngine.XR.OpenXR.OpenXRLoader` 가 없으면 기존(잘못된/dangling NULL) 로더를 전부 제거 후 `OpenXRLoader` 재할당(커밋 167380d). 안 되면 OpenXR build hook 이 `libUnityOpenXR.so` + xrsdk-pre-init-library 를 자동 포함 안 해 6DoF 죽음. 로더 타입을 BEFORE/AFTER 로그로 찍어 dangling 진단.
 - **근거**: OpenXR build hook 이 등록된 로더 타입을 보고 pre-init native lib 포함 여부 결정. dangling/다른 타입이면 native lib 미포함.
-- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:153-199`; `docs/spatial-anchor-handoff.md:82-85`
+- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:153-199`; `docs/archive/spatial-anchor-handoff.md:82-85`
 - **상태**: ✅ 확정
 
 ### batchmode 는 RayNeoGeneralSettings 를 PreloadedAssets 에 수동 주입해야 SLAM pose 가 산다
@@ -508,7 +524,7 @@
 ### OpenXR stereo 에서 IMGUI OnGUI screen-overlay HUD 는 안경에 안 보임
 - **사실**: v1 HUD 를 OnGUI IMGUI screen-overlay(stereoHud 좌/우 분할)로 그렸으나 디바이스에서 invisible — Unity OpenXR stereo 모드의 알려진 IMGUI screen-overlay limitation. 우회 = world-space TextMesh(quad 위 0.6m, 매 frame billboard 회전)로 대체하면 stereo display 자동 호환.
 - **근거**: IMGUI screen-overlay 가 OpenXR single-pass stereo 컴포지션 경로에 합성되지 않음.
-- **출처**: `glasses-app/JOURNEY.md:63-67`
+- **출처**: `docs/archive/JOURNEY.md:63-67`
 - **상태**: ✅ 확정
 
 ### SBS stereo 에선 OnGUI 한 번 그리면 한쪽 눈만 — AdRenderer 가 눈별로 따로 그려야 함
@@ -532,7 +548,7 @@
 ### IL2CPP 빌드가 Shader.Find 대상 셰이더를 stripping → null → ArgumentNullException 🆕 (코드에서 구조)
 - **사실**: 빌드에서 `Unlit/Color`·`Unlit/Texture`·`GUI/Text` 셰이더가 stripped 됨 → 런타임 `Shader.Find` 가 null 반환 → material override 시 throw. `GraphicsSettings.AlwaysIncludedShaders` 에 `Sprites/Default`(빌트인 ID 10770)만 보장되므로 solid-color/halo 는 Sprites/Default 1순위(`material.color` tint, vertex-color 경로라 build-safe). 폴백 체인: solid → `Sprites/Default → Unlit/Color → Unlit/Texture → Standard`, 텍스처용 `Unlit/Texture → Sprites/Default → Standard`. TextMesh HUD 는 default material 유지(override 제거).
 - **근거**: IL2CPP/빌드 셰이더 stripping 이 씬에서 직접 참조 안 된 빌트인 셰이더를 제거.
-- **출처**: `AdCheckout.cs:368-381`; `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:268-271,289-298`; `glasses-app/JOURNEY.md:76-79`
+- **출처**: `AdCheckout.cs:368-381`; `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:268-271,289-298`; `docs/archive/JOURNEY.md:76-79`
 - **상태**: ⚠️ 주의
 
 ### EmptyScene 로 시작해 ARDK 'XR Plugin' prefab 을 Resources.Load 로 instantiate 🆕 (코드에서 구조)
@@ -555,12 +571,12 @@
 
 ---
 
-## 🔐 권한
+## 🔐 권한 🟡 (기본 = 코드검증 `AndroidManifest.xml`/`CameraPreview.cs`/`RecordingReceiver.java` file:line)
 
 ### Android 11+ vendor namespace .so 12개를 manifest 에 명시 안 하면 CLIP NPU init 실패→광고 안 뜸
 - **사실**: AndroidManifest 에 `<uses-native-library>` 12개(`libcdsprpc.so, libadsprpc.so, libhidlbase.so, libhardware.so, libutils.so, libcutils.so, libc++.so, libbase.so, libprocessgroup.so, libhwbinder.so, libbinder_ndk.so, libandroid_runtime_lazy.so`)를 모두 `required=false` 로 선언. 누락 시 `libQnnHtpV73Stub.so` 가 `libcdsprpc.so` dlopen 실패 → QnnClipEngine init 실패 → CLIP NPU 불가 → 광고 spawn 안 됨. 목록은 helloar reference APK 에서 추출. (이 명시가 manifest 에 libcdsprpc.so 를 박아 둔 것이 CDSP crash 추적 단서도 됨.)
 - **근거**: Android 11+ 정책: vendor namespace .so 는 앱이 명시적으로 선언해야 dlopen 가능. fastrpc/HTP 체인이 이 라이브러리들을 dlopen.
-- **출처**: `glasses-app/Assets/Plugins/Android/AndroidManifest.xml:21-35`; `docs/integration_log.md:117`; `docs/findings-2026-06-11-crash-slam-openxr.md:32`
+- **출처**: `glasses-app/Assets/Plugins/Android/AndroidManifest.xml:21-35`; `docs/archive/integration_log.md:117`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:32`
 - **상태**: ✅ 확정
 
 ### Unity RequestUserAuthorization 카메라 다이얼로그가 stereo 에서 invisible → 앱 hang → adb pm grant
@@ -572,7 +588,7 @@
 ### XR 앱은 착용(XR 세션 FOCUSED) 상태에서만 렌더 루프 — adb wake 만으론 측정 불가
 - **사실**: XR 앱은 착용(XR 세션 FOCUSED)일 때만 렌더 루프가 돈다. `adb shell input keyevent KEYCODE_WAKEUP` 만으로는 `mCurrentFocus=null` 이라 startup/freeze 측정 불가 → 반드시 착용 상태로 측정. 슬립이면 앱이 surface 못 얻어 멈춤 → 실행 전 `KEYCODE_WAKEUP` + `svc power stayon true`(USB 중 화면 유지) 필요.
 - **근거**: XR 컴포지터가 세션 FOCUSED(착용)일 때만 프레임을 펌프.
-- **출처**: `docs/spatial-anchor-handoff.md:187`; `docs/freeze-accuracy-diagnosis.md:94`; `BUILD_OCR_SLAM_HANDOFF.md:122-124`
+- **출처**: `docs/archive/spatial-anchor-handoff.md:187`; `docs/archive/freeze-accuracy-diagnosis.md:94`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:122-124`
 - **상태**: ⚠️ 주의
 
 ### Android 13+(SDK 33) dynamic receiver 는 RECEIVER_EXPORTED 명시 필수 — adb broadcast 는 외부 uid
@@ -584,7 +600,7 @@
 ### XR 세션 없는 scene 에서 getOrientation 호출 시 native SIGSEGV (C# try/catch 못 막음)
 - **사실**: `rotationOverride` 가 설정돼 있으면(>=0) `XRCameraHelper.getOrientation("0")` 호출 자체를 건너뛴다. XR/카메라 세션이 없는 scene(ColdStartProbeScene self-test, static OCR 이미지 등)에서 getOrientation 은 `libRayNeoXRApiLayerClient(XRWarp_getOrientation)` 에서 null deref → SIGSEGV 로 프로세스 사망, C# try/catch 로 못 막음. 권한·null 체크가 아니라 '특정 native 호출을 아예 우회'가 유일 방어.
 - **근거**: RayNeo XR API layer 의 getOrientation 이 활성 XR 세션 internal state 를 전제로 작성돼 세션 없으면 native 포인터 역참조. native crash 라 managed handler 통과 못 함.
-- **출처**: `glasses-app/Assets/Scripts/OCRExtractor.cs:225-239`; `docs/integration_log.md:116`; `BUILD_OCR_SLAM_HANDOFF.md:180`
+- **출처**: `glasses-app/Assets/Scripts/OCRExtractor.cs:225-239`; `docs/archive/integration_log.md:116`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:180`
 - **상태**: ⚠️ 주의
 
 ### adb 디버그 훅 eyad_debug.txt — 트리거/CLIP/색 우회하고 경쟁사 영상 직접 spawn 🆕 (코드에서 구조)
@@ -600,12 +616,12 @@
 
 ---
 
-## 📦 SDK · 런타임 버전
+## 📦 SDK · 런타임 버전 🟡 (기본 = 코드검증 SDK `*.cs` file:line; 버전 mismatch/ADB 운영은 archive 핸드오프 🟠)
 
 ### RayNeo SDK 1.1.6 ↔ 기기 Runtime 1.1.7.9 minor mismatch 가 6DoF 를 0Hz 로 죽일 수 있음
 - **사실**: RayNeoXR 로그: SDK 1.1.6.0 vs Runtime 1.1.7.9, 'minor version ... does not match' + 'TIMEOUT when wait for service connection callback'. handshake 실패 시 `GetHeadTrackerStatus` 영구 0, `xrCam.position` 영구 (0,0,0), -30001 frame pipeline fail → 광고가 head-locked HUD 처럼 보임. standalone 빌드도 동일 재현 → 우리 코드 무관, system service level. 정통 해법 = ARDK 1.1.7+ flash(portal 계정). 단 b22 실측은 FFVINS 가 동작해 비치명이었음(케이스 변동).
 - **근거**: 번들 ARDK 와 기기 펌웨어 런타임의 minor 버전 불일치로 service connection callback timeout.
-- **출처**: `docs/integration_log.md:150-178`; `docs/spatial-anchor-handoff.md:190`; `B25_DEMO_HANDOFF.md:84`; `docs/findings-2026-06-11-crash-slam-openxr.md:88`
+- **출처**: `docs/archive/integration_log.md:150-178`; `docs/archive/spatial-anchor-handoff.md:190`; `docs/archive/B25_DEMO_HANDOFF.md:84`; `docs/archive/findings-2026-06-11-crash-slam-openxr.md:88`
 - **상태**: ✅ 확정
 
 ### 네이티브 라이브러리 = libRayNeoXRUnityInterfaces.so, 알고리즘 = FFalconXR_algorithm
@@ -616,13 +632,13 @@
 ### 공유 ADB 서버 / adb 버전 충돌 함정 — kill-server 는 다른 세션 공유, v40/v41 공존 시 디바이스 끊김
 - **사실**: adb 는 안경팀 공유 환경이라 install/push/force-stop 등 writing 은 사전 허락, 무선 ADB 끊지 말 것. `adb kill-server && adb start-server` 는 공유 서버라 다른 세션에 영향. 머신에 다른 adb(v40/v41) 공존 시 버전 충돌로 디바이스가 끊겼다 재연결 → `adb devices` 로 시리얼 재확인. 실행 activity = `com.rayneo.openxradapter.UnityOpenXrActivity`.
 - **근거**: 단일 adb 데몬을 여러 사용자가 공유하고 클라이언트/서버 프로토콜 버전 불일치가 재핸드셰이크 유발.
-- **출처**: `docs/spatial-anchor-handoff.md:103,186`; `BUILD_OCR_SLAM_HANDOFF.md:174`; `B25_DEMO_HANDOFF.md:109`
+- **출처**: `docs/archive/spatial-anchor-handoff.md:103,186`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:174`; `docs/archive/B25_DEMO_HANDOFF.md:109`
 - **상태**: ⚠️ 주의
 
 ### StreamingAssets mp4 는 jar:file://...!/assets/ 라 VideoPlayer 직접 재생 불가 → persistentDataPath 복사 후 file://
 - **사실**: Android 에선 StreamingAssets mp4 가 APK 내부(`jar:file://...!/assets/...`)라 VideoPlayer 가 재생 못 함(과거 'spawn 직후 크래시'). `UnityWebRequest.Get(jar URL)` 로 바이트를 읽어 persistentDataPath 로 `WriteAllBytes` 후 `file://` URL 로 재생(SetupAdVideo, tflite 복사 패턴 미러). 복사 결과 캐시 재사용, per-quad VideoPlayer. `errorReceived`/try-catch 로 코덱 에러 시 정지 PNG 폴백(크래시 금지).
 - **근거**: VideoPlayer 가 압축 jar 안의 에셋을 직접 디코드 못 하고 file:// 실경로를 요구.
-- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:362-365, 406-463`; `B25_DEMO_HANDOFF.md:60-61`; `B22_TEST_RESULTS.md:69`
+- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:362-365, 406-463`; `docs/archive/B25_DEMO_HANDOFF.md:60-61`; `docs/archive/B22_TEST_RESULTS.md:69`
 - **상태**: ✅ 확정
 
 ### AdRenderer 영상 광고는 streamingAssetsPath 경로를 그대로 VideoPlayer.url 에 줌 🆕 (코드에서 구조)
@@ -668,9 +684,9 @@
 - **상태**: ✅ 확정
 
 ### AdCheckout 입력 = RayNeoRingController homeButton + head-forward dwell (컨트롤러 없이 동작) 🆕 (코드에서 구조)
-- **사실**: checkout select 두 경로: (1) discrete — InputAction 이 `<RayNeoRingController>/homeButton`(thumbstick/click), 폴백 `<XRController>/{PrimaryButton}`. (2) dwell — gaze pose 없으면 `camera.forward`(head-forward)를 reticle 로 써 대상과 각도 `dwellConeDeg(8도)` 이내 hover 가 `dwellSeconds(1.2초)` 지속되면 자동 select. ring mesh 대신 8조각 tick 을 progress 비율만큼 켜 fill 표현(셰이더 추가 회피).
-- **근거**: RayNeo gaze_ext pose 미연동 + 컨트롤러 부재 대비. head pose 는 항상 가용.
-- **출처**: `AdCheckout.cs:54-93,146-176,324-363`
+- **사실**: checkout select 두 경로: (1) discrete — InputAction 이 `<RayNeoRingController>/homeButton`(thumbstick/click), 폴백 `<XRController>/{PrimaryButton}`. (2) dwell — *eye* gaze pose 가 없으니(X3 아이트래킹 미지원) `camera.forward`(head-forward)를 reticle 로 써 대상과 각도 `dwellConeDeg(8도)` 이내 hover 가 `dwellSeconds(1.2초)` 지속되면 자동 select. ring mesh 대신 8조각 tick 을 progress 비율만큼 켜 fill 표현(셰이더 추가 회피). ⚠️ 이 head-forward dwell 은 **공식 'Gaze Interaction'(head-ray + dwell, 위 🧩 § 별도 엔트리)을 손으로 재구현한 것** — 공식 `GazeLaserBeam`/`XRGraphicRaycaster` 로 대체 가능(죽은 보석은 eye-pose 뿐이지 dwell 자체가 아님).
+- **근거**: eye `gaze_ext` pose 는 X3 미지원이라 head pose(상시 가용)로 dwell 을 직접 구현 + 컨트롤러 부재 대비.
+- **출처**: `AdCheckout.cs:54-93,146-176,324-363` 🟡; (개념 출처 = gitbook [Gaze Interaction](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/gaze-interaction) 🟢)
 - **상태**: ✅ 확정
 
 ### AdCheckout 은 외부앱/QR/실결제 모두 배제 — OpenXR 세션 이탈 시 black-screen 위험 🆕 (코드에서 구조)
@@ -698,7 +714,37 @@
 
 ---
 
-## 🏗️ 빌드
+## 🔌 ADB / 무선연결 / 화면 미러링
+
+> 신뢰도 표기: **verified(공식)** = RayNeo 공식 gitbook 에 명시 / **기기테스트필요** = 표준 Android 경로 추정이라 실기 확인 전. 공식 ADB 페이지 = gitbook [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring).
+
+### ⚠️ ADB 서버는 안경팀 공유 — kill-server / 무선 임의 끊기 금지, platform-tools 버전 고정
+- **사실**: ADB 데몬은 안경팀이 공유하는 서버다. `adb kill-server`(및 `adb start-server`)는 **금지** — 다른 세션의 연결을 모두 끊는다. 무선 ADB 연결을 임의로 끊지 말 것. 머신마다 다른 `platform-tools`(v40/v41 등)가 공존하면 클라/서버 프로토콜 mismatch 로 디바이스가 끊겼다 재연결되니 **platform-tools 버전 하나로 고정**한다. install/push/force-stop 등 writing 명령은 사전 합의 후.
+- **근거**: 단일 adb 데몬을 여러 사용자가 공유 + 클라/서버 버전 불일치가 재핸드셰이크 유발(위 "공유 ADB 서버" 엔트리와 동일 근거).
+- **출처**: 운영 합의 + `docs/archive/spatial-anchor-handoff.md:103,186`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:174` 🟠 (재구성)
+- **상태**: ⚠️ 주의 (운영 규칙)
+
+### X3 Pro 가 ADB 에 안 잡힐 때(최초 1회): 기기 ADB 스위치 ON + Windows11 은 zadig 로 드라이버 다운그레이드 — 기기테스트필요
+- **사실**: X3 Pro 가 Windows ADB 에 처음부터 안 잡히면 두 가지를 한다. (1) **기기 측 ADB 스위치 ON**: 설정 → 일반 → 기기정보에서 좌측으로 10회 스와이프 + App Lab 활성화. (2) **Windows 11 드라이버**: `zadig-2.9`(zadig.akeo.ie)로 ADB Interface 드라이버를 다운그레이드(10.x → 6.1.xxxx 대)해야 인식되는 사례.
+- **근거**: 리테일 글라스는 ADB 가 기본 off + Windows 11 의 최신 USB 드라이버가 RayNeo ADB interface 와 호환 안 되는 케이스가 보고됨.
+- **출처**: 기기테스트필요(공식 문서 미기재, 현장 절차) 🟠 (재구성)
+- **상태**: 🔬 추정 (기기테스트필요)
+
+### 무선 ADB(Wi-Fi) 연결 절차 — 공식 미기재(Android 12 표준 경로), 기기테스트필요
+- **사실**: 공식 gitbook 엔 무선 ADB 가 명시돼 있지 않다(= 기기테스트필요). Android 12 표준 경로로 시도: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② 글라스 IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555`. 안 되면 무선디버깅 타일의 `adb pair`(Android 12 pairing-code 경로). ⚠️ 위 공유 ADB 규칙대로 **무선 연결을 임의로 끊지 말 것**.
+- **근거**: RayNeo OS = Android 12(API 32)라 표준 Android 무선 디버깅 경로가 동작할 것으로 추정되나 공식 확인 전.
+- **출처**: Android 12 표준 절차(공식 RayNeo 문서 미기재) 🟠 (재구성)
+- **상태**: 🔬 추정 (기기테스트필요)
+
+### 화면 미러링: 공식 1순위 scrcpy — 단 캡처되는 건 디스플레이 프레임버퍼지 '현실+AR 합성영상'이 아님
+- **사실**: RayNeo 공식 1순위 미러 툴 = **scrcpy**: `scrcpy -s <SER> --display 0`. 검은 화면이면 렌더링을 **Multi-pass 로 전환**하거나 다른 `--display-id` 를 시도. RayNeo 자체 미러 툴 = **anlink**(Windows). ⚠️ **중요한 본질**: 글라스는 스테레오 시스루(see-through)라 scrcpy 가 잡는 건 **디스플레이 프레임버퍼**(단안 또는 SBS 로 합성된 광고 오버레이)일 뿐, **'현실 + AR'이 합성된 사용자 시점 영상이 아니다**(현실은 웨이브가이드 너머 광학으로만 들어오므로 프레임버퍼에 없음). 사용자가 실제로 보는 합성 영상이 필요하면 **온디바이스 RayNeo `RecordManager`**(아래 📦 § "RayNeo 네이티브 RecordManager" 엔트리 — Unity 렌더 surface 캡처라 광고 오버레이 포함)를 써야 한다.
+- **근거**: see-through 광학 디스플레이는 현실 빛이 프레임버퍼를 거치지 않고 combiner 로만 합성되므로, 화면 캡처는 emissive 오버레이 레이어만 담는다(위 🖥️ "Additive MicroLED" 엔트리와 동일 물리).
+- **출처**: gitbook [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring) 🟢 (scrcpy 1순위·anlink); 합성영상 본질은 see-through 광학 사실에서 도출 🟡
+- **상태**: ✅ 확정 (scrcpy 공식) / ⚠️ 주의 (캡처 본질)
+
+---
+
+## 🏗️ 빌드 🟡 (기본 = 코드검증 `BuildSpatialAnchorTest.cs`/`*.ps1`/`ProjectSettings.asset` file:line; 일부 절차는 archive 핸드오프 🟠)
 
 ### 빌드는 Windows + Unity 2022.3.62f3 only — 옛 Mac/build_hello_ar.sh/EagleEye_Unity 경로 폐기
 - **사실**: 현 글라스 빌드는 Windows + Unity 2022.3.62f3 only, `glasses-app/` PowerShell 스크립트(`setup_2022.ps1`/`build_2022.ps1`) 경유. 모델/DB/광고는 `Assets/StreamingAssets` 에 이미 번들 → 복사 단계 없음. 옛 Mac `build_hello_ar.sh` + `unity_assets_prep/` → `EagleEye_Unity/` 계보는 2026-06-13 폐기.
@@ -714,13 +760,13 @@
 ### Unity 빌드 wrapper 의 exit 1 은 false signal — Unity.exe zombie 가 다음 빌드 lock 충돌 🆕 (코드에서 구조)
 - **사실**: PowerShell build wrapper 가 exit 1 을 report 해도 Unity.exe 는 살아 log 가 계속 grow. `wc -l logfile` 만으로 판단 불가, process state 동시 확인 필요. zombie(netcorerun.exe/Unity.exe/UnityCrashHandler64.exe)가 다음 빌드 lock 충돌 유발. robust path = `tasklist` 로 zombie 확인 → 모두 종료 → `Library/Bee` fresh delete → 재빌드.
 - **근거**: batchmode wrapper 가 Unity 자식 프로세스 생존과 분리되어 종료코드가 실제 상태와 불일치.
-- **출처**: `glasses-app/JOURNEY.md:81-86`
+- **출처**: `docs/archive/JOURNEY.md:81-86`
 - **상태**: ⚠️ 주의
 
 ### Bee 빌드 캐시 stale 이면 코드 변경 미반영 APK — versionName 으로 검증
 - **사실**: Bee 빌드 캐시가 stale 하면 APK 가 코드 변경을 반영 못 한 채 빌드. `aapt dump badging APK | grep versionName` 과 `dumpsys package | grep versionName` 이 둘 다 `BUILD_TAG` 와 일치해야 함, 불일치면 `Library/Bee` 정리 후 재빌드. `BUILD_TAG`+`OUTPUT_APK` 2곳 동기 수정 안 하면 파일명과 versionName 어긋남. `bundleVersionCode` 는 매 빌드 +1 자동, `bundleVersion`=`BUILD_TAG`(예: `b26-dedup-checkout`)로 dumpsys 검증. colorSpace=Linear.
 - **근거**: Bee incremental 캐시가 변경 감지 실패 시 옛 산출물 재사용.
-- **출처**: `docs/spatial-anchor-handoff.md:105-117,130-139`; `BuildSpatialAnchorTest.cs:26-29,266-270`
+- **출처**: `docs/archive/spatial-anchor-handoff.md:105-117,130-139`; `BuildSpatialAnchorTest.cs:26-29,266-270`
 - **상태**: ⚠️ 주의
 
 ### Inspector 직렬화 값이 코드 field default 를 override → Awake 에서 매번 강제 재할당 🆕 (코드에서 구조)
@@ -750,13 +796,13 @@
 ### batchmode 는 GUI Preferences 미접근 → JDK/SDK/NDK/Gradle 경로를 코드로 강제 set
 - **사실**: `ConfigureExternalTools` 가 JDK/SDK/NDK/Gradle 경로를 실행 에디터 기준으로 강제 set(batchmode 는 GUI Preferences 못 봄). 단 `AndroidExternalToolsSettings` 의 sdk/ndk/gradle setter 는 Unity 의 `OnUsbDevicesChanged` callback chain 을 트리거해 silent exit(`AndroidSDKTools.ctor:62` fail, Cycle 4 실패 원인) 유발 가능 — 그래서 'JDK 만 set' 의도였으나 실제 코드는 sdkRootPath/ndkRootPath 도 set 함.
 - **근거**: setter 들이 디바이스 재스캔 콜백을 동기 트리거하고 그 안에서 예외가 나면 batchmode 가 조용히 종료. batchmode 가 Preferences 미접근.
-- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:201-205`; `docs/spatial-anchor-handoff.md:119-127`
+- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:201-205`; `docs/archive/spatial-anchor-handoff.md:119-127`
 - **상태**: ⚠️ 주의
 
 ### SDK/NDK/Gradle 을 실행 에디터 번들로 강제 안 하면 다른 에디터 도구 가리켜 빌드 실패; cmake 게이트 제거
 - **사실**: inherited EditorPrefs 가 다른 에디터(2022.3.62f3)의 SDK 를 가리키면 'Missing CMake 3.22.1' 로 실패, custom Gradle 이 2022.3 의 Gradle 7.5.1 을 가리키면 'Minimum supported Gradle version is 8.11.1' 로 실패. 그래서 sdkRootPath/ndkRootPath 를 `PlaybackEngines/AndroidPlayer/{SDK,NDK}` 로 강제 + EditorPrefs `GradleUseEmbedded=true`(6000 번들 Gradle 8.13 / 2022 번들). 단 이 프로젝트는 CMakeLists/C++ 소스 없이 모든 native 가 prebuilt .so 라 번들 SDK 에 cmake 3.22.1 없어도 무관 — 과거 cmake 존재로 SDK set 을 게이트하던 게 오히려 'Android SDK not found' 를 유발해 제거(무조건 set).
 - **근거**: 여러 Unity 에디터가 EditorPrefs 를 공유해 도구 경로가 교차 오염. native 가 전부 prebuilt 라 cmake 불필요.
-- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:225-257`; `docs/spatial-anchor-handoff.md:119-127`
+- **출처**: `glasses-app/Assets/Editor/BuildSpatialAnchorTest.cs:225-257`; `docs/archive/spatial-anchor-handoff.md:119-127`
 - **상태**: ✅ 확정
 
 ### 이 머신엔 OpenJDK 모듈 미설치 → 시스템 Adoptium JDK 17 폴백
@@ -800,7 +846,7 @@
 - **상태**: ✅ 확정
 
 ### Android 만 m_AutomaticLoading=1, Standalone 은 0 (에디터 Play 로는 SLAM/카메라 안 도는 게 정상) 🆕 (코드에서 구조)
-- **사실**: `XRGeneralSettingsPerBuildTarget.asset`: Android Providers 는 `m_AutomaticLoading:1`/`m_AutomaticRunning:1` + Open XR Loader 1개. Standalone 은 둘 다 0 + `m_Loaders` 빈 리스트 → Standalone(에디터/PC)에는 OpenXR 로더가 없어 RayNeo XR 은 Android 빌드에서만 부팅. (docs/integration_log:52 는 `m_AutomaticLoading:0`(수동 init)이라 적었으나 현재 Android asset 은 1 — docs/asset 불일치.)
+- **사실**: `XRGeneralSettingsPerBuildTarget.asset`: Android Providers 는 `m_AutomaticLoading:1`/`m_AutomaticRunning:1` + Open XR Loader 1개. Standalone 은 둘 다 0 + `m_Loaders` 빈 리스트 → Standalone(에디터/PC)에는 OpenXR 로더가 없어 RayNeo XR 은 Android 빌드에서만 부팅. (docs/archive/integration_log.md:52 는 `m_AutomaticLoading:0`(수동 init)이라 적었으나 현재 Android asset 은 1 — docs/asset 불일치.)
 - **근거**: Standalone 에 OpenXR 로더 자체가 없어 에디터 Play 로는 SLAM 미동작.
 - **출처**: `glasses-app/Assets/XR/XRGeneralSettingsPerBuildTarget.asset:16,33`
 - **상태**: ⚠️ 주의
@@ -808,11 +854,11 @@
 ### m_AutomaticLoading:1 이 RayNeo 빌드를 단계마다 비결정적으로 crash 시킴 🆕 (코드에서 구조)
 - **사실**: `XRGeneralSettingsPerBuildTarget` 의 Android Providers 를 `m_AutomaticLoading:0→1` 로 바꾸면 IL2CPP/Initial Refresh/ScriptCompilation 등 빌드 단계마다 일관되게 crash. 0 으로 두고 코드에서 `XRGeneralSettings.Instance.Manager.InitializeLoaderSync()` 를 명시 호출해야 함(idempotent — 'XR Management has already initialized an active loader' 경고만, 무해). UnityOpenXrActivity 의 native init 과 auto-loader 충돌 추정. **(시대 정정: 이건 JOURNEY 당시 결론이다. 현재 asset 은 Android=1 로 ship 되고 manual `InitializeLoaderSync` 호출도 제거된 채 안정 동작 — 위 "Android 만 m_AutomaticLoading=1" + SLAM 섹션 "SlamDemoCtrl 최소 시퀀스" 엔트리가 현행. 즉 =1 이 빌드를 깨던 건 옛 빌드 구성에서였고 현재는 =1 + manual init 제거로 안정. handoff 시 이 두 엔트리를 시간순으로 읽을 것.)**
 - **근거**: RayNeo UnityOpenXrActivity 가 native 로더를 직접 부팅해 Unity auto-loader 와 이중 init 충돌.
-- **출처**: `glasses-app/JOURNEY.md:40-46`
+- **출처**: `docs/archive/JOURNEY.md:40-46`
 - **상태**: ⚠️ 주의
 
 ### OpenSLAMOnStart 실제 asset 값=0 인데 docs 는 1 이라고 적혀있음 (불일치) 🆕 (코드에서 구조)
-- **사실**: asset 의 `OpenSLAMOnStart=0`(asset:669). 그러나 integration_log.md:53/:135/:169 는 '0 → 1' 로 바꿨다고 기록. SLAM 을 `SpatialAnchorTest.Start` 의 수동 init 으로 켜는 현재 구조와 일관되게 asset 값은 0 으로 되돌아가 있으나 docs 산문은 1 로 단정 — 현행 asset 과 docs 가 어긋남.
+- **사실**: asset 의 `OpenSLAMOnStart=0`(asset:669). 그러나 docs/archive/integration_log.md:53/:135/:169 는 '0 → 1' 로 바꿨다고 기록. SLAM 을 `SpatialAnchorTest.Start` 의 수동 init 으로 켜는 현재 구조와 일관되게 asset 값은 0 으로 되돌아가 있으나 docs 산문은 1 로 단정 — 현행 asset 과 docs 가 어긋남.
 - **근거**: 수동 native polling + manual init 경로로 가면서 OpenSLAMOnStart 자동 시작을 도로 끈 것으로 보임.
 - **출처**: `glasses-app/Assets/XR/Settings/OpenXR Package Settings.asset:669`
 - **상태**: ⚠️ 주의
@@ -831,7 +877,7 @@
 
 ---
 
-## 🎯 매칭 · 튜닝
+## 🎯 매칭 · 튜닝 🟡 (기본 = 코드검증 `HelloAR.cs`/`ClipExtractor.cs`/`ProductMatcher.cs`/`QnnYoloDetector.cs` file:line; 정확도 진단은 vision/archive 🟠)
 
 ### CLIP zero-shot 은 fine-grained brand 분별 불가 — 환경 신호가 brand 신호를 압도
 - **사실**: MobileCLIP-S2 INT8 zero-shot 은 시각적으로 유사한 brand(코크 vs 펩시 PET 병)를 본질적으로 분리 못 함. 배경/책상색/조명이 임베딩에서 brand 신호를 압도. 증거: 15-trigger pepsi 데모에서 ZERO 가 pepsi 매칭(coke 7, laptop 8) — 사용자의 빨간 책상 환경이 jetson_coke ref 분포와 매칭돼 코크가 항상 이김. coke↔pepsi self cosine sim=0.799, 최소 마진 +0.011. top-k/threshold/ref-diversification 어떤 조합으로도 해결 안 됨 → argmax(best-match)만 의미 있음.
@@ -842,13 +888,13 @@
 ### 온디바이스 CLIP sim 이 Mac 오프라인 대비 ~0.3 낮음 — 오프라인 숫자로 실기기 예측 불가
 - **사실**: 같은 프레임에서 Mac 오프라인 cola sim 0.85 vs 안경 0.55 로 ~0.3 격차(frame_0011). 원인 미규명 — `ClipExtractor.PreprocessTexture` 의 RenderTexture Blit/ReadPixels vs PIL 전처리 불일치(Y-flip 가능성)와 w8a8 양자화 노이즈 추정. 노이즈(~0.3) ≫ 매칭 마진(~0.07) 이라 마진 잠식 → threshold 0.55→0.45 + 중앙 crop 으로 우회 중. 오프라인 8/8=100% 가 실기기를 전혀 예측 못 하는 sim-to-real 격차.
 - **근거**: GPU readback 픽셀 처리(Y축 방향/리사이즈 필터)와 양자화 round-off 가 Mac PIL float 경로와 달라 임베딩이 미세하게 어긋남.
-- **출처**: `glasses-app/Assets/Scripts/ClipExtractor.cs:245-258`; `docs/vision.md:17,33,37`; `docs/progress-log.md:656,672`; `docs/freeze-accuracy-diagnosis.md:54`
+- **출처**: `glasses-app/Assets/Scripts/ClipExtractor.cs:245-258`; `docs/vision.md:17,33,37`; `docs/progress-log.md:656,672`; `docs/archive/freeze-accuracy-diagnosis.md:54`
 - **상태**: ✅ 확정
 
 ### 색(평균 RGB) 마진 ~1.0 ≫ CLIP brand 마진 0.07 → brand 는 색으로 가름
 - **사실**: MobileCLIP-S2 코크↔펩시 코사인 0.805, 분리 마진 0.067~0.079 ≪ 양자화 노이즈 ~0.3 → 항상 코크 오판. 반면 색 히스토그램은 코크 빨강 96.7%/펩시 파랑 97.7%, 분리 마진 ~1.0. category(콜라병?)도 cola↔laptop centroid 0.887 로 약해 threshold 0.45 는 온디바이스 격차를 가리는 임시 보정값.
 - **근거**: w8a8 양자화+전처리 불일치가 임베딩에 ~0.3 노이즈를 주는데 코크/펩시 분리는 0.07 뿐이라 압도됨. 색은 환경-독립 + 마진 큼.
-- **출처**: `docs/freeze-accuracy-diagnosis.md:46-62,67-73`; `B25_DEMO_HANDOFF.md:56`
+- **출처**: `docs/archive/freeze-accuracy-diagnosis.md:46-62,67-73`; `docs/archive/B25_DEMO_HANDOFF.md:56`
 - **상태**: ✅ 확정
 
 ### 색 판별을 dominant 픽셀 count → 중앙 박스 평균색 lean 으로 전환 (펩시 빨간 뚜껑 오판 때문)
@@ -956,7 +1002,7 @@
 ### RayNeo 정지 시 gyro 가 정확히 (0,0,0) stuck → oneShot 모드 영구 잠김 → cooldown 모드로 우회
 - **사실**: RayNeo 정지 시 `Input.gyro` 가 정확히 (0,0,0)으로 stuck → `GyroTrigger oneShotPerStableWindow=true` 모드에서 `firedInThisStableWindow` 가 영구 true → 첫 trigger 후 재발화 안 됨. v0.8.1 에서 oneShot false + `triggerCooldown=5.0s` 강제(cooldown 모드)로 우회. 트리거 셋팅: threshold 0.5 rad/s, duration 1s, cooldown 5s.
 - **근거**: stable window 가 gyro 변화로 리셋돼야 재발화하는데 값이 0 고정이면 window 가 영원히 안 깨짐.
-- **출처**: `glasses-app/Assets/Scripts/GyroTrigger.cs:84-101,112-121`; `HelloAR.cs:116-124`; `docs/integration_log.md:114`; `docs/spatial-anchor-handoff.md:35`
+- **출처**: `glasses-app/Assets/Scripts/GyroTrigger.cs:84-101,112-121`; `HelloAR.cs:116-124`; `docs/archive/integration_log.md:114`; `docs/archive/spatial-anchor-handoff.md:35`
 - **상태**: ✅ 확정
 
 ### RayNeo X3 Pro 자이로 하드웨어: lsm6dsr 6축 IMU, type=4, rad/s, 최대 415.97Hz·기본 50Hz 🆕 (코드에서 구조)
@@ -966,18 +1012,24 @@
 
 ---
 
-## 🧩 기타
+## 🧩 기타 🟡 (기본 = 코드검증 SDK `*.cs`/`*.asset` file:line; 하드웨어 capability 는 공식 스펙·리뷰 🟠, Gaze 정정은 gitbook 🟢)
 
-### X3 Pro 하드웨어 capability: 아이트래킹·핸드트래킹 **없음** → gaze_ext·HandInteraction 바인딩은 죽은 보석
-- **사실**: RayNeo 공식 스펙·리뷰 확인 — X3 Pro 센서 = 12MP main 카메라 + 전용 depth 카메라 + IMU(lsm6dsr) + GPS, 디스플레이 Micro-OLED FOV ~30°. **아이트래킹·핸드트래킹은 하드웨어 미지원**. 따라서 SDK 의 `gaze_ext` 시선 pose(`/user/eyes_ext`, `RayNeoEyeController`)와 OpenXR EyeGaze/HandInteraction feature(asset 에서 이미 `m_enabled:0`)는 **바인딩만 있고 하드웨어가 안 받치는 죽은 보석** — `RayNeoApi_GetHeadTrackerPose` 와 동급. 제스처는 hand-tracking 이 아니라 Ring/터치 입력.
-- **근거**: 같은 OpenXR SDK 가 RayNeo 전 기기 공용이라 상위 기기용 바인딩(eye/hand)이 노출되지만 X3 Pro 하드웨어엔 센서가 없음. (단 GPS·depth 카메라는 실재 → 폰 GPS IPC, 평면검출은 하드웨어 근거 있음.)
-- **출처**: RayNeo 공식 스펙(<https://www.rayneo.com/products/x3-pro-ai-display-glasses>) + 리뷰(skarredghost / tomsguide 2025); 코드측 `OpenXR Package Settings.asset` EyeGaze/HandInteraction `m_enabled:0`
-- **상태**: ✅ 확정 (하드웨어 미지원)
+### X3 Pro 하드웨어 capability: 아이트래킹·핸드트래킹 **없음** → eye-pose(gaze_ext)·HandInteraction 바인딩만 죽은 보석 (공식 Gaze Interaction 은 별개·동작) 🟠 (스펙/리뷰 재구성, 코드측 🟡)
+- **사실**: RayNeo 공식 스펙·리뷰 확인 — X3 Pro 센서 = 12MP main 카메라 + 전용 depth 카메라 + IMU(lsm6dsr) + GPS, 디스플레이 Micro-OLED FOV ~30°. **아이트래킹(eye-tracking)·핸드트래킹은 하드웨어 미지원**. 따라서 죽은 보석은 **eye-pose 바인딩만**: SDK 의 `gaze_ext` *eye* pose(`/user/eyes_ext`, `RayNeoEyeController`)와 OpenXR **EyeGaze**/**HandInteraction** feature(asset 에서 이미 `m_enabled:0`) — 바인딩만 있고 하드웨어가 안 받쳐 `RayNeoApi_GetHeadTrackerPose` 와 동급. ⚠️ **공식 'Gaze Interaction'(아래 별도 엔트리)은 이것과 다르다** — head-ray 포인터 + dwell 이라 아이트래킹 무관, X3 에서 동작한다(혼동 금지). 제스처도 hand-tracking 이 아니라 Ring/터치 입력.
+- **근거**: 같은 OpenXR SDK 가 RayNeo 전 기기 공용이라 상위 기기용 *eye* 바인딩(eye/hand)이 노출되지만 X3 Pro 하드웨어엔 그 센서가 없음. (단 GPS·depth 카메라는 실재 → 폰 GPS IPC, 평면검출은 하드웨어 근거 있음.)
+- **출처**: RayNeo 공식 스펙(<https://www.rayneo.com/products/x3-pro-ai-display-glasses>) + 리뷰(skarredghost / tomsguide 2025); 코드측 `OpenXR Package Settings.asset` EyeGaze/HandInteraction `m_enabled:0` 🟡
+- **상태**: ✅ 확정 (eye-tracking 하드웨어 미지원)
+
+### 공식 'Gaze Interaction' = head-ray dwell 포인터 (아이트래킹 아님 · X3 동작) — AdCheckout dwell 이 사실상 이것의 재구현 🟢 (gitbook 공식 출처) / 🟡 (코드 대조)
+- **사실**: RayNeo 공식 [Gaze Interaction](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/gaze-interaction) 은 **eye-tracking 이 아니다**. = head pose 가 쏘는 ray(head-ray) 포인터 + 대상 위에 **수초 dwell(응시)** 또는 **temple(안경다리) click** 으로 선택하는 패턴이고, **하드웨어 무관 → X3 Pro 에서 정상 동작**한다. SDK 는 이를 `GazeLaserBeam` + `XRGraphicRaycaster` 컴포넌트로 제공한다. → 우리 `AdCheckout` 의 수작업 head-forward dwell(아래 'AdCheckout 입력' 엔트리: gaze pose 없으면 `camera.forward` 를 reticle 로, `dwellConeDeg`/`dwellSeconds` hover 누적)은 **사실상 이 `GazeLaserBeam` 을 손으로 재구현한 것**이다. 즉 dwell 선택은 죽은 보석이 아니라 공식 지원 경로이며, v2 에서 직접 `GazeLaserBeam`/`XRGraphicRaycaster` 를 채택하면 수작업 dwell 을 대체할 수 있다.
+- **근거**: 공식 Gaze 는 *eye* gaze 가 아니라 head-ray + dwell/temple-click 입력 모델이라 아이트래킹 센서가 없어도 head pose(상시 가용)만으로 성립. 우리 AdCheckout 이 같은 입력 모델을 직접 구현했을 뿐.
+- **출처**: gitbook [Gaze Interaction](https://rayneo-en.gitbook.io/rayneo-devdoc/x-series/unity-sdk/ar-capabilities-and-api/gaze-interaction) 🟢; 코드측 `AdCheckout.cs:54-93,146-176,324-363` 🟡
+- **상태**: ✅ 확정 (head-ray dwell 은 X3 동작)
 
 ### new InputSystem-only 환경에서 legacy StandaloneInputModule 을 Awake 에서 비활성화 안 하면 매 프레임 throw → 렌더 정지
 - **사실**: ARDK 'XR Plugin' prefab 의 EventSystem 이 legacy `StandaloneInputModule` 을 쓰는데 PlayerSettings `activeInputHandler=1`(New Input System only)이면 `UpdateModule()` 이 매 frame `InvalidOperationException` → render pipeline 진행 안 됨(splash 만 보임). `activeInputHandler=2`(Both)는 Unity 가 'Android 에서 unsupported' 경고. 우회 = Awake 에서 `FindObjectsOfType<StandaloneInputModule>()` 모두 `.enabled=false`.
 - **근거**: `StandaloneInputModule` 이 legacy `UnityEngine.Input` 을 읽는데 Input System 패키지로 스위치돼 매 Update 예외.
-- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:120-125`; `glasses-app/JOURNEY.md:48-60`
+- **출처**: `glasses-app/Assets/Scripts/SpatialAnchorTest.cs:120-125`; `docs/archive/JOURNEY.md:48-60`
 - **상태**: ⚠️ 주의
 
 ### AIP(AmbientInterestProfile) 스키마: COCO class_id + Unix ms timestamp, N event 마다 disk write, oldest-drop ring buffer

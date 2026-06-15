@@ -1,3 +1,5 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (브랜치/빌드 태그·`feature/b24-integrated`·`b25-color-video` 등 stale 현황 포함)
+
 # 🦅 Eagle Eye conquest AR — 이어받기 설명서
 
 **레포**: https://github.com/hoseung1102/snucapstone-ar-project
@@ -14,9 +16,10 @@
 ```
 이 레포(snucapstone-ar-project)의 Eagle Eye conquest AR 데모를 이어받아 개발할 거야.
 이 순서로 읽고 현황 파악해줘:
-1) glasses-app/B25_DEMO_HANDOFF.md  ← 구조·결정·근거·알려진 이슈·빌드 런북 (제일 먼저)
-2) docs/findings-2026-06-11-crash-slam-openxr.md  ← 크래시/SLAM 8Hz/OpenXR 근본 진단
-3) AGENTS.md(루트, 자동 로드) + glasses-app/B22_TEST_RESULTS.md(OCR 실패 측정)
+1) B25_DEMO_HANDOFF.md  ← 구조·결정·근거·알려진 이슈·빌드 런북 (제일 먼저)
+2) findings-2026-06-11-crash-slam-openxr.md  ← 크래시/SLAM 8Hz/OpenXR 근본 진단
+3) AGENTS.md(루트, 자동 로드) + B22_TEST_RESULTS.md(OCR 실패 측정)
+(위 핸드오프들은 이 ONBOARDING.md 와 같은 docs/archive/ 폴더에 있다.)
 파악 끝나면 알려진 이슈 §4-1(한 물체에 광고 여러 번 뜨는 중복 spawn)부터 고치자.
 그리고 기기에 앱을 launch 할 때마다 /eagle-monitor 스킬로 모니터 대시보드도 항상 같이 띄워줘
 (펀널 TRIGGER→COLA→MATCH→COKE/PEPSI + CLIP/SLAM/영상 실시간 관찰용). Mac 이면 별도 터미널에서
@@ -55,6 +58,6 @@ adb -s $SER shell am start -n $PKG/com.rayneo.openxradapter.UnityOpenXrActivity
 - **공유 ADB** — install/reboot는 팀과 조율, 무선 ADB 끊지 말 것
 
 ## 지금 가장 중요한 다음 작업
-**한 물체에 광고가 여러 번 뜨는 중복 spawn** (반복 트리거 → 재spawn). 수정방향: `maxAds=1` / brand dedup / 게이트 연장 중 택1. → `glasses-app/B25_DEMO_HANDOFF.md` §4-1, §6.
+**한 물체에 광고가 여러 번 뜨는 중복 spawn** (반복 트리거 → 재spawn). 수정방향: `maxAds=1` / brand dedup / 게이트 연장 중 택1. → `B25_DEMO_HANDOFF.md` §4-1, §6.
 
-> 전체 맥락·결정 근거·파일 맵: **`glasses-app/B25_DEMO_HANDOFF.md`** (레포 안에 있음)
+> 전체 맥락·결정 근거·파일 맵: **`B25_DEMO_HANDOFF.md`** (같은 docs/archive/ 폴더)

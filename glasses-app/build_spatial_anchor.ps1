@@ -1,3 +1,17 @@
+# ============================================================
+# [DEPRECATED] 이 스크립트는 폐기되었습니다 — 실행하지 마세요.
+# ------------------------------------------------------------
+# 이 스크립트는 Unity 6000.0.76f1 + 옛 staging 경로(C:\claude\staging\spatial_anchor_unity)
+# 를 가정합니다. 그러나 RayNeo ARDK 는 Unity 6 와 비호환이며, Unity 6 로 프로젝트를 열면
+# ProjectVersion.txt/settings 가 비가역적으로 오염되고 안경에서 검은화면이 됩니다.
+#
+#   → 대신 build_2022.ps1 (Unity 2022.3.62f3 + 자기탐색 $PSScriptRoot) 을 쓰세요.
+#
+# 아래 내용은 history 보존용으로만 남겨둡니다. 가드가 즉시 exit 1 합니다.
+# ============================================================
+Write-Host "[DEPRECATED] build_2022.ps1/setup_2022.ps1 을 쓰세요"
+exit 1
+
 # SpatialAnchorTest — 2단계: batch-mode APK 빌드
 # 전제: setup_spatial_anchor.ps1 실행 완료 + Unity Editor 에서 XR Plug-in Management 셋업 완료
 

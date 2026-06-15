@@ -37,7 +37,7 @@ age: ...s   dist: ...m
 drift: ...m   fwd∠: ...°
 ```
 
-## 성공한 핵심 fix (history 는 `JOURNEY.md`)
+## 성공한 핵심 fix (history 는 [`../docs/archive/JOURNEY.md`](../docs/archive/JOURNEY.md) — MOVED)
 
 | # | 항목 | 변경 |
 |---|---|---|
@@ -110,8 +110,9 @@ glasses-app/
 ├─ release/EagleEye-SpatialAnchor-v2.apk   첫 성공 빌드 결과물 (16.4 MB)
 ├─ build_2022.ps1                         Unity batch build script
 ├─ setup_2022.ps1                         초기 프로젝트 setup
-├─ README.md                              이 문서
-└─ JOURNEY.md                             v1 → v2 의 실패/성공 cycle history + audit
+└─ README.md                              이 문서
+
+v1 → v2 의 실패/성공 cycle history + audit 는 → [`../docs/archive/JOURNEY.md`](../docs/archive/JOURNEY.md) (MOVED, 더 이상 이 폴더에 없음).
 ```
 
 `Packages/com.unity.xr.rayneo.openxr/` 는 RayNeo SDK 라 별도 install 필요.

@@ -1,3 +1,5 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (브랜치 `feature/slam-clip-worldanchor`·b9/b10 계획 등 2026-06-11 시점 stale 현황)
+
 # Eagle Eye — Freeze & Accuracy 근본원인 진단 + b9/b10 계획
 
 > 작성: 2026-06-11. 대상: 카메라/파이프라인 담당 개발자 + 그쪽 Claude.

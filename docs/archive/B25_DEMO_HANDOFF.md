@@ -1,6 +1,8 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (빌드 `b25-color-video`·브랜치 `feature/b24-integrated` 등 2026-06-11 시점 stale 현황)
+
 # b25 데모 핸드오프 — 구조 · 결정 · 근거 · 이어받기
 
-> ↩ 실험 history 인덱스: [../docs/EXPERIMENTS.md](../docs/EXPERIMENTS.md) — 이 문서는 빌드 **b25** 의 핸드오프 상세.
+> ↩ 실험 history 인덱스: [../EXPERIMENTS.md](../EXPERIMENTS.md) — 이 문서는 빌드 **b25** 의 핸드오프 상세.
 
 > 작성: 2026-06-11. 대상: 이 conquest AR 데모를 **이어서 개발할 다른 개발자**.
 > 빌드: `b25-color-video` (branch `feature/b24-integrated`, commit `d36e813`). RayNeo X3 Pro / Unity 2022.3.62f3.
@@ -25,7 +27,7 @@ GyroTrigger(머리 1초 정지)  →  카메라 프레임(ShareCamera RGB)
 ## 1. 브랜치 계보 (왜 이 브랜치인가)
 
 - `feature/npu-ocr-slam-b22` (팀원): SLAM 파이프라인 + NPU EasyOCR(unrolled recognizer). **OCR 브랜드 판별이 온디바이스에서 실패**(아래 §3.1).
-- `feature/slam-clip-worldanchor` (우리): b15(ATW/저해상도/head-locked HUD) + b16(CLIP-ready 플래그·5카운터·`[MONITOR]`·eagle-monitor) + b17(crash/SLAM/OpenXR 진단 `docs/findings-2026-06-11-crash-slam-openxr.md`).
+- `feature/slam-clip-worldanchor` (우리): b15(ATW/저해상도/head-locked HUD) + b16(CLIP-ready 플래그·5카운터·`[MONITOR]`·eagle-monitor) + b17(crash/SLAM/OpenXR 진단 `findings-2026-06-11-crash-slam-openxr.md`).
 - **`feature/b24-integrated`** = 위 둘 머지(commit 809a3ff). 그 위에 **b25**(d36e813) = OCR 제거 + 색상 브랜드 + 영상 + adb 디버그 훅.
 - 패키지 `com.eagleeye.helloar` (팀원 b22 와 동일 — 옆 세션과 충돌 회피).
 
@@ -53,7 +55,7 @@ GyroTrigger(머리 1초 정지)  →  카메라 프레임(ShareCamera RGB)
 
 ### 3.1 OCR 제거 → 색상 브랜드 판별 ★
 - **근거(온디바이스 측정, b22 트리거 #33~87)**: NPU EasyOCR recognizer 가 로드·실행은 되지만 **출력이 빈값 또는 쓰레기**("COCA-COLA"/"PEPSI" 인식 0회). 콜라/펩시 로고는 흘림체라 인쇄체 학습 OCR 가 못 읽음. → brand 확정 실패 → 광고 0.
-- **대안**: 중앙 crop 평균색. 코크 빨강 / 펩시 파랑 분리 마진 ~1.0 (CLIP brand 분리 마진 0.07 ≪ 양자화 노이즈 0.3 대비 견고). 상세: `B22_TEST_RESULTS.md`, `../docs/freeze-accuracy-diagnosis.md`.
+- **대안**: 중앙 crop 평균색. 코크 빨강 / 펩시 파랑 분리 마진 ~1.0 (CLIP brand 분리 마진 0.07 ≪ 양자화 노이즈 0.3 대비 견고). 상세: `B22_TEST_RESULTS.md`, `freeze-accuracy-diagnosis.md`.
 - **부수효과**: `skipOcr=true` → OCR 엔진 init 자체 제거 → **159초 첫-실행 HTP 컴파일 소멸 + OCR 의 Hexagon CDSP 클라이언트 0**(시작 빠름·크래시 위험↓).
 
 ### 3.2 광고 = 영상 (정지 PNG 아님)
@@ -64,11 +66,11 @@ GyroTrigger(머리 1초 정지)  →  카메라 프레임(ShareCamera RGB)
 - Unity 6 빌드 = 안경에서 **검은화면**(Unity 로고도 안 뜸). RayNeo ARDK 의 `setFrameLayout(UnityPlayer)` 계약을 Unity 6 가 제거(GameActivity 기본) → SLAM/렌더 부팅 실패. 실제로 팀원 b20(Unity6 빌드)이 이 케이스였음. **반드시 2022.3.62f3.**
 
 ### 3.4 크래시(기기 꺼짐) 근본원인 + 완화
-- **공유 Hexagon CDSP 세션 leak**: 우리 HTP 세션이 종료 시 깨끗이 release 안 됨 → 다음 실행이 오염된 CDSP 만남 → RayNeo SLAM FastRPC 핸들 stale → `system_server` 사망 → 리부트로만 복구. "리부트 후 첫 launch OK, 이후 크래시" 시그니처. 진단: `../docs/findings-2026-06-11-crash-slam-openxr.md`.
+- **공유 Hexagon CDSP 세션 leak**: 우리 HTP 세션이 종료 시 깨끗이 release 안 됨 → 다음 실행이 오염된 CDSP 만남 → RayNeo SLAM FastRPC 핸들 stale → `system_server` 사망 → 리부트로만 복구. "리부트 후 첫 launch OK, 이후 크래시" 시그니처. 진단: `findings-2026-06-11-crash-slam-openxr.md`.
 - **b25 완화**: OCR 제거로 CDSP 클라이언트 3→1(CLIP만). **데모/테스트는 리부트 직후 첫 실행**으로. (동기 release crash-fix 는 `feature/npu-ocr-slam-b22` working tree 에 준비됨 — b25엔 미포함.)
 
 ### 3.5 SLAM 8Hz / "값 안 변함" 의 진실
-- 8Hz 는 RayNeo 런타임 고정 FFVINS 갱신율(설정 노브 없음). ATW 는 **회전 전용**(depth 미제출) 이라 병진(translation)은 8Hz 로 끊김. 상세: `../docs/findings-2026-06-11-crash-slam-openxr.md` §2.
+- 8Hz 는 RayNeo 런타임 고정 FFVINS 갱신율(설정 노브 없음). ATW 는 **회전 전용**(depth 미제출) 이라 병진(translation)은 8Hz 로 끊김. 상세: `findings-2026-06-11-crash-slam-openxr.md` §2.
 - **FFVINS 는 정지 시 INITIALIZING/SEEKING(state 0) 에서 멈춤** — 카메라 움직임+특징점 있어야 수렴(TRACKING). 착용·이동하면 수초 내 수렴. (정지 상태의 status=0 은 고장 아님.)
 
 ### 3.6 adb 디버그 훅 (테스트 보조)
@@ -128,4 +130,4 @@ adb -s $SER logcat Unity:I | grep -E "color mean|category=|MATCH|OnAdVideoPrepar
 3. (선택) 평면 감지(`PlaneProbe.cs`, b22 working tree)로 광고를 책상 표면 앵커 → 8Hz judder 체감 완화.
 4. (선택) 색상 마진 데이터 수집 후 고정.
 
-> 깊은 근거: [`../docs/findings-2026-06-11-crash-slam-openxr.md`](../docs/findings-2026-06-11-crash-slam-openxr.md)(크래시/SLAM/OpenXR 표면), [`B22_TEST_RESULTS.md`](B22_TEST_RESULTS.md)(OCR 실패 측정), [`BUILD_OCR_SLAM_HANDOFF.md`](BUILD_OCR_SLAM_HANDOFF.md)(b22 빌드 런북), 루트 [`../AGENTS.md`](../AGENTS.md)(Codex/Claude 자동로드 지침).
+> 깊은 근거: [`findings-2026-06-11-crash-slam-openxr.md`](findings-2026-06-11-crash-slam-openxr.md)(크래시/SLAM/OpenXR 표면), [`B22_TEST_RESULTS.md`](B22_TEST_RESULTS.md)(OCR 실패 측정), [`BUILD_OCR_SLAM_HANDOFF.md`](BUILD_OCR_SLAM_HANDOFF.md)(b22 빌드 런북), 루트 [`../../AGENTS.md`](../../AGENTS.md)(Codex/Claude 자동로드 지침).

@@ -1,3 +1,5 @@
+> 🗄️ **보관 문서(archived)** — 작성 시점 스냅샷. 현황 아님 → 현재 상태는 [docs/STATUS.md](../STATUS.md). 🔴 (브랜치 `feature/npu-ocr-slam-b22`·빌드 `b22-slam-ocr` 등 stale 현황. NPU OCR 경로는 이후 폐기됨)
+
 # NPU OCR + SLAM 통합 빌드 — 팀원 핸드오프 (b22-slam-ocr)
 
 > 목표: 원래 SLAM 파이프라인(IMU 트리거 → CLIP category → **NPU OCR brand** → 광고 + **6DoF world-anchored 3D 영상**)에 NPU EasyOCR 을 얹어 실기 검증.
@@ -182,4 +184,4 @@ GyroTrigger(머리 1초 정지, 5초 쿨다운)
 - `Assets/Editor/BuildSpatialAnchorTest.cs`: package `com.eagleeye.helloar` (원본 spatialanchor.bisection 는 다른 실험이 점유), tag `b22-slam-ocr`.
 - `Assets/Scripts/StartupProbe.cs`: OCRExtractor 가 참조하는 경량 시간 로깅 유틸.
 
-자세한 검증 이력은 루트 `docs/progress-log.md` 2026-06-11 섹션 참조.
+자세한 검증 이력은 `../progress-log.md` 2026-06-11 섹션 참조.
