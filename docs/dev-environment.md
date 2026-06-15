@@ -24,9 +24,12 @@
 2. Hub 에서 **정확히 `Unity 2022.3.62f3`** 설치. 일반 목록엔 최신 패치만 떠서, 정확한 패치는 **다운로드 아카이브**에서: <https://unity.com/releases/editor/archive> → `Unity 2022.3 (LTS)` → `2022.3.62` 의 **"Install with Unity Hub"**.
    - ⚠️ 버전 정확히 맞춰야 함 — 다른 패치면 프로젝트 열 때 비가역 업그레이드 프롬프트가 뜨고, `build_2022.ps1` 이 `ProjectVersion.txt == 2022.3.62f3` 를 assert 한다. (RayNeo 공식은 2022.3.36f1c1 권장이나 **레포는 62f3 고정** — 레포 값 따른다.)
 3. 설치 시 **반드시 체크**: ☑ **Android Build Support** → ☑ **Android SDK & NDK Tools** + ☑ **OpenJDK** (이 셋이 있어야 APK 빌드 가능).
-4. **Unity 계정 로그인** — 무료 **Personal** 라이선스로 충분.
+4. **★ 라이선스 활성화 (무료 Personal)** — 안 하면 batchmode 빌드가 `No valid Unity Editor license found / No ULF license found` 로 즉시 실패한다(프로젝트 로드 전 단계라 빌드 에러처럼 안 보임 — 실측 함정). **에디터만 단독 설치하면 라이선스가 없다.**
+   - **권장**: Unity Hub 로 로그인 → 자동 활성. (Hub 없으면 <https://unity.com/download> 에서 설치) → Hub 우상단 계정 **Sign in** → 필요시 **⚙️ Preferences → Licenses → Add → "Get a free personal license"**. → `C:\ProgramData\Unity\Unity_lic.ulf` 생성되면 OK.
+   - **Hub 없이(CLI 수동)**: `Unity.exe -batchmode -createManualActivationFile` → 생성된 `.alf` 를 <https://license.unity3d.com/manual> 에 업로드(Unity Personal 선택) → 받은 `.ulf` 를 `Unity.exe -batchmode -manualLicenseFile <file.ulf>` 로 적용.
+   - 확인: `Test-Path "$env:ProgramData\Unity\Unity_lic.ulf"` 가 True.
 
-> 빌드 명령은 [`dev-guide.md`](dev-guide.md) §3 (`glasses-app/build_2022.ps1`). 첫 오픈 시 `AdCheckout.cs.meta` 가 자동 생성됨 → 커밋한다.
+> 빌드 명령은 [`dev-guide.md`](dev-guide.md) §3 / 본 문서 §5 (`glasses-app/build_2022.ps1` — Unity 경로 자동탐색). 첫 빌드/오픈 시 `AdCheckout.cs.meta` 가 자동 생성됨 → 커밋한다.
 
 ---
 
