@@ -1,7 +1,7 @@
 # Eagle Eye — Freeze & Accuracy 근본원인 진단 + b9/b10 계획
 
 > 작성: 2026-06-11. 대상: 카메라/파이프라인 담당 개발자 + 그쪽 Claude.
-> 범위: `spatial_anchor_test` (trigger→CLIP→OCR→world-anchored 경쟁사 광고) 통합 빌드의
+> 범위: `glasses-app` (trigger→CLIP→OCR→world-anchored 경쟁사 광고) 통합 빌드의
 > "시작 직후 화면 멈춤" + "코크/펩시 오인식" 두 문제의 근본원인과 해결 방향.
 > 이 문서는 15개 서브에이전트 조사 + 온디바이스 포렌식(logcat/캡처/스크린샷)으로 검증된 사실만 담는다.
 

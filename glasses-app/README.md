@@ -97,7 +97,7 @@ adb logcat -s Unity:V RayNeoXR:V
 ## 파일 구조
 
 ```
-spatial_anchor_test/
+glasses-app/
 ├─ Assets/
 │  ├─ Scripts/SpatialAnchorTest.cs        SLAM init + spawn + HUD
 │  ├─ Editor/BuildSpatialAnchorTest.cs    Batch-mode 빌드 entry

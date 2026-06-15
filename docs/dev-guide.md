@@ -39,9 +39,9 @@
 
 ## 2. 코드 / 자산 구조
 
-**안경 앱 = `spatial_anchor_test/`** (자기완결 Unity 프로젝트). 아래 경로는 그 안의 상대경로.
+**안경 앱 = `glasses-app/`** (자기완결 Unity 프로젝트). 아래 경로는 그 안의 상대경로.
 
-| 경로 (`spatial_anchor_test/` 기준) | 내용 |
+| 경로 (`glasses-app/` 기준) | 내용 |
 |---|---|
 | `Assets/Scripts/SpatialAnchorTest.cs` | **SLAM/6DoF 앵커 + 콘텐츠 world-anchoring + 발산 복구.** 씬 루트 MonoBehaviour. `bisectionCase` B0~B8 (컴포넌트 점진 추가 토글) |
 | `Assets/Scripts/HelloAR.cs` | **파이프라인 오케스트레이션.** `clipOnlyMode` 토글 (현재 true — YOLO 우회) |
@@ -76,17 +76,17 @@
 
 ### 안경 (Unity → Android APK)
 
-빌드는 **Windows + Unity 2022.3.62f3 전용**, `spatial_anchor_test/` 의 PowerShell 스크립트로 한다:
+빌드는 **Windows + Unity 2022.3.62f3 전용**, `glasses-app/` 의 PowerShell 스크립트로 한다:
 
 ```powershell
-# spatial_anchor_test/ 에서
+# glasses-app/ 에서
 ./setup_2022.ps1     # (최초 1회) Unity 2022 프로젝트 셋업
 ./build_2022.ps1     # batch 빌드 → APK
 ```
 모델·DB·광고는 `Assets/StreamingAssets/` 에 이미 번들돼 있어 별도 복사 불필요.
 설치/권한 grant/launch + logcat 태그 등 현재 빌드·실행 절차의 정확한 명령은 [`integration_log.md`](integration_log.md) §2 "Build / Install / Run" 참조.
 
-> (옛 `build_hello_ar.sh` + `unity_assets_prep/` → `EagleEye_Unity/` 계보는 2026-06-13 폐기. 현재는 위 `spatial_anchor_test/` 가 유일.)
+> (옛 `build_hello_ar.sh` + `unity_assets_prep/` → `EagleEye_Unity/` 계보는 2026-06-13 폐기. 현재는 위 `glasses-app/` 가 유일.)
 
 ```bash
 # 수동 install / 실행
@@ -122,7 +122,7 @@ python test_adversarial_match.py                       # 매칭 정확도
 
 디스크 여유가 빠듯하면 빌드 캐시 정리 (재생성됨):
 ```bash
-rm -rf spatial_anchor_test/Library spatial_anchor_test/Temp spatial_anchor_test/Build
+rm -rf glasses-app/Library glasses-app/Temp glasses-app/Build
 ```
 
 ---

@@ -21,7 +21,7 @@
 
 ### Project structure
 ```
-spatial_anchor_test/
+glasses-app/
 ├─ Assets/
 │  ├─ Scripts/
 │  │  ├─ HelloAR.cs               pipeline orchestrator (gyro trigger → clip → ocr → matcher → spatial)
@@ -61,14 +61,14 @@ spatial_anchor_test/
 # Batch build (Unity 2022.3.62f3)
 "C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe" \
   -batchmode -quit -nographics -silent-crashes \
-  -projectPath spatial_anchor_test \
+  -projectPath glasses-app \
   -buildTarget Android \
   -executeMethod BuildSpatialAnchorTest.PerformBuild \
-  -logFile spatial_anchor_test/audit_pack/build.log
+  -logFile glasses-app/audit_pack/build.log
 
 # Install + grant + launch
 adb -s A06B4A95B784973 shell am force-stop com.eagleeye.spatialanchor.v2
-adb -s A06B4A95B784973 install -r spatial_anchor_test/Build/EagleEye-SpatialAnchor-v2.apk
+adb -s A06B4A95B784973 install -r glasses-app/Build/EagleEye-SpatialAnchor-v2.apk
 adb -s A06B4A95B784973 shell pm grant com.eagleeye.spatialanchor.v2 android.permission.CAMERA
 adb -s A06B4A95B784973 shell am start --activity-clear-task \
   -n com.eagleeye.spatialanchor.v2/com.rayneo.openxradapter.UnityOpenXrActivity

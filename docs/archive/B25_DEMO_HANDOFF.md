@@ -92,9 +92,9 @@ GyroTrigger(머리 1초 정지)  →  카메라 프레임(ShareCamera RGB)
 ### 빌드 (Unity 2022.3.62f3 — 다른 머신이면 경로만 교체)
 ```bash
 "<UnityHub>/2022.3.62f3/Editor/Unity.exe" -batchmode -quit -nographics -silent-crashes \
-  -projectPath <repo>/spatial_anchor_test -buildTarget Android \
+  -projectPath <repo>/glasses-app -buildTarget Android \
   -executeMethod BuildSpatialAnchorTest.PerformBuild \
-  -logFile <repo>/spatial_anchor_test/Build/build.log
+  -logFile <repo>/glasses-app/Build/build.log
 # → Build/EagleEye-b25-color-video.apk. 로그에 === SUCCEEDED === 확인.
 ```
 - 새 버전 시 `Editor/BuildSpatialAnchorTest.cs` 의 `BUILD_TAG`+`OUTPUT_APK` 2곳 동기 수정.
@@ -112,7 +112,7 @@ adb -s $SER shell am start -n $PKG/com.rayneo.openxradapter.UnityOpenXrActivity
 ### 모니터링
 ```bash
 # host 대시보드 (b16+ [MONITOR] heartbeat 파싱 — 펀널/CLIP/SLAM/영상)
-python spatial_anchor_test/tools/monitor/eagle_monitor.py --serial A06B4A95B784973
+python glasses-app/tools/monitor/eagle_monitor.py --serial A06B4A95B784973
 # 또는 raw logcat 핵심만
 adb -s $SER logcat Unity:I | grep -E "color mean|category=|MATCH|OnAdVideoPrepared|SLAM status|\[MONITOR\]"
 ```

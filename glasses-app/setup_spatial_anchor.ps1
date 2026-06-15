@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 
 $UNITY_BIN     = "C:\Program Files\Unity\Hub\Editor\6000.0.76f1\Editor\Unity.exe"
 $PROJECT_DIR   = "C:\claude\staging\spatial_anchor_unity"
-$ASSETS_PREP   = "C:\claude\staging\snucapstone-ar\repo\spatial_anchor_test"
+$ASSETS_PREP   = "C:\claude\staging\snucapstone-ar\repo\glasses-app"
 $ARDK_SRC      = "C:\claude\staging\rayneo-ardk\extracted\RayNeo OpenXR Unity ARDK"
 $ARDK_PKG_NAME = "com.unity.xr.rayneo.openxr"
 $LOG_DIR       = "$PROJECT_DIR\logs"

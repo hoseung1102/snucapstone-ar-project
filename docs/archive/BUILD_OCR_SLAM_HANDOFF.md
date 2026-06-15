@@ -55,7 +55,7 @@ cd snucapstone-ar-project
 git fetch origin
 git checkout feature/npu-ocr-slam-b22
 ```
-- 프로젝트 루트: `spatial_anchor_test/`
+- 프로젝트 루트: `glasses-app/`
 - 이 브랜치 = **ade5bca(검증된 Unity 2022 SLAM 파이프라인) + NPU OCR 통합**. (cold-start/Unity6 라인과 별개)
 
 ---
@@ -69,12 +69,12 @@ git checkout feature/npu-ocr-slam-b22
 
 | 파일 | 위치 | 크기 | SHA-256 | 상태 |
 |---|---|---|---|---|
-| `easyocr_recognizer_unroll_qcs8450.tflite` | `spatial_anchor_test/Assets/StreamingAssets/` | 30,483,240 B | `e58f438d40b469de124dbea78258b9c8dd0c1370772b9c8564173f37d13f2c35` | **이 브랜치에 `git add -f` 로 강제 포함** → pull 로 받아짐 |
+| `easyocr_recognizer_unroll_qcs8450.tflite` | `glasses-app/Assets/StreamingAssets/` | 30,483,240 B | `e58f438d40b469de124dbea78258b9c8dd0c1370772b9c8564173f37d13f2c35` | **이 브랜치에 `git add -f` 로 강제 포함** → pull 로 받아짐 |
 
 → **즉 이 브랜치를 checkout 하면 이 모델도 같이 받아집니다.** 별도 다운로드 불필요.
 checkout 후 확인:
 ```bash
-shasum -a 256 spatial_anchor_test/Assets/StreamingAssets/easyocr_recognizer_unroll_qcs8450.tflite
+shasum -a 256 glasses-app/Assets/StreamingAssets/easyocr_recognizer_unroll_qcs8450.tflite
 # e58f438d40b469de... 와 일치해야 함
 ```
 
@@ -98,7 +98,7 @@ python -m venv .venv-qaihub --system-site-packages
 
 ```bash
 UNITY=/Applications/Unity/Hub/Editor/2022.3.62f3/Unity.app/Contents/MacOS/Unity   # 경로는 환경에 맞게
-cd spatial_anchor_test
+cd glasses-app
 "$UNITY" -batchmode -quit -nographics \
   -projectPath "$(pwd)" \
   -executeMethod BuildSpatialAnchorTest.PerformBuild \
@@ -111,14 +111,14 @@ cd spatial_anchor_test
 - Windows 는 `Unity.exe` 경로 + 동일 인자.
 
 ### Editor GUI 로 빌드해도 됨
-Unity 로 `spatial_anchor_test` 열기 → 메뉴 `Build > SpatialAnchor APK`.
+Unity 로 `glasses-app` 열기 → 메뉴 `Build > SpatialAnchor APK`.
 
 ---
 
 ## 5. 설치 + 실행 (RayNeo X3 Pro)
 
 ```bash
-adb install -r spatial_anchor_test/Build/EagleEye-HelloAR-b22-slam-ocr.apk
+adb install -r glasses-app/Build/EagleEye-HelloAR-b22-slam-ocr.apk
 adb shell input keyevent KEYCODE_WAKEUP        # 화면 깨우기 (슬립이면 앱이 surface 못 얻어 멈춤)
 adb shell svc power stayon true                # USB 중 화면 유지
 adb shell am start -n com.eagleeye.helloar/com.rayneo.openxradapter.UnityOpenXrActivity

@@ -1,4 +1,4 @@
-# AGENTS.md — spatial_anchor_test 빌드 지침 (요약)
+# AGENTS.md — glasses-app 빌드 지침 (요약)
 
 > 전체 지침(아키텍처·파이프라인·함정·워크플로우)은 레포 루트 [`../AGENTS.md`](../AGENTS.md) 참조.
 > 이 파일은 **이 서브프로젝트 한정 빌드 핵심**만 요약한다.
@@ -14,10 +14,10 @@
 ```bash
 "C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Unity.exe" \
   -batchmode -nographics -quit -silent-crashes \
-  -projectPath C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test \
+  -projectPath C:/claude/staging/snucapstone-ar/repo/glasses-app \
   -buildTarget Android \
   -executeMethod BuildSpatialAnchorTest.PerformBuild \
-  -logFile C:/claude/staging/snucapstone-ar/repo/spatial_anchor_test/Build/build.log
+  -logFile C:/claude/staging/snucapstone-ar/repo/glasses-app/Build/build.log
 ```
 
 - 진입점·버전 상수: `Assets/Editor/BuildSpatialAnchorTest.cs` 의 `BUILD_TAG` + `OUTPUT_APK` (새 버전 시 **둘 다** bump).

@@ -31,34 +31,34 @@ closes it (or presses Ctrl-C inside it).
 
 ## What to do when invoked
 
-먼저 **이 레포의 절대경로**를 구한다(= `spatial_anchor_test/` 를 담은 디렉토리).
+먼저 **이 레포의 절대경로**를 구한다(= `glasses-app/` 를 담은 디렉토리).
 아래 명령의 `<REPO>` 를 그 경로로 치환하고, 디바이스 시리얼을 `--serial <SERIAL>`
 로 붙여라(여러 대면 필수, 한 대면 생략 가능). adb 가 PATH 에 없으면
 `--adb "<path-to-adb.exe>"` 도 붙인다.
 
-스크립트 경로: `<REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py`
+스크립트 경로: `<REPO>/glasses-app/tools/monitor/eagle_monitor.py`
 
 Spawn the dashboard in its own window. Try these in order, use the first that
 works on the host:
 
 **1. Windows Terminal (preferred, if `wt.exe` exists):**
 ```
-wt.exe -- powershell -NoExit -Command "python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>"
+wt.exe -- powershell -NoExit -Command "python <REPO>/glasses-app/tools/monitor/eagle_monitor.py --serial <SERIAL>"
 ```
 
 **2. Start-Process powershell (reliable fallback):**
 ```
-Start-Process powershell -ArgumentList '-NoExit','-Command','python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>'
+Start-Process powershell -ArgumentList '-NoExit','-Command','python <REPO>/glasses-app/tools/monitor/eagle_monitor.py --serial <SERIAL>'
 ```
 
 **3. cmd start (last resort):**
 ```
-cmd /c start "EagleMonitor" powershell -NoExit -Command "python <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>"
+cmd /c start "EagleMonitor" powershell -NoExit -Command "python <REPO>/glasses-app/tools/monitor/eagle_monitor.py --serial <SERIAL>"
 ```
 
 **macOS/Linux** (RayNeo SDK 머신이 Mac 인 경우):
 ```
-python3 <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --serial <SERIAL>
+python3 <REPO>/glasses-app/tools/monitor/eagle_monitor.py --serial <SERIAL>
 ```
 (별도 터미널 탭에서 직접 실행. 순수 stdlib python3 라 pip 불필요.)
 
@@ -68,7 +68,7 @@ the window is open and streaming.
 ## 기기 없이 미리보기 (--sim)
 디바이스가 없을 때 대시보드 룩/시각화를 확인하려면 내장 시뮬레이터를 쓴다(파이프 불필요, 단일 프로세스):
 ```
-python -u -W ignore <REPO>/spatial_anchor_test/tools/monitor/eagle_monitor.py --sim
+python -u -W ignore <REPO>/glasses-app/tools/monitor/eagle_monitor.py --sim
 ```
 부팅→CLIP READY→SLAM 수렴→트리거→콜라 인식→MATCH/광고 spawn 시나리오를 ~3Hz 로 라이브 렌더(게이지/LED/플래시 그대로). 촬영 미리보기·시각화 점검용. (`-W ignore` 는 conda python 경고 억제용 — 일반 python 이면 불필요.)
 
