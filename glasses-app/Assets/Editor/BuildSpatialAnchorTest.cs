@@ -201,61 +201,20 @@ public static class BuildSpatialAnchorTest
 
     static void ConfigureExternalTools()
     {
-        // JDK 만 명시 set (Cycle 4 의 fail 원인). SDK/NDK/Gradle 의 setter 는
-        // Unity 의 OnUsbDevicesChanged callback chain 을 trigger 해서 silent exit 유발
-        // (AndroidSDKTools.ctor:62 fail). Unity 의 default 자체 install 사용.
-        string editorRoot = EditorApplication.applicationContentsPath;
-        string androidPlayerRoot = Path.Combine(editorRoot, "PlaybackEngines", "AndroidPlayer");
-        // 후보 순서: (1) 이 에디터에 번들된 OpenJDK, (2) 시스템 JDK 17 (Unity 6 / 최신 AGP 요구 버전).
-        // 이 머신의 6000.0.76f1 에는 OpenJDK 모듈이 미설치 → fallback 필요.
-        string[] jdkCandidates =
-        {
-            Path.Combine(androidPlayerRoot, "OpenJDK"),
-            @"C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot",
-        };
-        string jdk = jdkCandidates.FirstOrDefault(p =>
-            File.Exists(Path.Combine(p, "bin", "javac.exe")));
-        if (jdk == null)
-        {
-            Debug.LogError("[BuildSpatialAnchorTest] 유효한 JDK 못 찾음. 후보: " + string.Join(", ", jdkCandidates));
-            return;
-        }
-        AndroidExternalToolsSettings.jdkRootPath = jdk;
-        Debug.Log($"[BuildSpatialAnchorTest] JDK = {AndroidExternalToolsSettings.jdkRootPath}");
-
-        // SDK/NDK 를 이 에디터(6000.0.76f1) 번들 경로로 강제.
-        // 안 하면 inherited preference 가 다른 에디터(2022.3.62f3) SDK 를 가리켜
-        // "Missing CMake 3.22.1" 로 빌드 실패함 (그 SDK 엔 cmake 미설치).
-        // 이 번들 SDK 는 cmake 3.22.1 + platforms(android-32~36) + build-tools 보유.
-        string bundledSdk = Path.Combine(androidPlayerRoot, "SDK");
-        string bundledNdk = Path.Combine(androidPlayerRoot, "NDK");
-        // 이 에디터에 번들된 SDK 를 무조건 set. (예전엔 cmake 3.22.1 유무로 게이트했으나
-        // 그건 6000.0.76f1 SDK 레이아웃 가정이었음. 2022.3.62f3 번들 SDK 는 cmake 디렉토리가
-        // 비어있지만 이 프로젝트는 CMakeLists/네이티브 C++ 소스가 없어 — 모든 네이티브는 prebuilt .so —
-        // cmake 가 필요 없다. 게이트 때문에 SDK 미설정 → "Android SDK not found" 로 빌드 실패했었음.)
-        if (Directory.Exists(bundledSdk))
-        {
-            AndroidExternalToolsSettings.sdkRootPath = bundledSdk;
-            Debug.Log($"[BuildSpatialAnchorTest] SDK = {AndroidExternalToolsSettings.sdkRootPath}");
-            if (!Directory.Exists(Path.Combine(bundledSdk, "cmake", "3.22.1")))
-                Debug.Log($"[BuildSpatialAnchorTest] (참고) 번들 SDK 에 cmake 3.22.1 없음 — 이 빌드는 네이티브 C++ 컴파일이 없어 무관.");
-        }
-        else
-        {
-            Debug.LogError($"[BuildSpatialAnchorTest] 번들 SDK 디렉토리 없음: {bundledSdk}");
-        }
-        if (Directory.Exists(bundledNdk))
-        {
-            AndroidExternalToolsSettings.ndkRootPath = bundledNdk;
-            Debug.Log($"[BuildSpatialAnchorTest] NDK = {AndroidExternalToolsSettings.ndkRootPath}");
-        }
-
-        // Gradle 도 이 에디터 번들로 강제. 머신의 EditorPrefs 가 custom Gradle 로
-        // 2022.3.62f3 의 Gradle 7.5.1 을 가리켜 "Minimum supported Gradle version is 8.11.1" 로 실패함.
-        // 6000.0.76f1 번들은 Gradle 8.13 → Unity 6 의 AGP 요구 충족.
-        // AndroidExternalToolsSettings 엔 gradle path setter 가 없으므로 EditorPrefs 로 embedded 강제.
+        // 외부 도구(JDK/SDK/NDK/Gradle)를 이 에디터에 "Android Build Support" 모듈과 함께 설치된
+        // 번들(embedded) 도구로 쓰게 강제한다. (Unity 2022.3 호환 EditorPrefs 'UseEmbedded' 토글.)
+        //
+        // ※ 과거 이 메서드는 Unity 6(6000.0.76f1)용 `AndroidExternalToolsSettings.*` API 로 SDK/NDK 경로를
+        //   직접 박았으나, 그 타입은 2022.3 에 존재하지 않아 컴파일이 깨졌다(CS0103). RayNeo 호환을 위해
+        //   Unity 6 → 2022.3.62f3 다운그레이드하면서 남은 잔재였음. 2022.3 에선 Hub 가 설치한 번들 도구를
+        //   쓰는 게 정석이라 embedded 플래그만 세팅한다 (EditorPrefs 는 모든 버전에서 컴파일됨).
+        // ※ 전제: Hub 에서 2022.3.62f3 에 "Android Build Support" + "Android SDK & NDK Tools" + "OpenJDK"
+        //   모듈이 설치돼 있어야 한다 (없으면 빌드 시 SDK/NDK 없음으로 실패). 셋업: docs/dev-environment.md §1.
+        EditorPrefs.SetBool("JdkUseEmbedded", true);
+        EditorPrefs.SetBool("SdkUseEmbedded", true);
+        EditorPrefs.SetBool("NdkUseEmbedded", true);
         EditorPrefs.SetBool("GradleUseEmbedded", true);
-        Debug.Log("[BuildSpatialAnchorTest] GradleUseEmbedded = true (이 에디터 번들 Gradle 8.13 사용)");
+        Debug.Log("[BuildSpatialAnchorTest] External tools = embedded (JDK/SDK/NDK/Gradle, Hub Android 모듈 번들 사용)");
     }
 
     static void ConfigurePlayerSettings()
