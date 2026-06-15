@@ -73,7 +73,8 @@ if ($ReinitUsb) {
   Start-Sleep -Seconds 2
 }
 
-Write-Host "[WiFi] adb connect ${Ip}:${Port}"
+Write-Host "[WiFi] adb (re)connect ${Ip}:${Port}"
+& $adb disconnect "${Ip}:${Port}" 2>$null | Out-Null   # 묵은 offline 엔트리 정리 후 깨끗하게 재연결
 & $adb connect "${Ip}:${Port}" | Out-Host
 Start-Sleep -Seconds 1
 & $adb devices -l | Out-Host
@@ -83,9 +84,8 @@ $devLine = (& $adb devices | Select-String ([regex]::Escape("${Ip}:${Port}"))).L
 if (-not ($devLine -match "device\s*$")) {
     Write-Host ""
     Write-Warning "무선 기기 ${Ip}:${Port} 에 연결 안 됨 (offline / 무응답)."
-    Write-Host "  원인: 안경 재부팅(tcpip 모드 풀림) / IP 변경 / 안경 꺼짐·잠듦 중 하나."
-    Write-Host "  복구:  USB 케이블 꽂고  ->  .\connect-glasses.ps1 -ReinitUsb   (IP 자동 재검출 + tcpip 재설정)"
-    Write-Host "  (안경이 깨어있는데도 안 되면 재부팅된 것이므로 반드시 -ReinitUsb)"
+    Write-Host "  1) 안경이 잠든 것이면(흔함): 안경 깨우고  .\connect-glasses.ps1  다시 실행 — USB 불필요."
+    Write-Host "  2) 그래도 안 되면(재부팅으로 tcpip 풀림 / IP 변경): USB 꽂고  .\connect-glasses.ps1 -ReinitUsb"
     return
 }
 
