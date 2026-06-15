@@ -732,11 +732,11 @@
 - **출처**: 이 머신 실측 2026-06-16 🟢; 전체 런북 [`docs/dev-environment.md`](dev-environment.md) §2
 - **상태**: ✅ 확정 (검증). 이전 "zadig 6.1.x 다운그레이드" 권고는 **superseded** — Google USB Driver + `pnputil` 이 공식·간단하고 실측 검증됨.
 
-### 무선 ADB(Wi-Fi) 연결 절차 — 공식 미기재(Android 12 표준 경로), 기기테스트필요
-- **사실**: 공식 gitbook 엔 무선 ADB 가 명시돼 있지 않다(= 기기테스트필요). Android 12 표준 경로로 시도: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② 글라스 IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555`. 안 되면 무선디버깅 타일의 `adb pair`(Android 12 pairing-code 경로). ⚠️ 위 공유 ADB 규칙대로 **무선 연결을 임의로 끊지 말 것**.
-- **근거**: RayNeo OS = Android 12(API 32)라 표준 Android 무선 디버깅 경로가 동작할 것으로 추정되나 공식 확인 전.
-- **출처**: Android 12 표준 절차(공식 RayNeo 문서 미기재) 🟠 (재구성)
-- **상태**: 🔬 추정 (기기테스트필요)
+### 무선 ADB(Wi-Fi) + 무선 미러링 — Android 12 표준 경로, 🟢 검증
+- **사실 (🟢 2026-06-16 이 머신 실측)**: 공식 gitbook 엔 무선 ADB 미기재지만 Android 12 표준 경로가 **동작 확인됨**. 안경이 PC 와 **같은 WiFi 서브넷**(실측 안경 `192.168.219.108` / PC `192.168.219.101`)일 때: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555` → `adb devices` 에 usb+wireless 둘 다. 그 후 USB 분리해도 무선 adb·`scrcpy -s <IP>:5555` 미러 유지. (안 되면 무선디버깅 타일 `adb pair` 경로.) ⚠️ 폰 테더링은 PC LAN 과 달라 안 됨. 공유 ADB 규칙대로 무선 임의 끊기 금지. `tcpip` 은 adbd 재시작이라 진행 중 USB scrcpy 가 한 번 끊김.
+- **근거**: RayNeo OS = Android 12(API 32) 표준 무선 디버깅 경로. 이 머신에서 tcpip→connect→무선 scrcpy 까지 실제 성공.
+- **출처**: 이 머신 실측 2026-06-16 🟢; 런북 [`docs/dev-environment.md`](dev-environment.md) §4
+- **상태**: ✅ 확정 (검증)
 
 ### 화면 미러링: 공식 1순위 scrcpy — 단 캡처되는 건 디스플레이 프레임버퍼지 '현실+AR 합성영상'이 아님
 - **사실**: RayNeo 공식 1순위 미러 툴 = **scrcpy**: `scrcpy -s <SER> --display 0`. 검은 화면이면 렌더링을 **Multi-pass 로 전환**하거나 다른 `--display-id` 를 시도. RayNeo 자체 미러 툴 = **anlink**(Windows). ⚠️ **중요한 본질**: 글라스는 스테레오 시스루(see-through)라 scrcpy 가 잡는 건 **디스플레이 프레임버퍼**(단안 또는 SBS 로 합성된 광고 오버레이)일 뿐, **'현실 + AR'이 합성된 사용자 시점 영상이 아니다**(현실은 웨이브가이드 너머 광학으로만 들어오므로 프레임버퍼에 없음). 사용자가 실제로 보는 합성 영상이 필요하면 **온디바이스 RayNeo `RecordManager`**(아래 📦 § "RayNeo 네이티브 RecordManager" 엔트리 — Unity 렌더 surface 캡처라 광고 오버레이 포함)를 써야 한다.

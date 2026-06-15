@@ -84,18 +84,23 @@ scrcpy -s A06B4A95B784973
 
 ---
 
-## 4. 무선 ADB (선택) 🟠 — 안경이 WiFi 에 연결돼야 함
+## 4. 무선 ADB + 무선 미러링 🟢 검증 — 안경이 PC 와 같은 WiFi 에 있어야 함
+
+**전제**: 안경이 PC 와 **같은 공유기 WiFi**(같은 서브넷, 예: `192.168.219.x`)에 접속. 폰 테더링으로 인터넷만 쓰면 PC LAN 과 달라서 안 됨.
 
 USB 로 연결된 상태에서:
 ```
-adb -s A06B4A95B784973 shell ip -f inet addr show wlan0   # 안경 WiFi IP 확인
-adb -s A06B4A95B784973 tcpip 5555
-adb connect <IP>:5555
-adb devices                                                # usb + wireless 둘 다
+adb -s A06B4A95B784973 shell ip -f inet addr show wlan0   # 안경 WiFi IP (예: 192.168.219.108)
+adb -s A06B4A95B784973 tcpip 5555                          # adbd 를 TCP 모드로 재시작
+adb connect 192.168.219.108:5555
+adb devices                                                # usb + wireless(IP:5555) 둘 다 보임
+# 이제 USB 뽑아도 됨 → 무선 미러링:
+set ADB=...\platform-tools\adb.exe
+scrcpy -s 192.168.219.108:5555
 ```
-⚠️ `tcpip` 은 기기의 adbd 를 재시작하므로 **진행 중인 scrcpy 미러가 끊길 수 있다**(끊기면 무선으로 다시 `scrcpy` 하면 됨). 공유 환경이면 무선 임의 끊기 금지.
+⚠️ `tcpip` 은 adbd 재시작이라 **진행 중인 USB scrcpy 미러가 한 번 끊긴다**(정상 — 무선으로 다시 `scrcpy` 하면 됨). 공유 환경이면 무선 연결을 임의로 끊지 말 것.
 
-> 2026-06-16 시점 안경이 WiFi 미연결(`wlan0` IP 없음)이라 **미검증**. WiFi 붙인 뒤 검증하면 🟢 로 승격.
+> 🟢 2026-06-16 이 머신 실측: 안경 WiFi IP `192.168.219.108`(PC `192.168.219.101` 와 동일 서브넷) → `tcpip 5555` → `connect` → `scrcpy -s 192.168.219.108:5555` 로 **무선 미러링 정상**(USB 분리 후에도 유지). 지연은 USB 보다 약간 큼.
 
 ---
 
