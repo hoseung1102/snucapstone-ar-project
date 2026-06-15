@@ -69,6 +69,17 @@ Write-Host "[WiFi] adb connect ${Ip}:${Port}"
 Start-Sleep -Seconds 1
 & $adb devices -l | Out-Host
 
+# 실제로 online('device') 인지 확인 — offline/무응답이면 scrcpy 로 안 넘어가고 명확히 안내
+$devLine = (& $adb devices | Select-String ([regex]::Escape("${Ip}:${Port}"))).Line
+if (-not ($devLine -match "device\s*$")) {
+    Write-Host ""
+    Write-Warning "무선 기기 ${Ip}:${Port} 에 연결 안 됨 (offline / 무응답)."
+    Write-Host "  원인: 안경 재부팅(tcpip 모드 풀림) / IP 변경 / 안경 꺼짐·잠듦 중 하나."
+    Write-Host "  복구:  USB 케이블 꽂고  ->  .\connect-glasses.ps1 -ReinitUsb   (IP 자동 재검출 + tcpip 재설정)"
+    Write-Host "  (안경이 깨어있는데도 안 되면 재부팅된 것이므로 반드시 -ReinitUsb)"
+    return
+}
+
 if ($NoMirror) { Write-Host "연결 완료 (미러 생략). 직접 미러: scrcpy -s ${Ip}:${Port}"; return }
 if (-not $scrcpy) { Write-Warning "scrcpy 미설치 → 'winget install Genymobile.scrcpy'. adb 무선 연결은 됨 (${Ip}:${Port})."; return }
 Write-Host "[mirror] scrcpy -s ${Ip}:${Port}   (창을 닫으면 종료)"
