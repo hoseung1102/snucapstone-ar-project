@@ -43,7 +43,7 @@ public class SpatialAnchorTest : MonoBehaviour
     public bool showAnchorMarker = false;
     // b27 목업: true 면 데모용 UI(상단 HUD 카운터/진단 + 광고당 AdCheckout 구매박스) 전부 숨김 → 공간 광고영상만 깔끔.
     //   기본 true(이 빌드는 목업). HelloAR.mockupMode 가 이 값을 set. 실제 파이프라인이면 false 로(HUD/checkout 표시).
-    public bool hideDemoUi = true;
+    public bool hideDemoUi = false;
 
     // bisection: helloar component 추가 case. B0=baseline only, B1=+Gyro, B2=+Camera (ShareCamera),
     // B3=+Clip, B4=+OCR, B5=+Gyro+Camera, B6=+Gyro+Clip, B7=+Camera+Clip, B8=full helloar.
@@ -242,7 +242,10 @@ public class SpatialAnchorTest : MonoBehaviour
 
         // v1.5: HUD — 카메라에 parent 한 head-locked 2D 오버레이 2개.
         //   카운터=상단 좌측, SLAM 진단=상단 우측. parent 가 head-lock 담당 → UpdateHud 는 텍스트만 갱신.
-        // b27 목업: hideDemoUi 면 HUD 오버레이 미생성 (UpdateHud 는 null-safe 라 그대로 둬도 무해).
+        // b27 목업: HUD/checkout 표시 여부 = HelloAR.mockupMode 에 종속. HUD 생성 시점에 직접 판정(race-free).
+        var _helloForUi = GetComponent<HelloAR>();
+        if (_helloForUi != null) hideDemoUi = _helloForUi.mockupMode;
+        // hideDemoUi 면 HUD 오버레이 미생성 (UpdateHud 는 null-safe 라 그대로 둬도 무해).
         if (!hideDemoUi)
         {
             hudCountersObj = BuildHudOverlay("HudCounters", hudCountersLocalPos, TextAnchor.UpperLeft, out hudCounters);

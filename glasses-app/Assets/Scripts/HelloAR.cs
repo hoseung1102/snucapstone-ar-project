@@ -89,7 +89,7 @@ public class HelloAR : MonoBehaviour
     // CLIP/인식 없이 adb 훅으로 anchor된 광고영상만 띄우는 컨셉 데모. 인식 파이프라인(CLIP HTP) 미init
     //   → Hexagon CDSP 경쟁 없음 → SLAM 안정 → 앵커 깔끔. (제품에서 CLIP 끄기가 아니라 데모영상용 *목업*)
     //   adb: echo 1 > eyad_debug.txt → mockupAssets[0], echo 2 → mockupAssets[1]. 정면 world-anchor spawn.
-    public bool mockupMode = true;
+    public bool mockupMode = false;   // 기본 = 실 CLIP 파이프라인. 데모 목업은 true 로 opt-in (CLIP/HUD/checkout off).
     public string[] mockupAssets = {
         "db/ads_video/coke_bottle_ad.mp4",   // 트리거1 → 에셋1 (placeholder — 실제 MP4로 교체)
         "db/ads_video/pepsi_bottle_ad.mp4",  // 트리거2 → 에셋2 (placeholder)
