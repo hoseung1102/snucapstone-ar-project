@@ -733,7 +733,7 @@
 - **상태**: ✅ 확정 (검증). 이전 "zadig 6.1.x 다운그레이드" 권고는 **superseded** — Google USB Driver + `pnputil` 이 공식·간단하고 실측 검증됨.
 
 ### 무선 ADB(Wi-Fi) + 무선 미러링 — Android 12 표준 경로, 🟢 검증
-- **사실 (🟢 2026-06-16 이 머신 실측)**: 공식 gitbook 엔 무선 ADB 미기재지만 Android 12 표준 경로가 **동작 확인됨**. 안경이 PC 와 **같은 WiFi 서브넷**(실측 안경 `192.168.219.108` / PC `192.168.219.101`)일 때: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555` → `adb devices` 에 usb+wireless 둘 다. 그 후 USB 분리해도 무선 adb·`scrcpy -s <IP>:5555` 미러 유지. (안 되면 무선디버깅 타일 `adb pair` 경로.) ⚠️ 폰 테더링은 PC LAN 과 달라 안 됨. 공유 ADB 규칙대로 무선 임의 끊기 금지. `tcpip` 은 adbd 재시작이라 진행 중 USB scrcpy 가 한 번 끊김.
+- **사실 (🟢 2026-06-16 이 머신 실측)**: 공식 gitbook 엔 무선 ADB 미기재지만 Android 12 표준 경로가 **동작 확인됨**. 안경이 PC 와 **같은 WiFi 서브넷**(실측 안경 `192.168.219.108` / PC `192.168.219.101`)일 때: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555` → `adb devices` 에 usb+wireless 둘 다. 그 후 USB 분리해도 무선 adb·`scrcpy -s <IP>:5555` 미러 유지. (안 되면 무선디버깅 타일 `adb pair` 경로.) ⚠️ 폰 테더링은 PC LAN 과 달라 안 됨. 공유 ADB 규칙대로 무선 임의 끊기 금지. `tcpip` 은 adbd 재시작이라 진행 중 USB scrcpy 가 한 번 끊김. 또 **안경이 잠들면(화면 off) 무선 adb 가 `offline` 으로 끊긴다** — 디스플레이 sleep 을 길게/never 로 두면 예방되고(기본 30s 가 원인), 끊겨도 깨워서 plain `adb connect <IP>:5555` 로 복구(tcpip 모드는 재부팅 전까지 유지). 재부팅 후엔 USB 로 tcpip 재init.
 - **근거**: RayNeo OS = Android 12(API 32) 표준 무선 디버깅 경로. 이 머신에서 tcpip→connect→무선 scrcpy 까지 실제 성공.
 - **출처**: 이 머신 실측 2026-06-16 🟢; 런북 [`docs/dev-environment.md`](dev-environment.md) §4
 - **상태**: ✅ 확정 (검증)

@@ -88,6 +88,8 @@ scrcpy -s A06B4A95B784973
 
 **전제**: 안경이 PC 와 **같은 공유기 WiFi**(같은 서브넷, 예: `192.168.219.x`)에 접속. 폰 테더링으로 인터넷만 쓰면 PC LAN 과 달라서 안 됨.
 
+> 💡 **편의 스크립트**: [`glasses-app/tools/connect-glasses.ps1`](../glasses-app/tools/connect-glasses.ps1) — adb/scrcpy 경로 자동탐색 + 안경 IP 자동검출 + 무선연결 + 미러를 한 번에. **첫 사용 / 다른 네트워크 / 재부팅 후**엔 USB 꽂고 `.\connect-glasses.ps1 -ReinitUsb`, 그 뒤엔 그냥 `.\connect-glasses.ps1`.
+
 USB 로 연결된 상태에서:
 ```
 adb -s A06B4A95B784973 shell ip -f inet addr show wlan0   # 안경 WiFi IP (예: 192.168.219.108)
@@ -100,7 +102,9 @@ scrcpy -s 192.168.219.108:5555
 ```
 ⚠️ `tcpip` 은 adbd 재시작이라 **진행 중인 USB scrcpy 미러가 한 번 끊긴다**(정상 — 무선으로 다시 `scrcpy` 하면 됨). 공유 환경이면 무선 연결을 임의로 끊지 말 것.
 
-> 🟢 2026-06-16 이 머신 실측: 안경 WiFi IP `192.168.219.108`(PC `192.168.219.101` 와 동일 서브넷) → `tcpip 5555` → `connect` → `scrcpy -s 192.168.219.108:5555` 로 **무선 미러링 정상**(USB 분리 후에도 유지). 지연은 USB 보다 약간 큼.
+> 🟢 2026-06-16 이 머신 실측: 안경 WiFi `192.168.219.108`(PC `.101` 동일 서브넷) → `tcpip 5555` → `connect` → `scrcpy -s 192.168.219.108:5555` 무선 미러 동작 (**USB 분리 후 순수 WiFi 로 유지**, 지연만 약간 큼).
+>
+> ⚠️ **안경이 잠들면(화면 off) 무선 adb 가 `offline` 으로 끊긴다.** tcpip 모드 자체는 재부팅 전까지 유지되므로 — 안경을 깨운 뒤 `adb connect 192.168.219.108:5555`(또는 스크립트) 만으로 복구된다(USB 불필요). **디스플레이 sleep 을 길게/never 로 두면 안 끊긴다**(기본 짧은 sleep=30s 가 끊김의 원인이었음, 실측 확인). 재부팅으로 tcpip 가 풀리면 USB 꽂고 `-ReinitUsb`.
 
 ---
 
