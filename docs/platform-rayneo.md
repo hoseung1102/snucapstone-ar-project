@@ -717,6 +717,8 @@
 ## 🔌 ADB / 무선연결 / 화면 미러링
 
 > 신뢰도 표기: **verified(공식)** = RayNeo 공식 gitbook 에 명시 / **기기테스트필요** = 표준 Android 경로 추정이라 실기 확인 전. 공식 ADB 페이지 = gitbook [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring).
+>
+> 👉 **새 머신 셋업 전체 런북(Unity·adb 드라이버·scrcpy·무선)** = [`docs/dev-environment.md`](dev-environment.md). 아래는 주제별 사실/제약 레퍼런스.
 
 ### ⚠️ ADB 서버는 안경팀 공유 — kill-server / 무선 임의 끊기 금지, platform-tools 버전 고정
 - **사실**: ADB 데몬은 안경팀이 공유하는 서버다. `adb kill-server`(및 `adb start-server`)는 **금지** — 다른 세션의 연결을 모두 끊는다. 무선 ADB 연결을 임의로 끊지 말 것. 머신마다 다른 `platform-tools`(v40/v41 등)가 공존하면 클라/서버 프로토콜 mismatch 로 디바이스가 끊겼다 재연결되니 **platform-tools 버전 하나로 고정**한다. install/push/force-stop 등 writing 명령은 사전 합의 후.
@@ -724,11 +726,11 @@
 - **출처**: 운영 합의 + `docs/archive/spatial-anchor-handoff.md:103,186`; `docs/archive/BUILD_OCR_SLAM_HANDOFF.md:174` 🟠 (재구성)
 - **상태**: ⚠️ 주의 (운영 규칙)
 
-### X3 Pro 가 ADB 에 안 잡힐 때(최초 1회): 기기 ADB 스위치 ON + Windows11 은 zadig 로 드라이버 다운그레이드 — 기기테스트필요
-- **사실**: X3 Pro 가 Windows ADB 에 처음부터 안 잡히면 두 가지를 한다. (1) **기기 측 ADB 스위치 ON**: 설정 → 일반 → 기기정보에서 좌측으로 10회 스와이프 + App Lab 활성화. (2) **Windows 11 드라이버**: `zadig-2.9`(zadig.akeo.ie)로 ADB Interface 드라이버를 다운그레이드(10.x → 6.1.xxxx 대)해야 인식되는 사례.
-- **근거**: 리테일 글라스는 ADB 가 기본 off + Windows 11 의 최신 USB 드라이버가 RayNeo ADB interface 와 호환 안 되는 케이스가 보고됨.
-- **출처**: 기기테스트필요(공식 문서 미기재, 현장 절차) 🟠 (재구성)
-- **상태**: 🔬 추정 (기기테스트필요)
+### X3 Pro 가 ADB 에 안 잡힐 때(Windows 11): Google USB Driver 설치가 정답 (zadig 아님) 🟢 검증
+- **사실 (🟢 2026-06-16 이 머신 실측, 안경 serial `A06B4A95B784973`)**: 안경 USB 연결 + USB 디버깅 ON 인데 `adb devices` 가 **빈 목록**(`unauthorized` 도 아님)이면 — Windows 11 이 ADB 인터페이스에 **generic WinUSB(`winusb.inf`, Microsoft v10.0.26100)** 를 물려서, adb 가 기기를 찾을 때 쓰는 device-interface GUID `{F72FE0D4-CBCB-407d-8814-9ED673D0DD6B}` 를 노출하지 않는 게 원인이다(Device Manager 엔 "ADB Interface — 정상"으로 보여 헷갈림). **해결 = 공식 Google USB Driver 설치** (`zadig` 불필요): `usb_driver_r13-windows.zip` 압축해제 → 관리자 권한 `pnputil /add-driver "...\usb_driver\android_winusb.inf" /install` → 즉시 `A06B4A95B784973  device` 로 인식. 기기 측은 USB 디버깅 ON(필요시 설정→일반→기기정보 좌측 10회 스와이프로 개발자 모드).
+- **근거**: PnP 점검상 ADB Interface = `WINUSB 10.0.26100`, adb GUID 는 옛 `PID_4EE7`(미present)에만 등록 → 현재 `PID_4EE2&MI_01` 에 GUID 미노출이라 adb 가 못 봄. `android_winusb.inf`(VID_18D1&PID_4EE2&MI_01 / PID_4EE7 매칭)를 설치하니 GUID 바인딩되며 인식.
+- **출처**: 이 머신 실측 2026-06-16 🟢; 전체 런북 [`docs/dev-environment.md`](dev-environment.md) §2
+- **상태**: ✅ 확정 (검증). 이전 "zadig 6.1.x 다운그레이드" 권고는 **superseded** — Google USB Driver + `pnputil` 이 공식·간단하고 실측 검증됨.
 
 ### 무선 ADB(Wi-Fi) 연결 절차 — 공식 미기재(Android 12 표준 경로), 기기테스트필요
 - **사실**: 공식 gitbook 엔 무선 ADB 가 명시돼 있지 않다(= 기기테스트필요). Android 12 표준 경로로 시도: ① USB 1회 연결 후 `adb -s <SER> tcpip 5555` → ② 글라스 IP 확인 `adb -s <SER> shell ip -f inet addr show wlan0` → ③ `adb connect <IP>:5555`. 안 되면 무선디버깅 타일의 `adb pair`(Android 12 pairing-code 경로). ⚠️ 위 공유 ADB 규칙대로 **무선 연결을 임의로 끊지 말 것**.
@@ -739,8 +741,9 @@
 ### 화면 미러링: 공식 1순위 scrcpy — 단 캡처되는 건 디스플레이 프레임버퍼지 '현실+AR 합성영상'이 아님
 - **사실**: RayNeo 공식 1순위 미러 툴 = **scrcpy**: `scrcpy -s <SER> --display 0`. 검은 화면이면 렌더링을 **Multi-pass 로 전환**하거나 다른 `--display-id` 를 시도. RayNeo 자체 미러 툴 = **anlink**(Windows). ⚠️ **중요한 본질**: 글라스는 스테레오 시스루(see-through)라 scrcpy 가 잡는 건 **디스플레이 프레임버퍼**(단안 또는 SBS 로 합성된 광고 오버레이)일 뿐, **'현실 + AR'이 합성된 사용자 시점 영상이 아니다**(현실은 웨이브가이드 너머 광학으로만 들어오므로 프레임버퍼에 없음). 사용자가 실제로 보는 합성 영상이 필요하면 **온디바이스 RayNeo `RecordManager`**(아래 📦 § "RayNeo 네이티브 RecordManager" 엔트리 — Unity 렌더 surface 캡처라 광고 오버레이 포함)를 써야 한다.
 - **근거**: see-through 광학 디스플레이는 현실 빛이 프레임버퍼를 거치지 않고 combiner 로만 합성되므로, 화면 캡처는 emissive 오버레이 레이어만 담는다(위 🖥️ "Additive MicroLED" 엔트리와 동일 물리).
-- **출처**: gitbook [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring) 🟢 (scrcpy 1순위·anlink); 합성영상 본질은 see-through 광학 사실에서 도출 🟡
-- **상태**: ✅ 확정 (scrcpy 공식) / ⚠️ 주의 (캡처 본질)
+- **실측 (🟢 2026-06-16 이 머신)**: `winget install Genymobile.scrcpy`(v4.0) → `scrcpy -s A06B4A95B784973` 로 미러 정상. scrcpy 가 보고한 `Texture 1280x480` = X3 Pro 디스플레이 프레임버퍼(**SBS 스테레오, ≈640×480/eye**) — 위 '본질' 그대로 UI/오버레이 framebuffer 다. ⚠️ **adb 버전 충돌**: scrcpy 번들 adb(37.0.0) ≠ platform-tools(35.0.2)라, scrcpy 가 서버를 재시작 안 하게 `$env:ADB` 를 시스템 adb 로 강제해야 함(안 그러면 공유 서버 버전이 바뀜).
+- **출처**: gitbook [ADB Connection & Screen Mirroring](https://rayneo-en.gitbook.io/rayneo-devdoc/faq/adb-debug/adb-connection-and-screen-mirroring) 🟢 (scrcpy 1순위·anlink); 1280x480 SBS·버전충돌은 이 머신 실측 🟢; 합성영상 본질은 see-through 광학에서 도출 🟡; 런북 [`docs/dev-environment.md`](dev-environment.md) §3
+- **상태**: ✅ 확정 (scrcpy 공식 + 실측) / ⚠️ 주의 (캡처 본질·adb 버전)
 
 ---
 

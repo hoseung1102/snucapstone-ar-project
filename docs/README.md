@@ -16,6 +16,7 @@
 | [platform-rayneo.md](platform-rayneo.md) | **플랫폼 사실·gotcha 의 주제별 living 레퍼런스** (RayNeo SDK API / NPU·QNN / OpenXR / 권한 / 빌드). EXPERIMENTS 가 "언제 뭘 시도"라면 이건 "지금 뭐가 진실". `🆕`=코드에서 처음 구조함 | 플랫폼 사실/제약을 새로 알 때 (해당 § 덮어쓰기) |
 | [client-spec.md](client-spec.md) | 클라이언트(RayNeo X3 Pro) **기술 스택 / 파이프라인**의 진실의 원천 (= 옛 기획안 v1.2) | 하드웨어 / 추론 스택 / 파이프라인 사양 변경 |
 | [dev-guide.md](dev-guide.md) | **구현/빌드/모델 레퍼런스.** 셋업·빌드·코드 아키텍처·모델 swap·NPU 현실·ONNX 분석·트러블슈팅 (옛 루트 README/INTEGRATION_GUIDE/MODELS/README_NPU/ONNX_ANALYSIS 통합) | 코드/빌드/모델 변경 시 |
+| [dev-environment.md](dev-environment.md) | **개발 환경 셋업 런북.** 새 Windows 머신 0→빌드·설치·관찰·미러링: Unity 설치 · ★Win11 adb 드라이버 함정(Google USB Driver) · scrcpy 미러링 · 무선 ADB. 🟢=이 머신 실측 검증 | 환경/도구/드라이버 절차 바뀔 때 |
 | [progress-log.md](progress-log.md) | 일자별 진행 로그 + APK 버전 history + 핵심 인사이트 dump. ⚠️ v0.5/v0.7 구간은 🟠 재구성분(인용 해시 부재, 코드 복원 불가) | 일일 진행 (새 날짜는 새 섹션) |
 | [archive/](archive/) | **보관소 디렉토리.** 작성 시점 스냅샷인 옛 핸드오프/진단/기획안 9건 + 옛 `archive.md`. 현황 아님(현황은 STATUS.md). 인덱스는 [archive/README.md](archive/README.md) | 갱신 안 함 (동결) |
 | README.md | 이 인덱스 | 구조 변경 시 |
@@ -31,7 +32,7 @@
 ## 빠른 현황 파악
 
 → **[STATUS.md](STATUS.md)** — 현황 단일 정본(최신 빌드·매칭 아키텍처·다음 작업). 여기부터.
-→ 배경/사양은 [vision.md](vision.md) 맨 위 **"⚡ 현재 상태 스냅샷"** (hierarchical CLIP category + OCR brand 매칭).
+→ 배경/사양은 [vision.md](vision.md)(비전·기술 결정 로그) 와 [client-spec.md](client-spec.md)(파이프라인). 현 매칭은 **color-brand**(CLIP category → 평균 RGB) — 상세는 STATUS.md.
 → 지금까지 뭘 시도했고 뭐가 실패했나는 [EXPERIMENTS.md](EXPERIMENTS.md) (🟢git검증 / 🟠재구성 배지).
 
 ## 운영 정책
